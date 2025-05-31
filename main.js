@@ -1,6 +1,7 @@
 import { Layer } from './layerManager.js'
-import { renderLayer1 } from './layers/layer1.js'
-import { renderLayer2 } from './layers/layer2.js'
+import { renderRotatingPlus } from './layers/rotatingPlus.js'
+import { renderPixelateLayer } from './layers/pixelateLayer.js'
+import { renderBayerDither } from './layers/bayerDither.js'
 
 // grab DOM elements
 const canvas = document.getElementById('output')
@@ -24,8 +25,9 @@ const frameInterval = 1000 / projectSettings.targetFPS
 // Layer Setup
 // ----------------------
 const layers = [
-    new Layer(width, height, renderLayer1), // layer 1
-    new Layer(width, height, renderLayer2), // layer 2
+    new Layer(width, height, renderRotatingPlus), // Rotating plus sign
+    new Layer(width, height, renderPixelateLayer), // Pixelation effect
+    new Layer(width, height, renderBayerDither), // Bayer dithering
 ]
 
 // ----------------------
@@ -74,6 +76,8 @@ function render(t) {
             inputCtx,
             resolution: { width, height },
             layerIndex: i,
+            totalTime: projectSettings.duration,
+            totalFrames: Math.floor(projectSettings.duration * projectSettings.targetFPS),
         })
         inputCtx = layers[i].getPixels()
     }
