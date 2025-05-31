@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <title>Aether Prototype</title>
+        <style>
+            body {
+                margin: 0;
+                background: #111;
+                color: white;
+                font-family: sans-serif;
+            }
+            #controls {
+                padding: 10px;
+                background: #222;
+            }
+            canvas {
+                display: block;
+                margin: 0 auto;
+                background: black;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="controls">
+            <label for="timelineSlider">Time:</label>
+            <input type="range" id="timelineSlider" min="0" max="10" step="0.01" value="0" />
+            <span id="timeLabel">0.00s</span>
+            <button id="playPause">▶️ Play</button>
+        </div>
+        <span id="fpsDisplay" style="margin-left: 20px">FPS: --</span>
+        <canvas id="output" width="512" height="512"></canvas>
+
+        <script type="module" src="main.js"></script>
+    </body>
+</html>
