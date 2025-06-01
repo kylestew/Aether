@@ -1,7 +1,5 @@
 import { Layer } from './layerManager.js'
-import { renderRotatingPlus } from './layers/rotatingPlus.js'
-import { renderPixelateLayer } from './layers/pixelateLayer.js'
-import { renderBayerDither } from './layers/bayerDither.js'
+import { renderImageLayer } from './layers/imageLayer.js'
 
 // grab DOM elements
 const canvas = document.getElementById('output')
@@ -25,10 +23,20 @@ const frameInterval = 1000 / projectSettings.targetFPS
 // Layer Setup
 // ----------------------
 const layers = [
-    new Layer(width, height, renderRotatingPlus), // Rotating plus sign
-    new Layer(width, height, renderPixelateLayer), // Pixelation effect
-    new Layer(width, height, renderBayerDither), // Bayer dithering
+    new Layer(width, height, renderImageLayer), // Static image layer
 ]
+
+// Initialize all layers
+async function initializeLayers() {
+    console.log('Initializing layers...')
+    await Promise.all(layers.map((layer) => layer.init()))
+    console.log('All layers initialized')
+    // Initial render after layers are loaded
+    render(pauseOffset)
+}
+
+// Start initialization
+initializeLayers()
 
 // ----------------------
 // Playback State
@@ -140,6 +148,3 @@ slider.addEventListener('input', () => {
     timeLabel.textContent = `${t.toFixed(2)}s`
     if (!isPlaying) render(t)
 })
-
-// Initial render
-render(pauseOffset)
