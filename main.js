@@ -5,6 +5,7 @@ import { renderTextArtLayer } from './layers/textArtLayer.js'
 import { wigglyLines } from './layers/wigglyLines.js'
 import { pulsingSquares } from './layers/pulsingSquares.js'
 import { createDebugLayer } from './layers/debugLayer.js'
+import { keyframeCircleLayer } from './layers/keyframeLayer.js'
 
 // grab DOM elements
 const canvas = document.getElementById('output')
@@ -36,10 +37,14 @@ const layer2 = new Layer(width, height, pulsingSquares, {
     // color: (t) => step(0.5, ['#ff0080', '#00ffff', '#ffffff']),
     // rotation: (t) => osc(0.2), // subtle wiggle
 })
+const keyframed = new Layer(width, height, keyframeCircleLayer, {
+    // Can override keyframes here if needed
+})
 
 const layers = [
     layer,
     layer2,
+    keyframed,
     // new Layer(width, height, renderKnotLayer), // 3D knot layer
     // new Layer(width, height, renderReceiptEffect), // Uncomment to textify the receipt effect
     // new Layer(width, height, renderTextArtLayer), // Creative text art layer
@@ -143,18 +148,13 @@ function animationLoop(timestamp) {
     const elapsedSec = elapsedMs / 1000 + pauseOffset
 
     if (elapsedMs - lastRenderTime >= frameInterval) {
-        const t = Math.min(elapsedSec, projectSettings.duration)
+        const t = elapsedSec % projectSettings.duration
         updateFps(timestamp)
         render(t)
         lastRenderTime = elapsedMs
     }
 
-    if (elapsedSec < projectSettings.duration) {
-        requestAnimationFrame(animationLoop)
-    } else {
-        isPlaying = false
-        playPauseBtn.textContent = '▶️ Play'
-    }
+    requestAnimationFrame(animationLoop)
 }
 
 // ----------------------
