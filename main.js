@@ -4,6 +4,7 @@ import { renderReceiptEffect } from './layers/receiptEffect.js'
 import { renderTextArtLayer } from './layers/textArtLayer.js'
 import { wigglyLines } from './layers/wigglyLines.js'
 import { pulsingSquares } from './layers/pulsingSquares.js'
+import { createDebugLayer } from './layers/debugLayer.js'
 
 // grab DOM elements
 const canvas = document.getElementById('output')
@@ -30,7 +31,6 @@ const layer = new Layer(width, height, wigglyLines, {
     lineCount: 20, // Override default
     amplitude: (t) => 60 + Math.sin(t) * 10, // Custom animated value
 })
-
 const layer2 = new Layer(width, height, pulsingSquares, {
     // size: (t) => 20 + Math.sin(t) * 10, // pulse between 20–80px
     // color: (t) => step(0.5, ['#ff0080', '#00ffff', '#ffffff']),
@@ -38,11 +38,17 @@ const layer2 = new Layer(width, height, pulsingSquares, {
 })
 
 const layers = [
+    layer,
     layer2,
     // new Layer(width, height, renderKnotLayer), // 3D knot layer
     // new Layer(width, height, renderReceiptEffect), // Uncomment to textify the receipt effect
     // new Layer(width, height, renderTextArtLayer), // Creative text art layer
 ]
+
+// Add debug layer that watches the rest
+// TODO: fix this
+// const debug = new Layer(width, height, createDebugLayer(layers))
+// layers.push(debug)
 
 // Initialize all layers
 async function initializeLayers() {
@@ -54,7 +60,15 @@ async function initializeLayers() {
 }
 
 // Start initialization
-initializeLayers()
+initializeLayers().then(() => {
+    // Auto-start animation on reload
+    isPlaying = true
+    startTime = null
+    lastRenderTime = 0
+    pauseOffset = parseFloat(slider.value)
+    playPauseBtn.textContent = '⏸ Pause'
+    requestAnimationFrame(animationLoop)
+})
 
 // ----------------------
 // Playback State
