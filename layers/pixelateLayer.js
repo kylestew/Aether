@@ -1,8 +1,12 @@
-export function renderPixelateLayer(ctx, { inputCtx, resolution }) {
+export function renderPixelateLayer(ctx, { inputCtx, resolution, t }) {
     if (!inputCtx) return
 
     const { width, height } = resolution
-    const pixelSize = 8 // Size of each "pixel" in the effect
+
+    // Animate pixel size between 4 and 16 pixels
+    const minPixelSize = 4
+    const maxPixelSize = 16
+    const pixelSize = Math.floor(minPixelSize + (maxPixelSize - minPixelSize) * Math.sin(t * Math.PI * 0.2))
 
     // Create a temporary canvas for downscaling
     const tempCanvas = document.createElement('canvas')

@@ -7,16 +7,64 @@ Sort of like a dithered effect.
 - The darker the area, the longer the bar.
 - The lighter the area, the shorter the bar (or no bar).
 */
-export function renderReceiptEffect(ctx, { inputCtx, resolution }) {
+export function renderReceiptEffect(ctx, { inputCtx, resolution, t }) {
     if (!inputCtx) return
 
     const { width, height } = resolution
-    const pixelSize = 8 // Size of each "pixel" in the effect
+    const pixelSize = 8 // Fixed pixel size for receipt effect
 
-    // take the input image and create an output in ctx
+    // Create a temporary canvas for the input
+    const tempCanvas = document.createElement('canvas')
+    const tempCtx = tempCanvas.getContext('2d')
+    tempCanvas.width = width
+    tempCanvas.height = height
 
-    // Clear main canvas and draw the pixelated version
-    // ctx.clearRect(0, 0, width, height)
-    // ctx.imageSmoothingEnabled = false // Disable smoothing for crisp pixels
-    // ctx.drawImage(tempCanvas, 0, 0, width, height)
+    // Draw input to temp canvas
+    tempCtx.drawImage(inputCtx.canvas, 0, 0)
+    const imageData = tempCtx.getImageData(0, 0, width, height)
+    const pixels = imageData.data
+
+    // Clear main canvas and set background color (receipt paper color)
+    ctx.fillStyle = '#fff' // White background
+    ctx.fillRect(0, 0, width, height)
+
+    // Process each cell
+    for (let y = 0; y < height; y += pixelSize) {
+        for (let x = 0; x < width; x += pixelSize) {
+            // Calculate average luma for this cell
+            let totalLuma = 0
+            let sampleCount = 0
+
+            // Sample pixels in this cell
+            for (let py = 0; py < pixelSize && y + py < height; py++) {
+                for (let px = 0; px < pixelSize && x + px < width; px++) {
+                    const i = ((y + py) * width + (x + px)) * 4
+                    const luma = pixels[i] * 0.2126 + pixels[i + 1] * 0.7152 + pixels[i + 2] * 0.0722
+                    totalLuma += luma / 255
+                    sampleCount++
+                }
+            }
+
+            const avgLuma = totalLuma / sampleCount
+
+            // Determine line width based on luma (matching shader thresholds)
+            let lineWidth = 0
+            if (avgLuma > 0.99) lineWidth = 0
+            else if (avgLuma > 0.9) lineWidth = 0.1
+            else if (avgLuma > 0.7) lineWidth = 0.3
+            else if (avgLuma > 0.5) lineWidth = 0.5
+            else if (avgLuma > 0.3) lineWidth = 0.7
+            else if (avgLuma > 0.0) lineWidth = 1.0
+
+            // Draw the line if needed
+            if (lineWidth > 0) {
+                const cellWidth = pixelSize * lineWidth
+                const yStart = pixelSize * 0.05
+                const yEnd = pixelSize * 0.95
+
+                ctx.fillStyle = 'black'
+                ctx.fillRect(x, y + yStart, cellWidth, yEnd - yStart)
+            }
+        }
+    }
 }

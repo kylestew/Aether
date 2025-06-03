@@ -1,26 +1,30 @@
 export class Layer {
-    constructor(width, height, renderFn) {
+    constructor(width, height, renderFn, paramOverrides = {}) {
         this.canvas = document.createElement('canvas')
         this.canvas.width = width
         this.canvas.height = height
         this.ctx = this.canvas.getContext('2d')
+
         this.renderFn = renderFn
         this.isLoaded = false
         this.loadPromise = null
+
+        // If the renderFn is an object with defaultParams, merge them
+        const defaults = typeof renderFn === 'object' && renderFn.defaultParams ? renderFn.defaultParams : {}
+
+        this.params = { ...defaults, ...paramOverrides }
     }
 
     async init() {
         if (this.loadPromise) return this.loadPromise
 
         this.loadPromise = new Promise((resolve) => {
-            // If renderFn has an init method, call it
             if (this.renderFn.init) {
                 this.renderFn.init().then(() => {
                     this.isLoaded = true
                     resolve()
                 })
             } else {
-                // If no init needed, mark as loaded immediately
                 this.isLoaded = true
                 resolve()
             }
@@ -32,16 +36,25 @@ export class Layer {
     render(t, props = {}) {
         if (!this.isLoaded) return
 
+        const resolution = {
+            width: this.canvas.width,
+            height: this.canvas.height,
+        }
+
+        // Evaluate any time-based params (functions of `t`)
+        const evaluatedParams = {}
+        for (const key in this.params) {
+            const val = this.params[key]
+            evaluatedParams[key] = typeof val === 'function' ? val(t) : val
+        }
+
         const fullProps = {
             t,
             ...props,
-            resolution: {
-                width: this.canvas.width,
-                height: this.canvas.height,
-            },
+            resolution,
+            params: evaluatedParams,
         }
 
-        // Handle both function-style and object-style render functions
         if (typeof this.renderFn === 'function') {
             this.renderFn(this.ctx, fullProps)
         } else if (this.renderFn.render) {

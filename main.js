@@ -1,5 +1,9 @@
 import { Layer } from './layerManager.js'
-import { renderImageLayer } from './layers/imageLayer.js'
+import { renderKnotLayer } from './layers/knotLayer.js'
+import { renderReceiptEffect } from './layers/receiptEffect.js'
+import { renderTextArtLayer } from './layers/textArtLayer.js'
+import { wigglyLines } from './layers/wigglyLines.js'
+import { pulsingSquares } from './layers/pulsingSquares.js'
 
 // grab DOM elements
 const canvas = document.getElementById('output')
@@ -22,8 +26,22 @@ const frameInterval = 1000 / projectSettings.targetFPS
 // ----------------------
 // Layer Setup
 // ----------------------
+const layer = new Layer(width, height, wigglyLines, {
+    lineCount: 20, // Override default
+    amplitude: (t) => 60 + Math.sin(t) * 10, // Custom animated value
+})
+
+const layer2 = new Layer(width, height, pulsingSquares, {
+    // size: (t) => 20 + Math.sin(t) * 10, // pulse between 20–80px
+    // color: (t) => step(0.5, ['#ff0080', '#00ffff', '#ffffff']),
+    // rotation: (t) => osc(0.2), // subtle wiggle
+})
+
 const layers = [
-    new Layer(width, height, renderImageLayer), // Static image layer
+    layer2,
+    // new Layer(width, height, renderKnotLayer), // 3D knot layer
+    // new Layer(width, height, renderReceiptEffect), // Uncomment to textify the receipt effect
+    // new Layer(width, height, renderTextArtLayer), // Creative text art layer
 ]
 
 // Initialize all layers
