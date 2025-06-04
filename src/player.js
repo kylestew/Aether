@@ -65,6 +65,11 @@ export function createPlayer(domElements, projectSettings) {
             const adjustedTime = frame / targetFPS
             render(adjustedTime, frame)
             lastRenderFrame = frame
+
+            // was this the last frame?
+            if (frame >= Math.floor(duration * targetFPS) - 1) {
+                lastRenderFrame = -1
+            }
         }
 
         timeLabel.textContent = `${t.toFixed(2)}s - frame ${frame}`
@@ -92,7 +97,13 @@ export function createPlayer(domElements, projectSettings) {
         }
     })
 
-    return { start }
+    async function loadAndStart() {
+        // need to load all layers contents
+        await Promise.all(layers.map((layer) => layer.init()))
+        start()
+    }
+
+    return { loadAndStart }
 }
 
 /*

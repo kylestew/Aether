@@ -1,38 +1,45 @@
 export class Layer {
-    constructor({ width, height }, renderFn, paramOverrides = {}) {
+    constructor({ width, height }, layer, paramOverrides = {}) {
         this.canvas = document.createElement('canvas')
         this.canvas.width = width
         this.canvas.height = height
         this.ctx = this.canvas.getContext('2d')
 
-        this.renderFn = renderFn
+        this.layer = layer
 
-        // // If the renderFn is an object with defaultParams, merge them
-        // const defaults = typeof renderFn === 'object' && renderFn.defaultParams ? renderFn.defaultParams : {}
+        // Merge default params set on layer with overrides here
+        const defaults = typeof layer === 'object' && layer.defaultParams ? layer.defaultParams : {}
+        this.params = { ...defaults, ...paramOverrides }
+    }
 
-        // this.params = { ...defaults, ...paramOverrides }
+    async init() {
+        if (this.layer.init) {
+            await this.layer.init()
+        }
     }
 
     render(props = {}) {
+        const { t } = props
+
         const resolution = {
             width: this.canvas.width,
             height: this.canvas.height,
         }
 
         // Evaluate any time-based params (functions of `t`)
-        // const evaluatedParams = {}
-        // for (const key in this.params) {
-        //     const val = this.params[key]
-        //     evaluatedParams[key] = typeof val === 'function' ? val(t) : val
-        // }
+        const evaluatedParams = {}
+        for (const key in this.params) {
+            const val = this.params[key]
+            evaluatedParams[key] = typeof val === 'function' ? val(t) : val
+        }
 
         const fullProps = {
             ...props,
             resolution,
-            //     params: evaluatedParams,
+            params: evaluatedParams,
         }
 
-        this.renderFn(this.ctx, fullProps)
+        this.layer.render(this.ctx, fullProps)
     }
 
     getPixels() {

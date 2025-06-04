@@ -1,17 +1,26 @@
 import { createPlayer } from './src/player.js'
 import { Layer } from './src/layerManager.js'
+
+import { createEmptyLayer } from './layers/emptyLayer.js'
 import { createImageLayer } from './layers/media/imageLayer.js'
+import { createScanLines } from './layers/generators/scanLines.js'
 
 const width = 640
 const height = 640
 const size = { width, height }
 
-const layers = [new Layer(size, await createImageLayer('/assets/images/lenna.png'))]
+// const imagePath = '/assets/images/pearl.png'
+const imagePath = '/assets/images/david.png'
 
-// const layer = new Layer(width, height, wigglyLines, {
-//     lineCount: 20, // Override default
-//     amplitude: (t) => 60 + Math.sin(t) * 10, // Custom animated value
-// })
+const layers = [
+    new Layer(size, createEmptyLayer()), //
+    new Layer(size, createImageLayer(imagePath)),
+    new Layer(size, createScanLines(), {
+        lineCount: 20, // Override default
+        color: '#E0F234',
+        amplitude: (t) => 60 + Math.sin(t) * 10, // Custom animated value
+    }),
+]
 
 // const layer2 = new Layer(width, height, pulsingSquares, {
 //     // size: (t) => 20 + Math.sin(t) * 10, // pulse between 20–80px
@@ -38,4 +47,4 @@ const player = createPlayer(
     },
     projectSettings
 )
-player.start()
+await player.loadAndStart()
