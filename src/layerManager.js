@@ -1,10 +1,5 @@
 export class Layer {
-    constructor({ width, height }, layer, paramOverrides = {}) {
-        this.canvas = document.createElement('canvas')
-        this.canvas.width = width
-        this.canvas.height = height
-        this.ctx = this.canvas.getContext('2d')
-
+    constructor(layer, paramOverrides = {}) {
         this.layer = layer
 
         // Merge default params set on layer with overrides here
@@ -12,9 +7,14 @@ export class Layer {
         this.params = { ...defaults, ...paramOverrides }
     }
 
-    async init() {
+    async init(width, height) {
+        this.canvas = document.createElement('canvas')
+        this.canvas.width = width
+        this.canvas.height = height
+        this.ctx = this.canvas.getContext('2d')
+
         if (this.layer.init) {
-            await this.layer.init()
+            await this.layer.init(this.params)
         }
     }
 

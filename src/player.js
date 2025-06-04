@@ -99,7 +99,7 @@ export function createPlayer(domElements, projectSettings) {
 
     async function loadAndStart() {
         // need to load all layers contents
-        await Promise.all(layers.map((layer) => layer.init()))
+        await Promise.all(layers.map((layer) => layer.init(width, height)))
         start()
     }
 

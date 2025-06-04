@@ -1,25 +1,28 @@
 import { createPlayer } from './src/player.js'
 import { Layer } from './src/layerManager.js'
 
-import { createEmptyLayer } from './layers/emptyLayer.js'
-import { createImageLayer } from './layers/media/imageLayer.js'
-import { createScanLines } from './layers/generators/scanLines.js'
+import { emptyLayer } from './layers/emptyLayer.js'
+import { imageLayer } from './layers/media/imageLayer.js'
+// import { scanLines } from './layers/generators/scanLines.js'
+import { receiptEffect } from './layers/postproc/receiptEffect.js'
 
 const width = 640
 const height = 640
 const size = { width, height }
 
-// const imagePath = '/assets/images/pearl.png'
-const imagePath = '/assets/images/david.png'
+const imagePath = '/assets/images/pearl.png'
+// const imagePath = '/assets/images/david.png'
 
 const layers = [
-    new Layer(size, createEmptyLayer()), //
-    new Layer(size, createImageLayer(imagePath)),
-    new Layer(size, createScanLines(), {
-        lineCount: 20, // Override default
-        color: '#E0F234',
-        amplitude: (t) => 60 + Math.sin(t) * 10, // Custom animated value
-    }),
+    new Layer(emptyLayer, { color: 'red' }),
+    new Layer(imageLayer, { imagePath }),
+    new Layer(receiptEffect),
+
+    // new Layer(size, scanLines, {
+    //     lineCount: 20, // Override default
+    //     color: '#E0F234',
+    //     amplitude: (t) => 60 + Math.sin(t) * 10, // Custom animated value
+    // }),
 ]
 
 // const layer2 = new Layer(width, height, pulsingSquares, {

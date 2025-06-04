@@ -1,11 +1,13 @@
-export function createEmptyLayer() {
-    return {
-        render(ctx, { resolution }) {
-            const { width, height } = resolution
+export const emptyLayer = {
+    defaultParams: {
+        color: 'red',
+    },
 
-            // Clear the canvas as a color
-            ctx.fillStyle = 'red'
-            ctx.fillRect(0, 0, width, height)
-        },
-    }
+    render(ctx, { resolution, params }) {
+        const { width, height } = resolution
+
+        // Clear the canvas as a color
+        ctx.fillStyle = params.color
+        ctx.fillRect(0, 0, width, height)
+    },
 }
