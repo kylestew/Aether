@@ -3,8 +3,10 @@ import { Layer } from './src/layerManager.js'
 
 import { emptyLayer } from './layers/emptyLayer.js'
 import { imageLayer } from './layers/media/imageLayer.js'
-// import { scanLines } from './layers/generators/scanLines.js'
+import { scanLines } from './layers/generators/scanLines.js'
+import { pixelateLayer } from './layers/postproc/pixelateLayer.js'
 import { receiptEffect } from './layers/postproc/receiptEffect.js'
+import { bayerDither } from './layers/postproc/bayerDither.js'
 
 const width = 640
 const height = 640
@@ -16,7 +18,12 @@ const imagePath = '/assets/images/pearl.png'
 const layers = [
     new Layer(emptyLayer, { color: 'red' }),
     new Layer(imageLayer, { imagePath }),
-    new Layer(receiptEffect),
+
+    new Layer(pixelateLayer, { pixelSize: 24 }),
+
+    // new Layer(receiptEffect),
+
+    new Layer(bayerDither),
 
     // new Layer(size, scanLines, {
     //     lineCount: 20, // Override default

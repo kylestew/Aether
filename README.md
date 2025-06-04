@@ -1,11 +1,13 @@
 # Aether
 
-## TODO:
+## TODO
 
-- Refactor!
-   - move out main animation code
-   - Refactor out the animation and loop boilerplate from main so it mostly contains the aniamation layer setup
-- Make the size of the canvas bigger and center
-- Debug layer or text
-- Organize /layers into types
+- Increase canvas size and keep centered
+- Bayer Dither: why is it in color, should it be B/W, should a toggle be aloud?
+- Bayer Dither: Predownscale bayer dither then rescale?
+- Bayer Dither: Can it be animated
+- Bayer Dither: Zones of dither strength or type
+- Dither: other types
+- Quantization effects from your blog
+- Debug animation layer for parameter viz
 - Start making animations!
