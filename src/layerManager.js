@@ -1,38 +1,19 @@
 export class Layer {
-    constructor(width, height, renderFn, paramOverrides = {}) {
+    constructor({ width, height }, renderFn, paramOverrides = {}) {
         this.canvas = document.createElement('canvas')
         this.canvas.width = width
         this.canvas.height = height
         this.ctx = this.canvas.getContext('2d')
 
         this.renderFn = renderFn
-        this.isLoaded = false
-        this.loadPromise = null
 
-        // If the renderFn is an object with defaultParams, merge them
-        const defaults = typeof renderFn === 'object' && renderFn.defaultParams ? renderFn.defaultParams : {}
+        // // If the renderFn is an object with defaultParams, merge them
+        // const defaults = typeof renderFn === 'object' && renderFn.defaultParams ? renderFn.defaultParams : {}
 
-        this.params = { ...defaults, ...paramOverrides }
+        // this.params = { ...defaults, ...paramOverrides }
     }
 
-    async init() {
-        if (this.loadPromise) return this.loadPromise
-
-        this.loadPromise = new Promise((resolve) => {
-            if (this.renderFn.init) {
-                this.renderFn.init().then(() => {
-                    this.isLoaded = true
-                    resolve()
-                })
-            } else {
-                this.isLoaded = true
-                resolve()
-            }
-        })
-
-        return this.loadPromise
-    }
-
+    /*
     render(t, props = {}) {
         if (!this.isLoaded) return
 
@@ -67,4 +48,5 @@ export class Layer {
     getPixels() {
         return this.ctx
     }
+    */
 }

@@ -1,18 +1,13 @@
-// Create image object
-const img = new Image()
+export async function createImageLayer(imagePath) {
+    // TODO: I'm sure there is a better way to do this
+    const img = new Image()
+    const imgLoader = new Promise((resolve) => {
+        img.onload = () => resolve()
+        img.src = imagePath
+    })
+    await Promise.all([imgLoader])
 
-// Export both the render function and init function
-export const renderImageLayer = {
-    // Async initialization
-    async init() {
-        return new Promise((resolve) => {
-            img.onload = () => resolve()
-            img.src = '/assets/images/lenna.png'
-        })
-    },
-
-    // Render function
-    render(ctx, { resolution }) {
+    function render(ctx, { resolution }) {
         const { width, height } = resolution
 
         // Clear the canvas
@@ -26,5 +21,6 @@ export const renderImageLayer = {
         const y = (height - scaledHeight) / 2
 
         ctx.drawImage(img, x, y, scaledWidth, scaledHeight)
-    },
+    }
+    return render
 }
