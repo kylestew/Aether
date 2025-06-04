@@ -24,15 +24,17 @@ export function createPlayer(domElements, projectSettings) {
     function render(t, f) {
         let inputCtx = null
         for (let i = 0; i < layers.length; i++) {
-            // layers[i].render(t, {
-            //         frame,
-            //         inputCtx,
-            //         resolution: { width, height },
-            //         layerIndex: i,
-            //         totalTime: projectSettings.duration,
-            //         totalFrames: Math.floor(projectSettings.duration * projectSettings.targetFPS),
-            //     })
-            //     inputCtx = layers[i].getPixels()
+            // render function invoked on layerManager wrapper
+            layers[i].render({
+                t,
+                f,
+                inputCtx,
+                resolution: { width, height },
+                layerIndex: i,
+                totalTime: duration,
+                totalFrames: Math.floor(duration * targetFPS),
+            })
+            inputCtx = layers[i].getPixels()
         }
 
         ctx.clearRect(0, 0, width, height)

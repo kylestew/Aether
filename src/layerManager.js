@@ -13,40 +13,29 @@ export class Layer {
         // this.params = { ...defaults, ...paramOverrides }
     }
 
-    /*
-    render(t, props = {}) {
-        if (!this.isLoaded) return
-
+    render(props = {}) {
         const resolution = {
             width: this.canvas.width,
             height: this.canvas.height,
         }
 
         // Evaluate any time-based params (functions of `t`)
-        const evaluatedParams = {}
-        for (const key in this.params) {
-            const val = this.params[key]
-            evaluatedParams[key] = typeof val === 'function' ? val(t) : val
-        }
+        // const evaluatedParams = {}
+        // for (const key in this.params) {
+        //     const val = this.params[key]
+        //     evaluatedParams[key] = typeof val === 'function' ? val(t) : val
+        // }
 
         const fullProps = {
-            t,
             ...props,
             resolution,
-            params: evaluatedParams,
+            //     params: evaluatedParams,
         }
 
-        if (typeof this.renderFn === 'function') {
-            this.renderFn(this.ctx, fullProps)
-        } else if (this.renderFn.render) {
-            this.renderFn.render(this.ctx, fullProps)
-        } else {
-            console.error('Invalid render function provided to Layer')
-        }
+        this.renderFn(this.ctx, fullProps)
     }
 
     getPixels() {
         return this.ctx
     }
-    */
 }
