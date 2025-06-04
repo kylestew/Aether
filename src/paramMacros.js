@@ -1,4 +1,5 @@
-// MACROS FOR PARAMETER animation
+// paramUtils.js
+// MACROS FOR PARAMETERS
 
 // All macros are pure functions: (t) => value
 // They compose beautifully and keep code compact.

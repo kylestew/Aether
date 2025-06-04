@@ -4,10 +4,12 @@ import { Layer } from './src/layerManager.js'
 import { emptyLayer } from './layers/emptyLayer.js'
 import { imageLayer } from './layers/media/imageLayer.js'
 import { scanLines } from './layers/generators/scanLines.js'
+import { pulsingSquares } from './layers/generators/pulsingSquares.js'
 import { pixelateLayer } from './layers/postproc/pixelateLayer.js'
 import { bayerDither } from './layers/postproc/bayerDither.js'
 import { receiptEffect } from './layers/postproc/receiptEffect.js'
 import { dottedHalftoneEffect } from './layers/postproc/dottedHalftoneEffect.js'
+import { asciiDitherLayer } from './layers/postproc/asciiDitherLayer.js'
 
 const width = 640
 const height = 640
@@ -17,15 +19,20 @@ const imagePath = '/assets/images/pearl.png'
 // const imagePath = '/assets/images/david.png'
 
 const layers = [
-    new Layer(emptyLayer, { color: 'red' }),
-    new Layer(imageLayer, { imagePath }),
+    new Layer(emptyLayer, { color: 'black' }),
 
-    // new Layer(pixelateLayer, { pixelSize: 12 }),
+    // new Layer(imageLayer, { imagePath }),
+
+    // new Layer(pulsingSquares),
+
+    // new Layer(pixelateLayer, { pixelSize: 24 }),
 
     // new Layer(receiptEffect),
-    new Layer(dottedHalftoneEffect),
-
+    // new Layer(dottedHalftoneEffect),
+    // new Layer(asciiDitherLayer, { cellSize: 12 }),
     // new Layer(bayerDither),
+
+    // new Layer(pixelateLayer, { pixelSize: 24 }),
 
     // new Layer(size, scanLines, {
     //     lineCount: 20, // Override default
