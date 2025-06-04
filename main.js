@@ -5,8 +5,9 @@ import { emptyLayer } from './layers/emptyLayer.js'
 import { imageLayer } from './layers/media/imageLayer.js'
 import { scanLines } from './layers/generators/scanLines.js'
 import { pixelateLayer } from './layers/postproc/pixelateLayer.js'
-import { receiptEffect } from './layers/postproc/receiptEffect.js'
 import { bayerDither } from './layers/postproc/bayerDither.js'
+import { receiptEffect } from './layers/postproc/receiptEffect.js'
+import { dottedHalftoneEffect } from './layers/postproc/dottedHalftoneEffect.js'
 
 const width = 640
 const height = 640
@@ -19,11 +20,12 @@ const layers = [
     new Layer(emptyLayer, { color: 'red' }),
     new Layer(imageLayer, { imagePath }),
 
-    new Layer(pixelateLayer, { pixelSize: 24 }),
+    // new Layer(pixelateLayer, { pixelSize: 12 }),
 
     // new Layer(receiptEffect),
+    new Layer(dottedHalftoneEffect),
 
-    new Layer(bayerDither),
+    // new Layer(bayerDither),
 
     // new Layer(size, scanLines, {
     //     lineCount: 20, // Override default
