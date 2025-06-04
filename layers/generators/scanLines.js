@@ -3,6 +3,7 @@ export const scanLines = {
 
     defaultParams: {
         lineCount: 10,
+        lineWidth: 8,
         color: '#00FFF0',
         amplitude: (t) => 40 + Math.sin(t) * 20,
     },
@@ -13,7 +14,7 @@ export const scanLines = {
 
         ctx.clearRect(0, 0, width, height)
         ctx.strokeStyle = color
-        ctx.lineWidth = 2
+        ctx.lineWidth = params.lineWidth
 
         for (let i = 0; i < lineCount; i++) {
             const xBase = (i + 0.5) * (width / lineCount)

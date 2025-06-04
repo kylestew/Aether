@@ -10,6 +10,7 @@ import { bayerDither } from './layers/postproc/bayerDither.js'
 import { receiptEffect } from './layers/postproc/receiptEffect.js'
 import { dottedHalftoneEffect } from './layers/postproc/dottedHalftoneEffect.js'
 import { asciiDitherLayer } from './layers/postproc/asciiDitherLayer.js'
+import { simple3DLayer } from './layers/generators/simple3DLayer.js'
 
 const width = 640
 const height = 640
@@ -22,15 +23,16 @@ const layers = [
     new Layer(emptyLayer, { color: 'black' }),
 
     // new Layer(imageLayer, { imagePath }),
-
     // new Layer(pulsingSquares),
+    // new Layer(scanLines),
+    new Layer(simple3DLayer),
 
     // new Layer(pixelateLayer, { pixelSize: 24 }),
 
     // new Layer(receiptEffect),
     // new Layer(dottedHalftoneEffect),
     // new Layer(asciiDitherLayer, { cellSize: 12 }),
-    // new Layer(bayerDither),
+    new Layer(bayerDither),
 
     // new Layer(pixelateLayer, { pixelSize: 24 }),
 
