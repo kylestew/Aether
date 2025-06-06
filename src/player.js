@@ -6,13 +6,14 @@
 // - layers
 export function createPlayer(domElements, projectSettings) {
     const { canvas, timeLabel, playPauseBtn } = domElements
-    const { width, height, duration, targetFPS, layers } = projectSettings
+    const { width, height, scale, duration, targetFPS, layers } = projectSettings
 
     const frameInterval = 1000 / targetFPS
 
     // prepare canvas and context
     canvas.width = width
     canvas.height = height
+    canvas.style.imageRendering = 'pixelated'
     const ctx = canvas.getContext('2d')
 
     // Playback State
@@ -86,6 +87,19 @@ export function createPlayer(domElements, projectSettings) {
         playPauseBtn.textContent = '⏸'
         requestAnimationFrame(animationLoop)
     }
+
+    function resizeCanvas() {
+        const container = canvas.parentElement
+        const containerWidth = container.clientWidth
+        const containerHeight = container.clientHeight
+
+        const scale = Math.min(containerWidth / width, containerHeight / height)
+
+        canvas.style.width = width * scale + 'px'
+        canvas.style.height = height * scale + 'px'
+    }
+    window.addEventListener('resize', resizeCanvas)
+    window.addEventListener('DOMContentLoaded', resizeCanvas)
 
     playPauseBtn.addEventListener('click', () => {
         if (!isPlaying) {

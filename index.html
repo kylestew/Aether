@@ -9,15 +9,36 @@
                 background: #111;
                 color: white;
                 font-family: sans-serif;
+                min-height: 100vh;
+                display: flex;
+                flex-direction: column;
             }
             #controls {
                 padding: 10px;
                 background: #222;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                z-index: 1;
             }
+
+            #canvas-container {
+                position: absolute;
+                top: 80px; /* height of controls */
+                bottom: 40px;
+                left: 40px;
+                right: 40px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                overflow: hidden;
+            }
+
             canvas {
                 display: block;
-                margin: 2em auto;
                 background: black;
+                image-rendering: pixelated;
             }
         </style>
     </head>
@@ -34,7 +55,9 @@
         <!--
         <span id="fpsDisplay" style="margin-left: 20px">FPS: --</span>
         -->
-        <canvas id="output"></canvas>
+        <div id="canvas-container">
+            <canvas id="output"></canvas>
+        </div>
 
         <script type="module" src="main.js"></script>
     </body>
