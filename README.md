@@ -2,33 +2,24 @@
 
 ## TODO
 
-- Resolution constraints journey
-- Increase canvas size and keep centered
-- Shadertoy layer
 - Quantization effects from your blog
+- Sobel edge detection (do a study on this too for website)
+- Kernels?
 - EXPORT TO VIDEO/FRAMES
 
-https://www.shadertoy.com/view/ltSSzW
-https://www.shadertoy.com/view/3l2fz3
-https://www.shadertoy.com/view/3tfSDX
-https://thecodetherapy.com/edit/60a9b42f1cf3f400265ce9c9
-https://www.shadertoy.com/view/MtV3W1
-https://www.shadertoy.com/view/Xdt3Wr
-
-
-https://chadhillary.com/Projects/1bit.html
 https://forums.tigsource.com/index.php?topic=40832.msg1363742#msg1363742
 
+https://www.shadertoy.com/view/ltSSzW <-- Blob (fake dithered)
+https://www.shadertoy.com/view/3l2fz3 <-- Torus (dithered, RGB shifted)
+https://www.shadertoy.com/view/3tfSDX <-- CGA palette
+https://www.shadertoy.com/view/Xdt3Wr <-- Compression
+https://www.shadertoy.com/view/stdyRX <-- Paletted dither on GPU
 
-https://offscreencanvas.com/issues/dithering-mesh-unrolling-and-postprocessing/
-https://offscreencanvas.com/issues/dithering-redraw-breakdown/
+https://thecodetherapy.com/edit/60a9b42f1cf3f400265ce9c9
+https://www.shadertoy.com/view/MtV3W1
 https://tympanus.net/codrops/2025/06/04/building-a-real-time-dithering-shader/
 https://blog.maximeheckel.com/posts/post-processing-as-a-creative-medium/
 https://www.instagram.com/p/DKeMfbMOlp7/
-
-
-
-
 
 - Pixelate effect seems to have an error when used in the wrong order
 - Bayer Dither: why is it in color, should it be B/W, should a toggle be aloud?
@@ -39,7 +30,6 @@ https://www.instagram.com/p/DKeMfbMOlp7/
 - Noise Field Generator (Perlin 2D output in greyscale)
 - Posterizer (maybe already covered by quantization effect)
 - More advanced dithering algo
-- Sobel edge detection (do a study on this too for website)
 - Load more advanced 3D scenes from Blender (etc, GLDB?) (can animations be played?)
 - Abuse pattern dithers
 - Video frame loader / playback

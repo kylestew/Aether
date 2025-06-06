@@ -12,16 +12,35 @@ import { receiptEffect } from './layers/postproc/receiptEffect.js'
 import { dottedHalftoneEffect } from './layers/postproc/dottedHalftoneEffect.js'
 import { asciiDitherLayer } from './layers/postproc/asciiDitherLayer.js'
 import { simple3DLayer } from './layers/generators/simple3DLayer.js'
+import { shaderLayer } from './layers/generators/shaderLayer.js'
 
 // 135 x 240 mode
 // MODES AVAILABLE: 120, 60, 40, 30, 24, 20, 15, 12, 10, 8, 6, 5, 4, 3, 2, 1
-const mode = 20
+const mode = 60
 const width = 1080 / mode
 const height = 1920 / mode
-const scale = mode
+
+// TODO: palette mode as well
+// CURRENTLY 1-BIT
 
 const imagePath = '/assets/images/pearl.png'
 // const imagePath = '/assets/images/david.png'
+
+const glsl = (x) => x[0] // Dummy function for highlighting
+
+const fragSource = glsl`
+precision highp float;
+uniform vec2 iResolution;
+uniform float iTime;
+
+void main() {
+    vec2 uv = gl_FragCoord.xy / iResolution.xy;
+    vec2 p = uv * iTime / 10.0;
+
+    vec3 color = vec3(uv, p);
+    gl_FragColor = vec4(color, 1.0);
+}
+`
 
 const layers = [
     // new Layer(emptyLayer, { color: 'red' }),
@@ -31,12 +50,14 @@ const layers = [
         direction: 'vertical',
     }),
 
-    new Layer(imageLayer, { imagePath, cropMode: 'cover' }),
+    new Layer(shaderLayer, { fragmentShader: fragSource }),
+
+    // new Layer(imageLayer, { imagePath, cropMode: 'cover' }),
     // new Layer(pulsingSquares),
     // new Layer(scanLines),
     // new Layer(simple3DLayer),
 
-    // new Layer(pixelateLayer, { pixelSize: 24 }),
+    // new Layer(pixelateLayer, { pixelSize: 4 }),
 
     // new Layer(receiptEffect),
     // new Layer(dottedHalftoneEffect),
@@ -64,7 +85,7 @@ const layers = [
 const projectSettings = {
     width,
     height,
-    scale,
+    scale: mode, // pixel size
     duration: 10, // seconds
     targetFPS: 30, // cap rendering at 30 fps
     layers,
