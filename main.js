@@ -13,10 +13,12 @@ import { dottedHalftoneEffect } from './layers/postproc/dottedHalftoneEffect.js'
 import { asciiDitherLayer } from './layers/postproc/asciiDitherLayer.js'
 import { simple3DLayer } from './layers/generators/simple3DLayer.js'
 import { shaderLayer } from './layers/generators/shaderLayer.js'
+import { paletteQuantization } from './layers/postproc/paletteQuantization.js'
+import { uniformQuantization } from './layers/postproc/uniformQuantization.js'
 
 // 135 x 240 mode
 // MODES AVAILABLE: 120, 60, 40, 30, 24, 20, 15, 12, 10, 8, 6, 5, 4, 3, 2, 1
-const mode = 60
+const mode = 20
 const width = 1080 / mode
 const height = 1920 / mode
 
@@ -27,18 +29,36 @@ const imagePath = '/assets/images/pearl.png'
 // const imagePath = '/assets/images/david.png'
 
 const glsl = (x) => x[0] // Dummy function for highlighting
-
 const fragSource = glsl`
 precision highp float;
 uniform vec2 iResolution;
 uniform float iTime;
 
-void main() {
-    vec2 uv = gl_FragCoord.xy / iResolution.xy;
-    vec2 p = uv * iTime / 10.0;
+vec3 getRayDir(vec2 uv) {
+    // TODO: why? because the uvs are normalized?
+    // vec3(uv, 1.0) creates a direction from the origin through the screen at z=1.
+    return normalize(vec3(uv, 1.0));
+    // The result points from the camera at (0,0,0) through the screen in front of it.
+}
 
-    vec3 color = vec3(uv, p);
-    gl_FragColor = vec4(color, 1.0);
+void main() {
+    vec2 uv = (gl_FragCoord.xy / iResolution.xy) * 2.0 - 1.0;
+    uv.x *= iResolution.x / iResolution.y; // correct for aspect ratio
+
+    // setup camera - behind origin, looking forward
+    float camRadius = 4.0;
+    vec3 ro = vec3(0, 0, -camRadius); 
+
+    // ray pointing from camera to scene for the current pixels position (uv)
+    // remembering that in a fragment shader we are working on each individual pixel
+    vec3 rd = getRayDir(uv);
+
+    // ray marching
+    // vec3 hit = rayMarch(ro, rd, t);
+
+    // vec3 color = vec3(uv, 0.);
+
+    gl_FragColor = vec4(rd, 1.0);
 }
 `
 
@@ -50,9 +70,10 @@ const layers = [
         direction: 'vertical',
     }),
 
-    new Layer(shaderLayer, { fragmentShader: fragSource }),
+    // new Layer(shaderLayer, { fragSource }),
 
-    // new Layer(imageLayer, { imagePath, cropMode: 'cover' }),
+    new Layer(imageLayer, { imagePath, cropMode: 'cover' }),
+
     // new Layer(pulsingSquares),
     // new Layer(scanLines),
     // new Layer(simple3DLayer),
@@ -64,7 +85,8 @@ const layers = [
     // new Layer(asciiDitherLayer, { cellSize: 12 }),
     // new Layer(bayerDither),
 
-    // new Layer(pixelateLayer, { pixelSize: 24 }),
+    // new Layer(paletteQuantization, {}),
+    new Layer(uniformQuantization, { numBins: 8 }),
 
     // new Layer(size, scanLines, {
     //     lineCount: 20, // Override default

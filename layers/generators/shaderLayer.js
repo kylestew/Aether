@@ -1,7 +1,7 @@
 export const shaderLayer = {
     defaultParams: {
         // Default shader is a simple gradient animation
-        fragmentShader: `
+        fragSource: `
             precision highp float;
             uniform vec2 iResolution;
             uniform float iTime;
@@ -78,9 +78,9 @@ export const shaderLayer = {
         )
         this.gl.compileShader(vertexShader)
 
-        const fragmentShader = this.gl.createShader(this.gl.FRAGMENT_SHADER)
-        this.gl.shaderSource(fragmentShader, this.params.fragmentShader)
-        this.gl.compileShader(fragmentShader)
+        const fragShader = this.gl.createShader(this.gl.FRAGMENT_SHADER)
+        this.gl.shaderSource(fragShader, this.params.fragSource)
+        this.gl.compileShader(fragShader)
 
         // Check for shader compilation errors
         if (!this.gl.getShaderParameter(vertexShader, this.gl.COMPILE_STATUS)) {
@@ -98,16 +98,16 @@ export const shaderLayer = {
             throw new Error(errorMessage)
         }
 
-        if (!this.gl.getShaderParameter(fragmentShader, this.gl.COMPILE_STATUS)) {
-            const infoLog = this.gl.getShaderInfoLog(fragmentShader)
-            const errorMessage = this._formatShaderError('Fragment', this.params.fragmentShader, infoLog)
+        if (!this.gl.getShaderParameter(fragShader, this.gl.COMPILE_STATUS)) {
+            const infoLog = this.gl.getShaderInfoLog(fragShader)
+            const errorMessage = this._formatShaderError('Fragment', this.params.fragSource, infoLog)
             throw new Error(errorMessage)
         }
 
         // Create and link program
         this.program = this.gl.createProgram()
         this.gl.attachShader(this.program, vertexShader)
-        this.gl.attachShader(this.program, fragmentShader)
+        this.gl.attachShader(this.program, fragShader)
         this.gl.linkProgram(this.program)
 
         if (!this.gl.getProgramParameter(this.program, this.gl.LINK_STATUS)) {
