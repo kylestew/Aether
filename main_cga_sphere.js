@@ -16,7 +16,8 @@ import { shaderLayer } from './layers/generators/shaderLayer.js'
 import { paletteQuantization } from './layers/postproc/paletteQuantization.js'
 import { uniformQuantization } from './layers/postproc/uniformQuantization.js'
 import { cgaDither } from './layers/postproc/cgaDither.js'
-import { noiseLayer } from './layers/generators/noiseLayer.js'
+
+import fragSource from '/assets/shaders/cga_sphere.glsl?raw'
 
 // 135 x 240 mode
 // MODES AVAILABLE: 120, 60, 40, 30, 24, 20, 15, 12, 10, 8, 6, 5, 4, 3, 2, 1
@@ -50,21 +51,13 @@ const layers = [
     //     direction: 'vertical',
     // }),
 
-    new Layer(noiseLayer, {
-        scale: 0.05, // More reasonable zoom level
-        octaves: 3, // Fewer octaves for clearer patterns
-        persistence: 0.5, // Standard persistence
-        lacunarity: 1.0, // Standard lacunarity
-        timeScale: 0.1, // Slightly faster animation
-        colorize: true, // Keep color
-        color1: '#000000', // Start with black
-        color2: '#ffffff', // End with white
-    }),
+    new Layer(shaderLayer, { fragSource }),
 
     // new Layer(imageLayer, { imagePath, cropMode: 'cover' }),
 
     // TODO: apply the actual dither!
-    // new Layer(cgaDither),
+
+    new Layer(cgaDither),
 
     // new Layer(pulsingSquares),
     // new Layer(scanLines),
@@ -79,22 +72,7 @@ const layers = [
 
     // new Layer(paletteQuantization, { palette: palette0HighRGB }),
     // new Layer(uniformQuantization, { numBins: 8 }),
-
-    // new Layer(size, scanLines, {
-    //     lineCount: 20, // Override default
-    //     color: '#E0F234',
-    //     amplitude: (t) => 60 + Math.sin(t) * 10, // Custom animated value
-    // }),
 ]
-
-// const layer2 = new Layer(width, height, pulsingSquares, {
-//     // size: (t) => 20 + Math.sin(t) * 10, // pulse between 20–80px
-//     // color: (t) => step(0.5, ['#ff0080', '#00ffff', '#ffffff']),
-//     // rotation: (t) => osc(0.2), // subtle wiggle
-// })
-// const keyframed = new Layer(width, height, keyframeCircleLayer, {
-//     // Can override keyframes here if needed
-// })
 
 const projectSettings = {
     width,
