@@ -81,10 +81,20 @@ export const createPlayer = (elements, settings) => {
         ctx.clearRect(0, 0, width, height)
         compositeCtx.clearRect(0, 0, width, height)
 
+        // Calculate current frame
+        const frame = Math.floor(t * targetFPS)
+
         // Render each layer
         for (const layer of layers) {
             // Render the layer to its own canvas
-            layer.render(t, compositeCtx, { width, height })
+            layer.render(t, compositeCtx, {
+                width,
+                height,
+                totalTime: duration,
+                frame,
+                targetFPS,
+                t, // normalized time (0 to duration)
+            })
 
             // Apply the layer with its blend mode to the composite
             layer.applyBlendMode(compositeCtx)
@@ -502,13 +512,17 @@ export const createPlayer = (elements, settings) => {
     const loadAndStart = async () => {
         // Initialize all layers
         for (const layer of layers) {
+            console.log('Initializing layer:', layer)
             await layer.init()
         }
+        console.log('All layers initialized')
 
         // Start animation if enabled
         if (animated) {
+            console.log('Starting animation')
             start()
         } else {
+            console.log('Rendering single frame')
             // Render single frame
             render(0)
         }

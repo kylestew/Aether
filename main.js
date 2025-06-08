@@ -2,6 +2,7 @@ import { createPlayer } from './src/player.js'
 import { Layer, BLEND_MODES } from './src/layerManager.js'
 
 import { imageLayer } from './layers/media/imageLayer.js'
+import { simple3DLayer } from './layers/generators/simple3DLayer.js'
 import { threshold } from './layers/pixel/threshold.js'
 import { staticNoise } from './layers/generators/staticNoise.js'
 
@@ -34,6 +35,7 @@ const layers = [
         imagePath,
         cropMode: 'cover',
     }),
+    new Layer(modeSize, simple3DLayer),
     new Layer(modeSize, staticNoise, {
         density: 0.5,
         color: '#ffffff',

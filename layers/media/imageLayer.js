@@ -12,16 +12,13 @@ export const imageLayer = {
         })
     },
 
-    render(ctx, { resolution, params }) {
-        const { width, height } = resolution
-        const { cropMode = 'contain' } = this.params || {}
-
+    render(ctx, { width, height, cropMode }) {
         // Clear the canvas
         ctx.clearRect(0, 0, width, height)
 
         let x, y, scaledWidth, scaledHeight
 
-        switch (params.cropMode) {
+        switch (cropMode) {
             case 'fill':
                 // Stretch to fill entire area
                 x = 0

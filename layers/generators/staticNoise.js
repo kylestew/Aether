@@ -9,9 +9,7 @@ export const staticNoise = {
         seed: 0, // Random seed for consistent noise
     },
 
-    render(ctx, { t, resolution, params }) {
-        const { width, height } = resolution
-
+    render(ctx, { t, width, height, color, alpha, density, seed }) {
         // Clear the canvas first
         ctx.clearRect(0, 0, width, height)
 
@@ -20,7 +18,7 @@ export const staticNoise = {
         const tempCtx = tempCanvas.getContext('2d')
         tempCanvas.width = 1
         tempCanvas.height = 1
-        tempCtx.fillStyle = params.color
+        tempCtx.fillStyle = color
         tempCtx.fillRect(0, 0, 1, 1)
         const [r, g, b] = tempCtx.getImageData(0, 0, 1, 1).data
 
@@ -30,8 +28,8 @@ export const staticNoise = {
 
         // Use a simple seeded random function
         const random = (x, y) => {
-            const seed = params.seed + t
-            return (Math.sin(x * 12.9898 + y * 78.233 + seed) * 43758.5453) % 1
+            const sed = seed + t
+            return (Math.sin(x * 12.9898 + y * 78.233 + sed) * 43758.5453) % 1
         }
 
         // Generate noise
@@ -40,11 +38,11 @@ export const staticNoise = {
                 const i = (y * width + x) * 4
 
                 // Generate noise based on density
-                if (random(x, y) < params.density) {
+                if (random(x, y) < density) {
                     data[i] = r // R
                     data[i + 1] = g // G
                     data[i + 2] = b // B
-                    data[i + 3] = Math.floor(params.alpha * 255) // A
+                    data[i + 3] = Math.floor(alpha * 255) // A
                 } else {
                     data[i + 3] = 0 // Transparent for non-noise pixels
                 }

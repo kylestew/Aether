@@ -4,7 +4,6 @@ import * as THREE from 'three'
 let renderer = null
 let scene = null
 let camera = null
-let controls = null
 let knot = null
 
 export const simple3DLayer = {
@@ -20,16 +19,14 @@ export const simple3DLayer = {
         renderer.toneMappingExposure = 1.0
 
         scene = new THREE.Scene()
-        scene.background = new THREE.Color(0x000) // White background
+        scene.background = new THREE.Color(0x000000)
 
         // Camera will be set up in render() to match aspect
         camera = null
-        controls = null
         knot = null
     },
 
-    render(ctx, { resolution, t, totalTime }) {
-        const { width, height } = resolution
+    render(ctx, { width, height, t, totalTime }) {
         const aspect = width / height
         const frustumSize = 5.5
 
@@ -47,13 +44,12 @@ export const simple3DLayer = {
             camera.lookAt(0, 0, 0)
 
             // Lighting: strong directional + subtle ambient
-            const ambientLight = new THREE.AmbientLight(0xffffff, 0.2)
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.3)
             scene.add(ambientLight)
-            const directionalLight = new THREE.DirectionalLight(0xffffff, 8.0)
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 12.0)
             directionalLight.position.set(5, 10, -5)
             scene.add(directionalLight)
 
-            // Orange torus knot
             const geometry = new THREE.TorusKnotGeometry(1, 0.3, 100, 16, 2, 3)
             const material = new THREE.MeshStandardMaterial({ color: 'white' })
             knot = new THREE.Mesh(geometry, material)
@@ -72,9 +68,9 @@ export const simple3DLayer = {
             knot.rotation.set(0, (t / totalTime) * Math.PI * 2, 0)
         }
 
-        // controls.update()
         renderer.setSize(width, height)
         renderer.render(scene, camera)
+
         ctx.clearRect(0, 0, width, height)
         ctx.drawImage(renderer.domElement, 0, 0, width, height)
     },

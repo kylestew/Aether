@@ -53,13 +53,11 @@ export class Layer {
 
     /**
      * Render the layer
-     * @param {number} t - Current time
-     * @param {CanvasRenderingContext2D} inputCtx - Input context from previous layer
-     * @param {Object} resolution - Current resolution
      */
-    render(t, inputCtx, resolution) {
+    render(t, inputCtx, params) {
         // Clear the layer canvas
-        this.ctx.clearRect(0, 0, this.size[0], this.size[1])
+        const { width, height } = params
+        this.ctx.clearRect(0, 0, width, height)
 
         // Evaluate any time-based params (functions of `t`)
         const evaluatedParams = {}
@@ -93,12 +91,12 @@ export class Layer {
             processedInputCtx = tempCtx
         }
 
-        // Render the layer
+        // Render the layer, passing through all resolution parameters
         this.renderer.render(this.ctx, {
+            ...evaluatedParams,
+            ...params,
             t,
             inputCtx: processedInputCtx,
-            resolution,
-            params: evaluatedParams,
         })
     }
 
