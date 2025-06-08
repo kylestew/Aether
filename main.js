@@ -17,7 +17,6 @@ import { paletteQuantization } from './layers/postproc/paletteQuantization.js'
 import { uniformQuantization } from './layers/postproc/uniformQuantization.js'
 import { cgaDither } from './layers/postproc/cgaDither.js'
 import { noiseLayer } from './layers/generators/noiseLayer.js'
-import { uprezLayer } from './layers/postproc/uprezLayer.js'
 import { nullLayer } from './layers/generators/nullLayer.js'
 
 import fragSource from '/assets/shaders/cga_sphere.glsl?raw'
@@ -73,7 +72,6 @@ const layers = [
     new Layer(modeSize, cgaDither),
 
     // Add null layer at full size to handle uprezzing
-    new Layer(size, nullLayer),
 
     // new Layer(pulsingSquares),
     // new Layer(scanLines),
@@ -94,6 +92,8 @@ const layers = [
     //     color: '#E0F234',
     //     amplitude: (t) => 60 + Math.sin(t) * 10, // Custom animated value
     // }),
+
+    new Layer(size, nullLayer),
 ]
 
 // const layer2 = new Layer(width, height, pulsingSquares, {
