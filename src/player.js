@@ -5,10 +5,54 @@
 // - targetFPS
 // - layers
 export function createPlayer(domElements, projectSettings) {
-    const { canvas, timeLabel, playPauseBtn } = domElements
+    const { canvas, timeLabel, playPauseBtn, exportBtn } = domElements
     const { width, height, scale, duration, targetFPS, layers } = projectSettings
 
     const frameInterval = 1000 / targetFPS
+
+    // Video export settings
+    const exportFormats = [
+        {
+            name: 'Individual Frames (PNG)',
+            mimeType: 'frames',
+            extension: 'png',
+            quality: 'lossless',
+        },
+        {
+            name: 'WebM VP9 (Lossless)',
+            mimeType: 'video/webm;codecs=vp9',
+            extension: 'webm',
+            bitrate: 100000000,
+            quality: 'lossless',
+            videoBitsPerSecond: 100000000,
+            audioBitsPerSecond: 0,
+            keyFrameInterval: 1,
+        },
+        {
+            name: 'WebM VP8 (High Quality)',
+            mimeType: 'video/webm;codecs=vp8',
+            extension: 'webm',
+            bitrate: 100000000,
+            quality: 'high',
+        },
+    ]
+
+    // Find supported formats
+    const supportedFormats = exportFormats.filter(
+        (format) => format.mimeType === 'frames' || MediaRecorder.isTypeSupported(format.mimeType)
+    )
+
+    // Log supported formats for debugging
+    console.log(
+        'Supported formats:',
+        supportedFormats.map((f) => f.name)
+    )
+
+    // Default to frames if available, otherwise VP9, then first supported format
+    let currentFormat =
+        supportedFormats.find((f) => f.mimeType === 'frames') ||
+        supportedFormats.find((f) => f.mimeType === 'video/webm;codecs=vp9') ||
+        supportedFormats[0]
 
     // prepare canvas and context
     canvas.width = width
@@ -20,6 +64,9 @@ export function createPlayer(domElements, projectSettings) {
     let isPlaying = false
     let startTime = null
     let lastRenderFrame = -1
+    let mediaRecorder = null
+    let recordedChunks = []
+    let isExporting = false
     // let pauseOffset = parseFloat(slider.value) // start point when paused
 
     function render(t, f) {
@@ -111,13 +158,366 @@ export function createPlayer(domElements, projectSettings) {
         }
     })
 
+    async function exportFrames() {
+        if (isExporting) return
+        isExporting = true
+        exportBtn.textContent = '⏳'
+
+        try {
+            // Load JSZip if not already loaded
+            if (!window.JSZip) {
+                const script = document.createElement('script')
+                script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js'
+                document.head.appendChild(script)
+                await new Promise((resolve, reject) => {
+                    script.onload = resolve
+                    script.onerror = reject
+                })
+            }
+
+            // Pause current playback
+            const wasPlaying = isPlaying
+            if (wasPlaying) {
+                isPlaying = false
+                playPauseBtn.textContent = '▶️'
+            }
+
+            console.log('Starting frame export')
+            console.log('Canvas size:', canvas.width, 'x', canvas.height)
+            console.log('Target FPS:', targetFPS)
+            console.log('Duration:', duration)
+
+            let frameCount = 0
+            const totalFrames = Math.ceil(duration * targetFPS)
+            const zip = new JSZip()
+
+            // Override the render function to capture frames
+            const originalRender = render
+            render = async function (t, f) {
+                // Call original render
+                originalRender(t, f)
+
+                // Capture frame
+                const frameData = canvas.toDataURL('image/png')
+                const frameNumber = f.toString().padStart(5, '0')
+                const frameName = `frame_${frameNumber}.png`
+
+                // Convert base64 to binary
+                const base64Data = frameData.split(',')[1]
+                const binaryData = atob(base64Data)
+                const array = new Uint8Array(binaryData.length)
+                for (let i = 0; i < binaryData.length; i++) {
+                    array[i] = binaryData.charCodeAt(i)
+                }
+
+                // Add to zip
+                zip.file(frameName, array)
+
+                frameCount++
+                console.log(`Captured frame ${frameCount}/${totalFrames}: ${frameName}`)
+
+                // Update button text with progress
+                exportBtn.textContent = `⏳ ${Math.round((frameCount / totalFrames) * 100)}%`
+            }
+
+            // Use requestAnimationFrame to ensure smooth playback
+            const startExportTime = performance.now()
+            const exportDuration = duration * 1000
+
+            function exportFrame(timestamp) {
+                if (!isExporting) return
+
+                const elapsed = timestamp - startExportTime
+                if (elapsed >= exportDuration) {
+                    console.log('Export duration reached, creating zip...')
+                    // Create and download zip
+                    zip.generateAsync({ type: 'blob' }).then(function (content) {
+                        const url = URL.createObjectURL(content)
+                        const a = document.createElement('a')
+                        a.href = url
+                        a.download = `aether-frames-${new Date().toISOString().slice(0, 19)}.zip`
+                        a.click()
+                        URL.revokeObjectURL(url)
+
+                        isExporting = false
+                        exportBtn.textContent = '📹'
+
+                        // Restore original render
+                        render = originalRender
+
+                        // Resume playback if it was playing
+                        if (wasPlaying) {
+                            start()
+                        }
+                    })
+                    return
+                }
+
+                // Calculate current time and frame
+                const t = elapsed / 1000
+                const frame = Math.floor(t * targetFPS)
+
+                // Render frame
+                render(t, frame)
+
+                // Continue animation
+                requestAnimationFrame(exportFrame)
+            }
+
+            // Start the export animation
+            requestAnimationFrame(exportFrame)
+        } catch (e) {
+            console.error('Export error:', e)
+            isExporting = false
+            exportBtn.textContent = '❌'
+            setTimeout(() => {
+                exportBtn.textContent = '📹'
+            }, 2000)
+            // Restore original render if it was overridden
+            if (render !== originalRender) {
+                render = originalRender
+            }
+        }
+    }
+
+    async function exportVideo() {
+        // If frames format is selected, use frame export
+        if (currentFormat.mimeType === 'frames') {
+            return exportFrames()
+        }
+
+        if (isExporting) return
+        isExporting = true
+        exportBtn.textContent = '⏳'
+
+        try {
+            // Pause current playback
+            const wasPlaying = isPlaying
+            if (wasPlaying) {
+                isPlaying = false
+                playPauseBtn.textContent = '▶️'
+            }
+
+            console.log('Starting export with format:', currentFormat.name)
+            console.log('Canvas size:', canvas.width, 'x', canvas.height)
+            console.log('Target FPS:', targetFPS)
+            console.log('Duration:', duration)
+
+            // Set up MediaRecorder with maximum quality settings
+            const stream = canvas.captureStream(targetFPS)
+            if (!stream) {
+                throw new Error('Failed to capture canvas stream')
+            }
+
+            // Create a high-quality MediaRecorder with custom settings
+            const options = {
+                mimeType: currentFormat.mimeType,
+                videoBitsPerSecond: currentFormat.bitrate,
+                audioBitsPerSecond: 0, // No audio
+            }
+
+            console.log('MediaRecorder options:', options)
+
+            // Verify format is supported
+            if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+                throw new Error(`Format ${options.mimeType} is not supported`)
+            }
+
+            mediaRecorder = new MediaRecorder(stream, options)
+            if (!mediaRecorder) {
+                throw new Error('Failed to create MediaRecorder')
+            }
+
+            let frameCount = 0
+            let lastFrameTime = 0
+            recordedChunks = []
+
+            // Override the render function to ensure frames are captured
+            const originalRender = render
+            render = function (t, f) {
+                // Call original render
+                originalRender(t, f)
+
+                // Log frame info
+                const now = performance.now()
+                const frameTime = now - lastFrameTime
+                lastFrameTime = now
+                frameCount++
+
+                console.log(`Frame ${frameCount}: t=${t.toFixed(3)}, f=${f}, time=${frameTime.toFixed(1)}ms`)
+            }
+
+            mediaRecorder.ondataavailable = (e) => {
+                console.log('Data available:', e.data.size, 'bytes', 'at frame', frameCount)
+                if (e.data.size > 0) {
+                    recordedChunks.push(e.data)
+                }
+            }
+
+            mediaRecorder.onerror = (e) => {
+                console.error('MediaRecorder error:', e)
+                isExporting = false
+                exportBtn.textContent = '❌'
+                setTimeout(() => {
+                    exportBtn.textContent = '📹'
+                }, 2000)
+                // Restore original render
+                render = originalRender
+            }
+
+            mediaRecorder.onstop = () => {
+                console.log('Recording stopped, frames:', frameCount, 'chunks:', recordedChunks.length)
+                // Restore original render
+                render = originalRender
+
+                if (recordedChunks.length === 0) {
+                    console.error('No data recorded')
+                    isExporting = false
+                    exportBtn.textContent = '❌'
+                    setTimeout(() => {
+                        exportBtn.textContent = '📹'
+                    }, 2000)
+                    return
+                }
+
+                try {
+                    const blob = new Blob(recordedChunks, {
+                        type: currentFormat.mimeType,
+                        endings: 'native',
+                    })
+                    console.log('Created blob:', blob.size, 'bytes')
+
+                    const url = URL.createObjectURL(blob)
+                    const a = document.createElement('a')
+                    a.href = url
+                    a.download = `aether-export-lossless-${new Date().toISOString().slice(0, 19)}.${
+                        currentFormat.extension
+                    }`
+                    a.click()
+                    URL.revokeObjectURL(url)
+
+                    isExporting = false
+                    exportBtn.textContent = '📹'
+
+                    // Resume playback if it was playing
+                    if (wasPlaying) {
+                        start()
+                    }
+                } catch (e) {
+                    console.error('Error creating/saving blob:', e)
+                    isExporting = false
+                    exportBtn.textContent = '❌'
+                    setTimeout(() => {
+                        exportBtn.textContent = '📹'
+                    }, 2000)
+                }
+            }
+
+            // Start recording with maximum quality
+            console.log('Starting recording...')
+            mediaRecorder.start(1000 / targetFPS) // Request data at frame rate intervals
+
+            // Play through the animation
+            startTime = null
+            lastRenderFrame = -1
+            isPlaying = true
+
+            // Use requestAnimationFrame to ensure smooth playback
+            const startExportTime = performance.now()
+            const exportDuration = duration * 1000
+
+            function exportFrame(timestamp) {
+                if (!isExporting) return
+
+                const elapsed = timestamp - startExportTime
+                if (elapsed >= exportDuration) {
+                    console.log('Export duration reached, stopping...')
+                    mediaRecorder.stop()
+                    isPlaying = false
+                    return
+                }
+
+                // Calculate current time and frame
+                const t = elapsed / 1000
+                const frame = Math.floor(t * targetFPS)
+
+                // Render frame
+                render(t, frame)
+
+                // Continue animation
+                requestAnimationFrame(exportFrame)
+            }
+
+            // Start the export animation
+            requestAnimationFrame(exportFrame)
+        } catch (e) {
+            console.error('Export error:', e)
+            isExporting = false
+            exportBtn.textContent = '❌'
+            setTimeout(() => {
+                exportBtn.textContent = '📹'
+            }, 2000)
+            // Restore original render if it was overridden
+            if (render !== originalRender) {
+                render = originalRender
+            }
+        }
+    }
+
+    // Add format selection UI to emphasize VP9
+    const formatSelect = document.createElement('select')
+    formatSelect.style.marginLeft = '10px'
+    formatSelect.style.background = '#333'
+    formatSelect.style.color = 'white'
+    formatSelect.style.border = '1px solid #555'
+    formatSelect.style.padding = '2px 5px'
+    formatSelect.style.borderRadius = '3px'
+    formatSelect.style.fontWeight = 'bold'
+
+    // Sort formats to put VP9 first
+    const sortedFormats = [...supportedFormats].sort((a, b) => {
+        if (a.mimeType.includes('vp9')) return -1
+        if (b.mimeType.includes('vp9')) return 1
+        return 0
+    })
+
+    // Log available formats
+    console.log(
+        'Available formats:',
+        sortedFormats.map((f) => ({
+            name: f.name,
+            mimeType: f.mimeType,
+            supported: MediaRecorder.isTypeSupported(f.mimeType),
+        }))
+    )
+
+    sortedFormats.forEach((format) => {
+        const option = document.createElement('option')
+        option.value = format.mimeType
+        option.textContent = `${format.name} (${format.extension.toUpperCase()})`
+        formatSelect.appendChild(option)
+    })
+
+    formatSelect.addEventListener('change', (e) => {
+        const newFormat = supportedFormats.find((f) => f.mimeType === e.target.value)
+        if (newFormat) {
+            console.log('Switching to format:', newFormat.name)
+            currentFormat = newFormat
+        }
+    })
+
+    // Insert format select after export button
+    exportBtn.parentNode.insertBefore(formatSelect, exportBtn.nextSibling)
+
+    exportBtn.addEventListener('click', exportVideo)
+
     async function loadAndStart() {
         // need to load all layers contents
         await Promise.all(layers.map((layer) => layer.init(width, height)))
         start()
     }
 
-    return { loadAndStart }
+    return { loadAndStart, exportVideo }
 }
 
 /*
