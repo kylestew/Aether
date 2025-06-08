@@ -2,7 +2,6 @@
 
 https://blog.maximeheckel.com/posts/post-processing-as-a-creative-medium/
 
-- EXPORT TO VIDEO/FRAMES
 - Make and save sketches?
 - Save some outputs for understanding what you can do with this library
 - Animate and don't clear buffer

@@ -1,5 +1,7 @@
 export class Layer {
-    constructor(layer, paramOverrides = {}) {
+    constructor(size, layer, paramOverrides = {}) {
+        this.width = size[0]
+        this.height = size[1]
         this.layer = layer
 
         // Merge default params set on layer with overrides here
@@ -7,11 +9,12 @@ export class Layer {
         this.params = { ...defaults, ...paramOverrides }
     }
 
-    async init(width, height) {
+    async init() {
         this.canvas = document.createElement('canvas')
-        this.canvas.width = width
-        this.canvas.height = height
+        this.canvas.width = this.width
+        this.canvas.height = this.height
         this.ctx = this.canvas.getContext('2d')
+        this.ctx.imageSmoothingEnabled = false // Ensure crisp pixel art scaling
 
         if (this.layer.init) {
             await this.layer.init(this.params)
@@ -19,11 +22,36 @@ export class Layer {
     }
 
     render(props = {}) {
-        const { t } = props
+        const { t, inputCtx } = props
 
         const resolution = {
             width: this.canvas.width,
             height: this.canvas.height,
+        }
+
+        // If we have an input context and its resolution doesn't match this layer's resolution,
+        // create a temporary canvas to upscale it
+        let processedInputCtx = inputCtx
+        if (inputCtx && (inputCtx.canvas.width !== this.width || inputCtx.canvas.height !== this.height)) {
+            const tempCanvas = document.createElement('canvas')
+            tempCanvas.width = this.width
+            tempCanvas.height = this.height
+            const tempCtx = tempCanvas.getContext('2d')
+            tempCtx.imageSmoothingEnabled = false // Ensure crisp pixel art scaling
+
+            // Draw input at upscaled size
+            tempCtx.drawImage(
+                inputCtx.canvas,
+                0,
+                0,
+                inputCtx.canvas.width,
+                inputCtx.canvas.height,
+                0,
+                0,
+                this.width,
+                this.height
+            )
+            processedInputCtx = tempCtx
         }
 
         // Evaluate any time-based params (functions of `t`)
@@ -35,6 +63,7 @@ export class Layer {
 
         const fullProps = {
             ...props,
+            inputCtx: processedInputCtx,
             resolution,
             params: evaluatedParams,
         }

@@ -17,15 +17,17 @@ import { paletteQuantization } from './layers/postproc/paletteQuantization.js'
 import { uniformQuantization } from './layers/postproc/uniformQuantization.js'
 import { cgaDither } from './layers/postproc/cgaDither.js'
 import { noiseLayer } from './layers/generators/noiseLayer.js'
+import { uprezLayer } from './layers/postproc/uprezLayer.js'
+import { nullLayer } from './layers/generators/nullLayer.js'
 
 import fragSource from '/assets/shaders/cga_sphere.glsl?raw'
 
 // 135 x 240 mode
 // MODES AVAILABLE: 120, 60, 40, 30, 24, 20, 15, 12, 10, 8, 6, 5, 4, 3, 2, 1
 // MODE 6 is closest to CGA mode 0 (320x200(CGA) - 320x180 (ours))
-const mode = 6
-const width = 1080 / mode
-const height = 1920 / mode
+const mode = 15
+const size = [1080, 1920]
+const modeSize = [size[0] / mode, size[1] / mode]
 
 // CGA Palette 0 - High Intensity
 const palette0High = [
@@ -41,18 +43,19 @@ const palette0HighRGB = [
     [255, 255, 255], // White
 ]
 
-const imagePath = '/assets/images/pearl.png'
-// const imagePath = '/assets/images/david.png'
+// const imagePath = '/assets/images/pearl.png'
+const imagePath = '/assets/images/david.png'
 
 const layers = [
-    new Layer(emptyLayer, { color: 'red' }),
-    // new Layer(gradientLayer, {
-    //     startColor: '#ffffff',
-    //     endColor: '#000000',
-    //     direction: 'vertical',
-    // }),
+    new Layer(modeSize, emptyLayer, { color: 'red' }),
 
-    // new Layer(noiseLayer, {
+    new Layer(modeSize, gradientLayer, {
+        startColor: '#ffffff',
+        endColor: '#000000',
+        direction: 'vertical',
+    }),
+
+    // new Layer(modeSize, noiseLayer, {
     //     scale: 0.05, // More reasonable zoom level
     //     octaves: 3, // Fewer octaves for clearer patterns
     //     persistence: 0.5, // Standard persistence
@@ -63,13 +66,14 @@ const layers = [
     //     color2: '#ffffff', // End with white
     // }),
 
-    // new Layer(imageLayer, { imagePath, cropMode: 'cover' }),
-    new Layer(shaderLayer, { fragSource }),
+    new Layer(modeSize, imageLayer, { imagePath, cropMode: 'cover' }),
 
-    new Layer(cgaDither),
+    // new Layer(modeSize, shaderLayer, { fragSource }),
 
-    // TODO: apply the actual dither!
-    // new Layer(cgaDither),
+    new Layer(modeSize, cgaDither),
+
+    // Add null layer at full size to handle uprezzing
+    new Layer(size, nullLayer),
 
     // new Layer(pulsingSquares),
     // new Layer(scanLines),
@@ -102,9 +106,8 @@ const layers = [
 // })
 
 const projectSettings = {
-    width,
-    height,
-    scale: mode, // pixel size
+    size,
+    animated: false,
     duration: 10, // seconds
     targetFPS: 30, // cap rendering at 30 fps
     layers,

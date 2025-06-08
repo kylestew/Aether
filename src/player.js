@@ -6,9 +6,8 @@
 // - layers
 export function createPlayer(domElements, projectSettings) {
     const { canvas, timeLabel, playPauseBtn, exportBtn } = domElements
-    const { width, height, scale, duration, targetFPS, layers } = projectSettings
-
-    const frameInterval = 1000 / targetFPS
+    const { size, animated, duration, targetFPS, layers } = projectSettings
+    const [width, height] = size
 
     // Video export settings
     const exportFormats = [
@@ -59,6 +58,7 @@ export function createPlayer(domElements, projectSettings) {
     canvas.height = height
     canvas.style.imageRendering = 'pixelated'
     const ctx = canvas.getContext('2d')
+    ctx.imageSmoothingEnabled = false // Disable smoothing for crisp pixel art
 
     // Playback State
     let isPlaying = false
@@ -67,7 +67,6 @@ export function createPlayer(domElements, projectSettings) {
     let mediaRecorder = null
     let recordedChunks = []
     let isExporting = false
-    // let pauseOffset = parseFloat(slider.value) // start point when paused
 
     function render(t, f) {
         let inputCtx = null
@@ -76,6 +75,7 @@ export function createPlayer(domElements, projectSettings) {
             layers[i].render({
                 t,
                 f,
+                canvas,
                 inputCtx,
                 resolution: { width, height },
                 layerIndex: i,
@@ -87,8 +87,9 @@ export function createPlayer(domElements, projectSettings) {
 
         ctx.clearRect(0, 0, width, height)
         for (const layer of layers) {
-            // TODO: composite modes?
-            ctx.drawImage(layer.canvas, 0, 0)
+            // Draw with crisp pixel art scaling
+            ctx.imageSmoothingEnabled = false
+            ctx.drawImage(layer.canvas, 0, 0, layer.canvas.width, layer.canvas.height, 0, 0, width, height)
         }
     }
 
@@ -122,7 +123,9 @@ export function createPlayer(domElements, projectSettings) {
 
         timeLabel.textContent = `${t.toFixed(2)}s - frame ${frame}`
 
-        requestAnimationFrame(animationLoop)
+        if (animated) {
+            requestAnimationFrame(animationLoop)
+        }
     }
 
     function start() {
@@ -130,7 +133,6 @@ export function createPlayer(domElements, projectSettings) {
         startTime = null
         lastRenderFrame = -1
 
-        //     pauseOffset = parseFloat(slider.value)
         playPauseBtn.textContent = '⏸'
         requestAnimationFrame(animationLoop)
     }
@@ -513,11 +515,11 @@ export function createPlayer(domElements, projectSettings) {
 
     async function loadAndStart() {
         // need to load all layers contents
-        await Promise.all(layers.map((layer) => layer.init(width, height)))
+        await Promise.all(layers.map((layer) => layer.init()))
         start()
     }
 
-    return { loadAndStart, exportVideo }
+    return { loadAndStart }
 }
 
 /*
