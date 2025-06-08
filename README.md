@@ -2,16 +2,21 @@
 
 https://blog.maximeheckel.com/posts/post-processing-as-a-creative-medium/
 
+- Abuse pattern dithers
+https://www.youtube.com/watch?v=3XlO5J7XorI
+https://www.youtube.com/watch?v=HfK57wcyz-c
+
+- Simple particle system (do a study as well on website)
+
 - Make and save sketches?
 - Save some outputs for understanding what you can do with this library
 - Animate and don't clear buffer
-- Abuse pattern dithers
-
-- Load some public domain images: https://pdimagearchive.org/infinite-view/
+- Combine with some AfterEffects effects
+- Animation system?
+- Bring back online model loader (three.js)
 
 ## Later
 
-https://thecodetherapy.com/edit/60a9b42f1cf3f400265ce9c9
 https://www.shadertoy.com/view/MtV3W1
 
 - UPSCALE in pipeline to apply more subtle effects while still keeping large pixels from origin
@@ -32,10 +37,7 @@ https://www.shadertoy.com/view/MtV3W1
 - Dither: other types
 - JPEG destruction Algo
 - Debug animation layer for parameter viz
-- Simple particle system (do a study as well on website)
 - Bloom filter
-
-https://www.monperrus.net/martin/store-data-paper?utm_source=hackernewsletter&utm_medium=email&utm_term=data
 
 https://offscreencanvas.com/issues/advanced-ascii-rendering/
 https://offscreencanvas.com/issues/webgl-ascii/

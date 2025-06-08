@@ -1,5 +1,6 @@
 import { createPlayer } from './src/player.js'
 import { Layer } from './src/layerManager.js'
+import { pulse, osc, saw } from './src/paramMacros.js'
 
 import { emptyLayer } from './layers/emptyLayer.js'
 import { gradientLayer } from './layers/generators/gradientLayer.js'
@@ -24,7 +25,7 @@ import fragSource from '/assets/shaders/cga_sphere.glsl?raw'
 // 135 x 240 mode
 // MODES AVAILABLE: 120, 60, 40, 30, 24, 20, 15, 12, 10, 8, 6, 5, 4, 3, 2, 1
 // MODE 6 is closest to CGA mode 0 (320x200(CGA) - 320x180 (ours))
-const mode = 15
+const mode = 4
 const size = [1080, 1920]
 const modeSize = [size[0] / mode, size[1] / mode]
 
@@ -46,40 +47,44 @@ const palette0HighRGB = [
 const imagePath = '/assets/images/david.png'
 
 const layers = [
-    new Layer(modeSize, emptyLayer, { color: 'red' }),
+    // new Layer(modeSize, emptyLayer, { color: 'red' }),
 
-    new Layer(modeSize, gradientLayer, {
-        startColor: '#ffffff',
-        endColor: '#000000',
-        direction: 'vertical',
-    }),
+    // new Layer(modeSize, gradientLayer, {
+    //     startColor: '#ffffff',
+    //     endColor: '#000000',
+    //     direction: 'vertical',
+    // }),
 
+    // TODO: animate noise layer
     // new Layer(modeSize, noiseLayer, {
-    //     scale: 0.05, // More reasonable zoom level
-    //     octaves: 3, // Fewer octaves for clearer patterns
+    //     // scale: pulse(0.2, 0.03, 0.08), // Pulse the scale for zoom effect
+    //     scale: 0.05,
+    //     octaves: 4, // Fewer octaves for clearer patterns
     //     persistence: 0.5, // Standard persistence
     //     lacunarity: 1.0, // Standard lacunarity
     //     timeScale: 0.1, // Slightly faster animation
     //     colorize: true, // Keep color
     //     color1: '#000000', // Start with black
     //     color2: '#ffffff', // End with white
+    //     // Use animation functions for movement
+    //     // offsetX: saw(0.2), // Smooth horizontal pan
+    //     // offsetY: osc(0.1, Math.PI / 2), // Subtle vertical oscillation
+    //     offsetZ: (t) => Math.sin(t * 0.5) * 12.0, // Sine wave animation in z-space
     // }),
 
     new Layer(modeSize, imageLayer, { imagePath, cropMode: 'cover' }),
 
     // new Layer(modeSize, shaderLayer, { fragSource }),
 
-    new Layer(modeSize, cgaDither),
-
-    // Add null layer at full size to handle uprezzing
+    // new Layer(modeSize, cgaDither),
 
     // new Layer(pulsingSquares),
-    // new Layer(scanLines),
+    // new Layer(modeSize, scanLines),
     // new Layer(simple3DLayer),
 
     // new Layer(pixelateLayer, { pixelSize: 4 }),
 
-    // new Layer(receiptEffect),
+    new Layer(modeSize, receiptEffect),
     // new Layer(dottedHalftoneEffect),
     // new Layer(asciiDitherLayer, { cellSize: 12 }),
     // new Layer(bayerDither),
@@ -107,7 +112,7 @@ const layers = [
 
 const projectSettings = {
     size,
-    animated: false,
+    animated: true,
     duration: 10, // seconds
     targetFPS: 30, // cap rendering at 30 fps
     layers,

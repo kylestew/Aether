@@ -218,6 +218,9 @@ export const noiseLayer = {
         color1: '#000000',
         color2: '#ffffff',
         usePerlin: true, // Toggle between Perlin and Simplex
+        offsetX: 0, // Can be a function or number
+        offsetY: 0, // Can be a function or number
+        offsetZ: 0, // Can be a function or number - independent of time
     },
 
     async init(params) {
@@ -237,7 +240,20 @@ export const noiseLayer = {
 
     render(ctx, { resolution, t, params = {} }) {
         const { width, height } = resolution
-        const { scale, octaves, persistence, lacunarity, timeScale, colorize, color1, color2, usePerlin } = {
+        const {
+            scale,
+            octaves,
+            persistence,
+            lacunarity,
+            timeScale,
+            colorize,
+            color1,
+            color2,
+            usePerlin,
+            offsetX,
+            offsetY,
+            offsetZ,
+        } = {
             ...this.params,
             ...params,
         }
@@ -251,6 +267,11 @@ export const noiseLayer = {
             color2RGB = this._parseColor(color2)
         }
 
+        // Get current offset values (handle both functions and numbers)
+        const currentOffsetX = typeof offsetX === 'function' ? offsetX(t) : offsetX
+        const currentOffsetY = typeof offsetY === 'function' ? offsetY(t) : offsetY
+        const currentOffsetZ = typeof offsetZ === 'function' ? offsetZ(t) : offsetZ
+
         // Generate noise for each pixel
         for (let y = 0; y < height; y++) {
             for (let x = 0; x < width; x++) {
@@ -260,9 +281,9 @@ export const noiseLayer = {
                 let maxValue = 0
 
                 for (let i = 0; i < octaves; i++) {
-                    const nx = x * frequency
-                    const ny = y * frequency
-                    const nz = t * timeScale * frequency
+                    const nx = (x + currentOffsetX) * frequency
+                    const ny = (y + currentOffsetY) * frequency
+                    const nz = (t * timeScale + currentOffsetZ) * frequency
                     const n = usePerlin ? this.perlin(nx, ny, nz) : this.simplex(nx, ny, nz)
                     noiseValue += n * amplitude
                     maxValue += amplitude
