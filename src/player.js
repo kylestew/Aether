@@ -4,9 +4,9 @@
 // - duration
 // - targetFPS
 // - layers
-export function createPlayer(domElements, projectSettings) {
-    const { canvas, timeLabel, playPauseBtn, exportBtn } = domElements
-    const { size, animated, duration, targetFPS, layers } = projectSettings
+export const createPlayer = (elements, settings) => {
+    const { canvas, timeLabel, playPauseBtn, exportBtn } = elements
+    const { size, animated, duration, targetFPS, layers } = settings
     const [width, height] = size
 
     // Video export settings
@@ -53,6 +53,13 @@ export function createPlayer(domElements, projectSettings) {
         supportedFormats.find((f) => f.mimeType === 'video/webm;codecs=vp9') ||
         supportedFormats[0]
 
+    // Create composite canvas for blending
+    const compositeCanvas = document.createElement('canvas')
+    compositeCanvas.width = width
+    compositeCanvas.height = height
+    const compositeCtx = compositeCanvas.getContext('2d')
+    compositeCtx.imageSmoothingEnabled = false
+
     // prepare canvas and context
     canvas.width = width
     canvas.height = height
@@ -63,78 +70,57 @@ export function createPlayer(domElements, projectSettings) {
     // Playback State
     let isPlaying = false
     let startTime = null
-    let lastRenderFrame = -1
+    let lastRenderTime = null
+    let frameCount = 0
     let mediaRecorder = null
     let recordedChunks = []
     let isExporting = false
 
-    function render(t, f) {
-        let inputCtx = null
-        for (let i = 0; i < layers.length; i++) {
-            // render function invoked on layerManager wrapper
-            layers[i].render({
-                t,
-                f,
-                canvas,
-                inputCtx,
-                resolution: { width, height },
-                layerIndex: i,
-                totalTime: duration,
-                totalFrames: Math.floor(duration * targetFPS),
-            })
-            inputCtx = layers[i].getPixels()
+    const render = (t) => {
+        // Clear both canvases
+        ctx.clearRect(0, 0, width, height)
+        compositeCtx.clearRect(0, 0, width, height)
+
+        // Render each layer
+        for (const layer of layers) {
+            // Render the layer to its own canvas
+            layer.render(t, compositeCtx, { width, height })
+
+            // Apply the layer with its blend mode to the composite
+            layer.applyBlendMode(compositeCtx)
         }
 
-        ctx.clearRect(0, 0, width, height)
-        for (const layer of layers) {
-            // Draw with crisp pixel art scaling
-            ctx.imageSmoothingEnabled = false
-            ctx.drawImage(layer.canvas, 0, 0, layer.canvas.width, layer.canvas.height, 0, 0, width, height)
-        }
+        // Draw final composite to main canvas
+        ctx.drawImage(compositeCanvas, 0, 0)
     }
 
-    function animationLoop(timestamp) {
+    const start = () => {
+        if (isPlaying) return
+        isPlaying = true
+        startTime = performance.now() - (lastRenderTime || 0)
+        requestAnimationFrame(animate)
+    }
+
+    const stop = () => {
+        isPlaying = false
+        lastRenderTime = performance.now() - startTime
+    }
+
+    const animate = (now) => {
         if (!isPlaying) return
 
-        if (startTime === null) startTime = timestamp
-
-        // calculate time elapsed since start
-        const elapsedMs = timestamp - startTime
-        const elapsedSec = elapsedMs / 1000
-
-        // loop animation time
-        const t = elapsedSec % duration // loops
-
-        // divide to get current frame number
+        const elapsed = (now - startTime) / 1000 // Convert to seconds
+        const t = elapsed % duration
         const frame = Math.floor(t * targetFPS)
 
-        // if its a new frame, render it
-        if (frame > lastRenderFrame) {
-            // adjust time to be actual start of frame
-            const adjustedTime = frame / targetFPS
-            render(adjustedTime, frame)
-            lastRenderFrame = frame
-
-            // was this the last frame?
-            if (frame >= Math.floor(duration * targetFPS) - 1) {
-                lastRenderFrame = -1
-            }
-        }
-
+        // Update time label with both time and frame
         timeLabel.textContent = `${t.toFixed(2)}s - frame ${frame}`
 
-        if (animated) {
-            requestAnimationFrame(animationLoop)
-        }
-    }
+        // Render frame
+        render(t)
 
-    function start() {
-        isPlaying = true
-        startTime = null
-        lastRenderFrame = -1
-
-        playPauseBtn.textContent = '⏸'
-        requestAnimationFrame(animationLoop)
+        // Continue animation
+        requestAnimationFrame(animate)
     }
 
     function resizeCanvas() {
@@ -195,13 +181,13 @@ export function createPlayer(domElements, projectSettings) {
 
             // Override the render function to capture frames
             const originalRender = render
-            render = async function (t, f) {
+            render = async function (t) {
                 // Call original render
-                originalRender(t, f)
+                originalRender(t)
 
                 // Capture frame
                 const frameData = canvas.toDataURL('image/png')
-                const frameNumber = f.toString().padStart(5, '0')
+                const frameNumber = frame.toString().padStart(5, '0')
                 const frameName = `frame_${frameNumber}.png`
 
                 // Convert base64 to binary
@@ -260,7 +246,7 @@ export function createPlayer(domElements, projectSettings) {
                 const frame = Math.floor(t * targetFPS)
 
                 // Render frame
-                render(t, frame)
+                render(t)
 
                 // Continue animation
                 requestAnimationFrame(exportFrame)
@@ -336,9 +322,9 @@ export function createPlayer(domElements, projectSettings) {
 
             // Override the render function to ensure frames are captured
             const originalRender = render
-            render = function (t, f) {
+            render = function (t) {
                 // Call original render
-                originalRender(t, f)
+                originalRender(t)
 
                 // Log frame info
                 const now = performance.now()
@@ -346,7 +332,7 @@ export function createPlayer(domElements, projectSettings) {
                 lastFrameTime = now
                 frameCount++
 
-                console.log(`Frame ${frameCount}: t=${t.toFixed(3)}, f=${f}, time=${frameTime.toFixed(1)}ms`)
+                console.log(`Frame ${frameCount}: t=${t.toFixed(3)}, time=${frameTime.toFixed(1)}ms`)
             }
 
             mediaRecorder.ondataavailable = (e) => {
@@ -421,7 +407,7 @@ export function createPlayer(domElements, projectSettings) {
 
             // Play through the animation
             startTime = null
-            lastRenderFrame = -1
+            lastRenderTime = null
             isPlaying = true
 
             // Use requestAnimationFrame to ensure smooth playback
@@ -444,7 +430,7 @@ export function createPlayer(domElements, projectSettings) {
                 const frame = Math.floor(t * targetFPS)
 
                 // Render frame
-                render(t, frame)
+                render(t)
 
                 // Continue animation
                 requestAnimationFrame(exportFrame)
@@ -513,13 +499,27 @@ export function createPlayer(domElements, projectSettings) {
 
     exportBtn.addEventListener('click', exportVideo)
 
-    async function loadAndStart() {
-        // need to load all layers contents
-        await Promise.all(layers.map((layer) => layer.init()))
-        start()
+    const loadAndStart = async () => {
+        // Initialize all layers
+        for (const layer of layers) {
+            await layer.init()
+        }
+
+        // Start animation if enabled
+        if (animated) {
+            start()
+        } else {
+            // Render single frame
+            render(0)
+        }
     }
 
-    return { loadAndStart }
+    return {
+        loadAndStart,
+        start,
+        stop,
+        // ... other exports ...
+    }
 }
 
 /*

@@ -1,12 +1,7 @@
 # Aether
 
-Blend modes on layers (mixing)
-
 Some extra layers:
-- Additive noise layer
-- Threshold layer
 - Pattern layer
-
 
 https://www.youtube.com/watch?v=3XlO5J7XorI
 

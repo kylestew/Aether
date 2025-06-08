@@ -1,5 +1,5 @@
 import { createPlayer } from './src/player.js'
-import { Layer } from './src/layerManager.js'
+import { Layer, BLEND_MODES } from './src/layerManager.js'
 
 import { imageLayer } from './layers/media/imageLayer.js'
 import { threshold } from './layers/pixel/threshold.js'
@@ -30,14 +30,20 @@ const imagePath = '/assets/images/lenna.png'
 // const imagePath = '/assets/images/david.png'
 
 const layers = [
-    // new Layer(modeSize, imageLayer, { imagePath, cropMode: 'cover' }),
-    new Layer(modeSize, staticNoise, {
-        density: 0.5, // 5% noise density
-        color: '#ffffff', // White noise
-        alpha: 1.0, // 80% opacity
-        seed: 0, // Fixed seed for consistent noise
+    new Layer(modeSize, imageLayer, {
+        imagePath,
+        cropMode: 'cover',
     }),
-    // new Layer(modeSize, threshold, { threshold: (t) => 0.5 + Math.sin(t * 1.1) * 0.2 }),
+    new Layer(modeSize, staticNoise, {
+        density: 0.5,
+        color: '#ffffff',
+        alpha: 1.0,
+        blendMode: 'overlay', // Noise will overlay the image
+    }),
+    new Layer(modeSize, threshold, {
+        threshold: (t) => 0.5 + Math.sin(t) * 0.2, // Animate threshold between 0.1 and 0.9
+        blendMode: 'normal', // Threshold will multiply with the result
+    }),
 ]
 
 const projectSettings = {

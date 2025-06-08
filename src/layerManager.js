@@ -1,41 +1,80 @@
+/**
+ * Layer class that manages a single layer in the composition
+ */
 export class Layer {
-    constructor(size, layer, paramOverrides = {}) {
-        this.width = size[0]
-        this.height = size[1]
-        this.layer = layer
+    /**
+     * @param {[number, number]} size - [width, height] of the layer
+     * @param {Object} renderer - Layer renderer object with render method
+     * @param {Object} params - Parameters for the layer
+     * @param {string} [params.blendMode='normal'] - Blend mode for this layer
+     */
+    constructor(size, renderer, params = {}) {
+        this.size = size
+        this.renderer = renderer
+        this.params = { ...renderer.defaultParams, ...params }
+        this.blendMode = params.blendMode || 'normal'
 
-        // Merge default params set on layer with overrides here
-        const defaults = typeof layer === 'object' && layer.defaultParams ? layer.defaultParams : {}
-        this.params = { ...defaults, ...paramOverrides }
-    }
-
-    async init() {
+        // Create layer canvas
         this.canvas = document.createElement('canvas')
-        this.canvas.width = this.width
-        this.canvas.height = this.height
+        this.canvas.width = size[0]
+        this.canvas.height = size[1]
         this.ctx = this.canvas.getContext('2d')
         this.ctx.imageSmoothingEnabled = false // Ensure crisp pixel art scaling
+    }
 
-        if (this.layer.init) {
-            await this.layer.init(this.params)
+    /**
+     * Initialize the layer
+     */
+    async init() {
+        if (this.renderer.init) {
+            await this.renderer.init(this.params)
         }
     }
 
-    render(props = {}) {
-        const { t, inputCtx } = props
+    /**
+     * Apply blend mode to the current layer onto the target context
+     * @param {CanvasRenderingContext2D} targetCtx - Target context to blend onto
+     */
+    applyBlendMode(targetCtx) {
+        const { width, height } = this.canvas
 
-        const resolution = {
-            width: this.canvas.width,
-            height: this.canvas.height,
+        // Get the current composite operation
+        const prevComposite = targetCtx.globalCompositeOperation
+
+        // Set the blend mode
+        targetCtx.globalCompositeOperation = this.blendMode
+
+        // Draw the layer
+        targetCtx.drawImage(this.canvas, 0, 0)
+
+        // Restore previous composite operation
+        targetCtx.globalCompositeOperation = prevComposite
+    }
+
+    /**
+     * Render the layer
+     * @param {number} t - Current time
+     * @param {CanvasRenderingContext2D} inputCtx - Input context from previous layer
+     * @param {Object} resolution - Current resolution
+     */
+    render(t, inputCtx, resolution) {
+        // Clear the layer canvas
+        this.ctx.clearRect(0, 0, this.size[0], this.size[1])
+
+        // Evaluate any time-based params (functions of `t`)
+        const evaluatedParams = {}
+        for (const key in this.params) {
+            const val = this.params[key]
+            evaluatedParams[key] = typeof val === 'function' ? val(t) : val
         }
 
         // If we have an input context and its resolution doesn't match this layer's resolution,
         // create a temporary canvas to upscale it
         let processedInputCtx = inputCtx
-        if (inputCtx && (inputCtx.canvas.width !== this.width || inputCtx.canvas.height !== this.height)) {
+        if (inputCtx && (inputCtx.canvas.width !== this.size[0] || inputCtx.canvas.height !== this.size[1])) {
             const tempCanvas = document.createElement('canvas')
-            tempCanvas.width = this.width
-            tempCanvas.height = this.height
+            tempCanvas.width = this.size[0]
+            tempCanvas.height = this.size[1]
             const tempCtx = tempCanvas.getContext('2d')
             tempCtx.imageSmoothingEnabled = false // Ensure crisp pixel art scaling
 
@@ -48,30 +87,45 @@ export class Layer {
                 inputCtx.canvas.height,
                 0,
                 0,
-                this.width,
-                this.height
+                this.size[0],
+                this.size[1]
             )
             processedInputCtx = tempCtx
         }
 
-        // Evaluate any time-based params (functions of `t`)
-        const evaluatedParams = {}
-        for (const key in this.params) {
-            const val = this.params[key]
-            evaluatedParams[key] = typeof val === 'function' ? val(t) : val
-        }
-
-        const fullProps = {
-            ...props,
+        // Render the layer
+        this.renderer.render(this.ctx, {
+            t,
             inputCtx: processedInputCtx,
             resolution,
             params: evaluatedParams,
-        }
-
-        this.layer.render(this.ctx, fullProps)
+        })
     }
 
     getPixels() {
         return this.ctx
     }
 }
+
+/**
+ * Blend modes available for layers
+ * @type {string[]}
+ */
+export const BLEND_MODES = [
+    'normal',
+    'multiply',
+    'screen',
+    'overlay',
+    'darken',
+    'lighten',
+    'color-dodge',
+    'color-burn',
+    'hard-light',
+    'soft-light',
+    'difference',
+    'exclusion',
+    'hue',
+    'saturation',
+    'color',
+    'luminosity',
+]
