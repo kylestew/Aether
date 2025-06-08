@@ -18,6 +18,8 @@ import { uniformQuantization } from './layers/postproc/uniformQuantization.js'
 import { cgaDither } from './layers/postproc/cgaDither.js'
 import { noiseLayer } from './layers/generators/noiseLayer.js'
 
+import fragSource from '/assets/shaders/cga_sphere.glsl?raw'
+
 // 135 x 240 mode
 // MODES AVAILABLE: 120, 60, 40, 30, 24, 20, 15, 12, 10, 8, 6, 5, 4, 3, 2, 1
 // MODE 6 is closest to CGA mode 0 (320x200(CGA) - 320x180 (ours))
@@ -50,18 +52,21 @@ const layers = [
     //     direction: 'vertical',
     // }),
 
-    new Layer(noiseLayer, {
-        scale: 0.05, // More reasonable zoom level
-        octaves: 3, // Fewer octaves for clearer patterns
-        persistence: 0.5, // Standard persistence
-        lacunarity: 1.0, // Standard lacunarity
-        timeScale: 0.1, // Slightly faster animation
-        colorize: true, // Keep color
-        color1: '#000000', // Start with black
-        color2: '#ffffff', // End with white
-    }),
+    // new Layer(noiseLayer, {
+    //     scale: 0.05, // More reasonable zoom level
+    //     octaves: 3, // Fewer octaves for clearer patterns
+    //     persistence: 0.5, // Standard persistence
+    //     lacunarity: 1.0, // Standard lacunarity
+    //     timeScale: 0.1, // Slightly faster animation
+    //     colorize: true, // Keep color
+    //     color1: '#000000', // Start with black
+    //     color2: '#ffffff', // End with white
+    // }),
 
     // new Layer(imageLayer, { imagePath, cropMode: 'cover' }),
+    new Layer(shaderLayer, { fragSource }),
+
+    new Layer(cgaDither),
 
     // TODO: apply the actual dither!
     // new Layer(cgaDither),
@@ -110,6 +115,7 @@ const player = createPlayer(
         canvas: document.getElementById('output'),
         timeLabel: document.getElementById('timeLabel'),
         playPauseBtn: document.getElementById('playPause'),
+        exportBtn: document.getElementById('exportBtn'),
     },
     projectSettings
 )

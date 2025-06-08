@@ -2,10 +2,9 @@
 
 https://blog.maximeheckel.com/posts/post-processing-as-a-creative-medium/
 
-- Generalize the raymarching layer
+- EXPORT TO VIDEO/FRAMES
 - Make and save sketches?
 - Save some outputs for understanding what you can do with this library
-- EXPORT TO VIDEO/FRAMES
 - Animate and don't clear buffer
 - Abuse pattern dithers
 
