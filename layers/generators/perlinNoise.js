@@ -207,7 +207,7 @@ function createPerlinNoise() {
     return noise
 }
 
-export const noiseLayer = {
+export const perlinNoise = {
     defaultParams: {
         scale: 0.02,
         octaves: 4,

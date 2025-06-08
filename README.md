@@ -1,19 +1,31 @@
 # Aether
 
-https://blog.maximeheckel.com/posts/post-processing-as-a-creative-medium/
+Blend modes on layers (mixing)
 
-- Abuse pattern dithers
+Some extra layers:
+- Additive noise layer
+- Threshold layer
+- Pattern layer
+
+
 https://www.youtube.com/watch?v=3XlO5J7XorI
-https://www.youtube.com/watch?v=HfK57wcyz-c
 
-- Simple particle system (do a study as well on website)
+- Shape dither (custom shape designs)
+- Abuse pattern dithers
+- Bring back online model loader (three.js)
+
+- How do flood fills work? https://x.com/hahajohnx
+- Simple particle system (just use ChatGPT)
 
 - Make and save sketches?
 - Save some outputs for understanding what you can do with this library
 - Animate and don't clear buffer
 - Combine with some AfterEffects effects
 - Animation system?
-- Bring back online model loader (three.js)
+
+https://www.youtube.com/watch?v=8fEyKuVkeK8&list=PLvfny-DAmKHLwjpjyI0vuLGNyWZOvVY3J
+
+- More Raymarching (links in browser)
 
 ## Later
 
@@ -38,6 +50,7 @@ https://www.shadertoy.com/view/MtV3W1
 - JPEG destruction Algo
 - Debug animation layer for parameter viz
 - Bloom filter
+- Final high resolution grain layer?
 
 https://offscreencanvas.com/issues/advanced-ascii-rendering/
 https://offscreencanvas.com/issues/webgl-ascii/
