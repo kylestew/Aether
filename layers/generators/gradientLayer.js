@@ -1,4 +1,4 @@
-export const pixelGradientLayer = {
+export const gradientLayer = {
     defaultParams: {
         startColor: '#ff0000',
         endColor: '#0000ff',
