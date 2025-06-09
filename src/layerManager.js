@@ -3,18 +3,19 @@
  */
 export class Layer {
     /**
-     * @param {[number, number]} size - [width, height] of the layer
+     * @param {Object} layer controls - {width, height, blendMode} of the layer
      * @param {Object} renderer - Layer renderer object with render method
      * @param {Object} params - Parameters for the layer
-     * @param {string} [params.blendMode='normal'] - Blend mode for this layer
      */
-    constructor(size, renderer, params = {}) {
+    constructor(controls, renderer, params = {}) {
+        const { size, blendMode } = controls
         this.width = size[0]
         this.height = size[1]
+        this.blendMode = blendMode || 'normal'
+
         this.renderer = renderer
         // merge default params with user specified (overriding)
         this.params = { ...renderer.defaultParams, ...params }
-        this.blendMode = params.blendMode || 'normal'
 
         // Create layer canvas
         this.canvas = document.createElement('canvas')
@@ -22,8 +23,6 @@ export class Layer {
         this.canvas.height = this.height
         this.ctx = this.canvas.getContext('2d')
         this.ctx.imageSmoothingEnabled = false // Ensure crisp pixel art scaling
-
-        console.log('layer has canvas of', this.width, this.height)
     }
 
     async init() {

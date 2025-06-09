@@ -9,6 +9,7 @@ import { imageLayer } from './layers/media/imageLayer.js'
 // generators
 import { simple3DLayer } from './layers/generators/simple3DLayer.js'
 import { gradient } from './layers/generators/gradient.js'
+import { staticNoise } from './layers/generators/staticNoise.js'
 import { pixelPattern } from './layers/generators/pixelPattern.js'
 
 // pixel
@@ -17,7 +18,7 @@ import { threshold } from './layers/pixel/threshold.js'
 
 // MODES: 120, 60, 40, 30, 24, 20, 15, 12, 10, 8, 6, 5, 4, 3, 2, 1
 // MODE 6 is closest to CGA mode 0 (320x200(CGA) - 320x180 (ours))
-const mode = 20
+const mode = 8
 const fullSize = [1080, 1920]
 const modeSize = [fullSize[0] / mode, fullSize[1] / mode]
 
@@ -35,24 +36,25 @@ const palette0HighRGB = [
     [255, 255, 255], // White
 ]
 
-const imagePath = '/assets/images/pearl.png'
-// const imagePath = '/assets/images/lenna.png'
+// const imagePath = '/assets/images/pearl.png'
+const imagePath = '/assets/images/lenna.png'
 // const imagePath = '/assets/images/david.png'
 
 const layers = [
-    new Layer(modeSize, imageLayer, {
+    new Layer({ size: modeSize }, imageLayer, {
         imagePath,
         cropMode: 'cover',
     }),
-    new Layer(modeSize, simple3DLayer),
+    // new Layer({ size: modeSize }, simple3DLayer),
 
-    new Layer(modeSize, gradient, { blendMode: 'overlay' }),
-    // new Layer(modeSize, pixelPattern, { scale: 1 }),
+    // new Layer({ size: modeSize, blendMode: 'normal' }, gradient),
+    // new Layer({ size: modeSize, blendMode: 'overlay' }, staticNoise, { alpha: 0.5 }),
+    new Layer({ size: modeSize, blendMode: 'overlay' }, pixelPattern, { scale: 1 }),
 
     // new Layer(modeSize, blur, { radius: 2 }),
-    // new Layer(modeSize, threshold),
+    new Layer({ size: modeSize }, threshold, { threshold: 0.7 }),
 
-    new Layer(fullSize, nullLayer),
+    // new Layer(fullSize, nullLayer),
 
     // new Layer(modeSize, threshold, {
     //     threshold: (t) => 0.5 + Math.sin(t) * 0.2, // Animate threshold between 0.1 and 0.9

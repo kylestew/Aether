@@ -16,7 +16,7 @@ export const simple3DLayer = {
         renderer.setPixelRatio(window.devicePixelRatio)
         renderer.outputColorSpace = THREE.SRGBColorSpace
         renderer.toneMapping = THREE.ACESFilmicToneMapping
-        renderer.toneMappingExposure = 1.0
+        renderer.toneMappingExposure = 1.2
 
         scene = new THREE.Scene()
         scene.background = new THREE.Color(0x000000)
@@ -44,11 +44,14 @@ export const simple3DLayer = {
             camera.lookAt(0, 0, 0)
 
             // Lighting: strong directional + subtle ambient
-            const ambientLight = new THREE.AmbientLight(0xffffff, 0.3)
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.2)
             scene.add(ambientLight)
-            const directionalLight = new THREE.DirectionalLight(0xffffff, 12.0)
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 20.0)
             directionalLight.position.set(5, 10, -5)
             scene.add(directionalLight)
+            const directionalLight2 = new THREE.DirectionalLight(0xffffff, 20.0)
+            directionalLight2.position.set(-5, 0, -5)
+            scene.add(directionalLight2)
 
             const geometry = new THREE.TorusKnotGeometry(1, 0.3, 100, 16, 2, 3)
             const material = new THREE.MeshStandardMaterial({ color: 'white' })

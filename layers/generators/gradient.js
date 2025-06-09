@@ -1,8 +1,8 @@
 export const gradient = {
     defaultParams: {
-        startColor: '#ff0000',
-        endColor: '#0000ff',
-        direction: 'horizontal', // 'horizontal' or 'vertical'
+        startColor: '#ffffff',
+        endColor: '#000000',
+        direction: 'vertical', // 'horizontal' or 'vertical'
     },
 
     render(ctx, { width, height, startColor, endColor, direction }) {
