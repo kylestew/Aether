@@ -1,24 +1,17 @@
 # Aether
 
-Some extra layers:
-- Pattern layer
+Pattern layer doesn't scale right, broken
 
 https://www.youtube.com/watch?v=3XlO5J7XorI
 
 - Shape dither (custom shape designs)
 - Abuse pattern dithers
-- Bring back online model loader (three.js)
-
 - How do flood fills work? https://x.com/hahajohnx
-- Simple particle system (just use ChatGPT)
 
 - Make and save sketches?
 - Save some outputs for understanding what you can do with this library
 - Animate and don't clear buffer
 - Combine with some AfterEffects effects
-- Animation system?
-
-https://www.youtube.com/watch?v=8fEyKuVkeK8&list=PLvfny-DAmKHLwjpjyI0vuLGNyWZOvVY3J
 
 - More Raymarching (links in browser)
 
