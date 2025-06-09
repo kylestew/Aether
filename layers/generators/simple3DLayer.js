@@ -26,7 +26,7 @@ export const simple3DLayer = {
         knot = null
     },
 
-    render(ctx, { width, height, t, totalTime }) {
+    render(ctx, { width, height, t, pct }) {
         const aspect = width / height
         const frustumSize = 5.5
 
@@ -65,7 +65,7 @@ export const simple3DLayer = {
 
         // Animate knot (single Y rotation over totalTime)
         if (knot) {
-            knot.rotation.set(0, (t / totalTime) * Math.PI * 2, 0)
+            knot.rotation.set(0, pct * Math.PI * 2, 0)
         }
 
         renderer.setSize(width, height)

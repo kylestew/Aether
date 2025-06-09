@@ -76,24 +76,23 @@ export const createPlayer = (elements, settings) => {
     let recordedChunks = []
     let isExporting = false
 
-    const render = (t) => {
+    const render = (t, frame) => {
         // Clear both canvases
         ctx.clearRect(0, 0, width, height)
         compositeCtx.clearRect(0, 0, width, height)
 
-        // Calculate current frame
-        const frame = Math.floor(t * targetFPS)
+        compositeCtx.fillStyle = 'red'
+        compositeCtx.fillRect(0, 0, width, height)
+
+        const pct = t / duration
 
         // Render each layer
         for (const layer of layers) {
             // Render the layer to its own canvas
-            layer.render(t, compositeCtx, {
-                width,
-                height,
-                totalTime: duration,
-                frame,
-                targetFPS,
+            layer.render(compositeCtx, {
                 t, // normalized time (0 to duration)
+                pct, // animation progress [0, 1]
+                frame,
             })
 
             // Apply the layer with its blend mode to the composite
@@ -102,18 +101,6 @@ export const createPlayer = (elements, settings) => {
 
         // Draw final composite to main canvas
         ctx.drawImage(compositeCanvas, 0, 0)
-    }
-
-    const start = () => {
-        if (isPlaying) return
-        isPlaying = true
-        startTime = performance.now() - (lastRenderTime || 0)
-        requestAnimationFrame(animate)
-    }
-
-    const stop = () => {
-        isPlaying = false
-        lastRenderTime = performance.now() - startTime
     }
 
     const animate = (now) => {
@@ -127,10 +114,22 @@ export const createPlayer = (elements, settings) => {
         timeLabel.textContent = `${t.toFixed(2)}s - frame ${frame}`
 
         // Render frame
-        render(t)
+        render(t, frame)
 
         // Continue animation
         requestAnimationFrame(animate)
+    }
+
+    const start = () => {
+        if (isPlaying) return
+        isPlaying = true
+        startTime = performance.now() - (lastRenderTime || 0)
+        requestAnimationFrame(animate)
+    }
+
+    const stop = () => {
+        isPlaying = false
+        lastRenderTime = performance.now() - startTime
     }
 
     function resizeCanvas() {
@@ -515,7 +514,6 @@ export const createPlayer = (elements, settings) => {
             console.log('Initializing layer:', layer)
             await layer.init()
         }
-        console.log('All layers initialized')
 
         // Start animation if enabled
         if (animated) {
@@ -524,15 +522,12 @@ export const createPlayer = (elements, settings) => {
         } else {
             console.log('Rendering single frame')
             // Render single frame
-            render(0)
+            render(0, 0)
         }
     }
 
     return {
         loadAndStart,
-        start,
-        stop,
-        // ... other exports ...
     }
 }
 

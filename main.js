@@ -1,18 +1,12 @@
 import { createPlayer } from './src/player.js'
-import { Layer, BLEND_MODES } from './src/layerManager.js'
+import { Layer } from './src/layerManager.js'
 
 import { imageLayer } from './layers/media/imageLayer.js'
 import { simple3DLayer } from './layers/generators/simple3DLayer.js'
-import { threshold } from './layers/pixel/threshold.js'
-import { staticNoise } from './layers/generators/staticNoise.js'
-import { blur } from './layers/pixel/blur.js'
-import { model3DLoader } from './layers/generators/model3DLoader.js'
-import { pixelPattern } from './layers/generators/pixelPattern.js'
-import { nullLayer } from './layers/generators/nullLayer.js'
 
 // MODES: 120, 60, 40, 30, 24, 20, 15, 12, 10, 8, 6, 5, 4, 3, 2, 1
 // MODE 6 is closest to CGA mode 0 (320x200(CGA) - 320x180 (ours))
-const mode = 20
+const mode = 4
 const fullSize = [1080, 1920]
 const modeSize = [fullSize[0] / mode, fullSize[1] / mode]
 
@@ -30,33 +24,32 @@ const palette0HighRGB = [
     [255, 255, 255], // White
 ]
 
-// const imagePath = '/assets/images/pearl.png'
-const imagePath = '/assets/images/lenna.png'
+const imagePath = '/assets/images/pearl.png'
+// const imagePath = '/assets/images/lenna.png'
 // const imagePath = '/assets/images/david.png'
 
 const layers = [
-    // new Layer(modeSize, model3DLoader),
-
-    new Layer(modeSize, pixelPattern, {
-        // pattern: pixelPattern._defaultBayer4x4,
-        // color: '#ffffff',
-        // scale: 4,
-    }),
-
-    new Layer(fullSize, nullLayer),
-
     // new Layer(modeSize, imageLayer, {
     //     imagePath,
     //     cropMode: 'cover',
     // }),
+    new Layer(modeSize, simple3DLayer),
+
+    // new Layer(modeSize, model3DLoader),
+
+    // new Layer(modeSize, pixelPattern, {
+    //     // pattern: pixelPattern._defaultBayer4x4,
+    //     // color: '#ffffff',
+    //     // scale: 4,
+    // }),
+
+    // new Layer(fullSize, nullLayer),
 
     // new Layer(modeSize, blur, {
     //     radius: 10,
     //     color: '#ffffff',
     //     size: 50,
     // }),
-
-    // new Layer(modeSize, simple3DLayer),
     // new Layer(modeSize, staticNoise, {
     //     density: 0.5,
     //     color: '#ffffff',
