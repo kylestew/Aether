@@ -1,14 +1,11 @@
-export const gradientLayer = {
+export const gradient = {
     defaultParams: {
         startColor: '#ff0000',
         endColor: '#0000ff',
         direction: 'horizontal', // 'horizontal' or 'vertical'
     },
 
-    render(ctx, { resolution, params }) {
-        const { width, height } = resolution
-        const { startColor, endColor, direction } = params
-
+    render(ctx, { width, height, startColor, endColor, direction }) {
         // Parse colors
         const startRGB = this._parseColor(startColor)
         const endRGB = this._parseColor(endColor)

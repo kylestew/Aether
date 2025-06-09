@@ -1,11 +1,14 @@
 import { createPlayer } from './src/player.js'
 import { Layer } from './src/layerManager.js'
 
+import { nullLayer } from './layers/nullLayer.js'
+
 // media
 import { imageLayer } from './layers/media/imageLayer.js'
 
 // generators
 import { simple3DLayer } from './layers/generators/simple3DLayer.js'
+import { gradient } from './layers/generators/gradient.js'
 import { pixelPattern } from './layers/generators/pixelPattern.js'
 
 // pixel
@@ -37,29 +40,20 @@ const imagePath = '/assets/images/pearl.png'
 // const imagePath = '/assets/images/david.png'
 
 const layers = [
-    // new Layer(modeSize, imageLayer, {
-    //     imagePath,
-    //     cropMode: 'cover',
-    // }),
-
+    new Layer(modeSize, imageLayer, {
+        imagePath,
+        cropMode: 'cover',
+    }),
     new Layer(modeSize, simple3DLayer),
 
-    // new Layer(modeSize, blur, { radius: 2 }),
-
+    new Layer(modeSize, gradient, { blendMode: 'overlay' }),
     // new Layer(modeSize, pixelPattern, { scale: 1 }),
 
-    // new Layer(fullSize, nullLayer),
-    // new Layer(modeSize, blur, {
-    //     radius: 10,
-    //     color: '#ffffff',
-    //     size: 50,
-    // }),
-    // new Layer(modeSize, staticNoise, {
-    //     density: 0.5,
-    //     color: '#ffffff',
-    //     alpha: 1.0,
-    //     blendMode: 'overlay', // Noise will overlay the image
-    // }),
+    // new Layer(modeSize, blur, { radius: 2 }),
+    // new Layer(modeSize, threshold),
+
+    new Layer(fullSize, nullLayer),
+
     // new Layer(modeSize, threshold, {
     //     threshold: (t) => 0.5 + Math.sin(t) * 0.2, // Animate threshold between 0.1 and 0.9
     //     blendMode: 'normal', // Threshold will multiply with the result
