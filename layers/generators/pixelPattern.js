@@ -36,6 +36,7 @@ export const pixelPattern = {
             for (let x = 0; x < cols; x++) {
                 const alpha = Math.max(0, Math.min(1, pattern[y][x]))
                 pctx.fillStyle = `rgba(${r},${g},${b},${alpha})`
+                console.log(pctx.fillStyle)
                 pctx.fillRect(x * scale, y * scale, scale, scale)
             }
         }

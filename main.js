@@ -1,12 +1,20 @@
 import { createPlayer } from './src/player.js'
 import { Layer } from './src/layerManager.js'
 
+// media
 import { imageLayer } from './layers/media/imageLayer.js'
+
+// generators
 import { simple3DLayer } from './layers/generators/simple3DLayer.js'
+import { pixelPattern } from './layers/generators/pixelPattern.js'
+
+// pixel
+import { blur } from './layers/pixel/blur.js'
+import { threshold } from './layers/pixel/threshold.js'
 
 // MODES: 120, 60, 40, 30, 24, 20, 15, 12, 10, 8, 6, 5, 4, 3, 2, 1
 // MODE 6 is closest to CGA mode 0 (320x200(CGA) - 320x180 (ours))
-const mode = 4
+const mode = 20
 const fullSize = [1080, 1920]
 const modeSize = [fullSize[0] / mode, fullSize[1] / mode]
 
@@ -33,18 +41,14 @@ const layers = [
     //     imagePath,
     //     cropMode: 'cover',
     // }),
+
     new Layer(modeSize, simple3DLayer),
 
-    // new Layer(modeSize, model3DLoader),
+    // new Layer(modeSize, blur, { radius: 2 }),
 
-    // new Layer(modeSize, pixelPattern, {
-    //     // pattern: pixelPattern._defaultBayer4x4,
-    //     // color: '#ffffff',
-    //     // scale: 4,
-    // }),
+    // new Layer(modeSize, pixelPattern, { scale: 1 }),
 
     // new Layer(fullSize, nullLayer),
-
     // new Layer(modeSize, blur, {
     //     radius: 10,
     //     color: '#ffffff',

@@ -4,11 +4,11 @@
 export const threshold = {
     defaultParams: {
         threshold: 0.5,
-        backgroundColor: '#000',
-        foregroundColor: '#fff',
+        backgroundColor: '#000000',
+        foregroundColor: '#ffffff',
     },
 
-    render(ctx, { t, inputCtx, width, height, threshold, backgroundColor, foregroundColor }) {
+    render(ctx, { inputCtx, width, height, threshold, backgroundColor, foregroundColor }) {
         if (!inputCtx) return
 
         // Create a temporary canvas for the input
@@ -18,8 +18,9 @@ export const threshold = {
         tempCanvas.height = height
 
         // Draw input to temp canvas
-        tempCtx.drawImage(inputCtx.canvas, 0, 0)
-        const imageData = tempCtx.getImageData(0, 0, width, height)
+        const { width: inputWidth, height: inputHeight } = inputCtx.canvas
+        tempCtx.drawImage(inputCtx.canvas, 0, 0, inputWidth, inputHeight, 0, 0, width, height)
+        const imageData = tempCtx.getImageData(0, 0, inputWidth, inputHeight)
         const data = imageData.data
 
         // Parse hex color to RGB
