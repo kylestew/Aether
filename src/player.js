@@ -71,7 +71,7 @@ export const createPlayer = (elements, settings) => {
     let isPlaying = false
     let startTime = null
     let lastRenderTime = null
-    let frameCount = 0
+    let lastFrame = 0
     let mediaRecorder = null
     let recordedChunks = []
     let isExporting = false
@@ -113,8 +113,11 @@ export const createPlayer = (elements, settings) => {
         // Update time label with both time and frame
         timeLabel.textContent = `${t.toFixed(2)}s - frame ${frame}`
 
-        // Render frame
-        render(t, frame)
+        // Only render if it's a new frame
+        if (frame !== lastFrame) {
+            render(t, frame)
+            lastFrame = frame
+        }
 
         // Continue animation
         requestAnimationFrame(animate)

@@ -3,11 +3,10 @@
  */
 export const staticNoise = {
     defaultParams: {
-        alpha: 1.0,
         seed: 0,
     },
 
-    render(ctx, { t, width, height, alpha, seed }) {
+    render(ctx, { t, width, height, seed }) {
         // Clear the canvas first
         ctx.clearRect(0, 0, width, height)
 
@@ -31,7 +30,7 @@ export const staticNoise = {
                 data[i] = rnd
                 data[i + 1] = rnd
                 data[i + 2] = rnd
-                data[i + 3] = Math.floor(alpha * 255) // A
+                data[i + 3] = 255
             }
         }
 

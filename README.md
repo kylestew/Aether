@@ -2,7 +2,7 @@
 
 ## Layers
 
-Each layer takes a `size` and `blendMode`.
+Each layer takes a `size`, `blendMode`, and `opacity`.
 
 - Generators
   - Gradient
@@ -13,15 +13,19 @@ Each layer takes a `size` and `blendMode`.
   - Image Layer (load and display static image)
 - Pixel
   - Blur (Canvas API based blur)
+  - Posterize (uniform quantization with bucketing)
   - Threshold (chroma based, snap colors to black/white)
   - TODO: highlights/midtones/contrast adjustment
 - Post Processing
-  - Shape Dither (custom rendered shapes instead of pixels)
+  - TODO: Shape Dither (custom rendered shapes instead of pixels)
+
+TODO: tint to map B/W to colors
 
 ## TODO
 
 - Shape dither (custom shape designs)
 - Abuse pattern dithers
+- Blue Noise Dithering
 
 - Animate and don't clear buffer
 - Combine with some AfterEffects effects

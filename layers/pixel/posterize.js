@@ -1,13 +1,11 @@
-export const uniformQuantization = {
+export const posterize = {
     defaultParams: {
-        numBins: 8, // Number of quantization levels per channel
+        numBins: 4, // Number of quantization levels per channel
     },
 
-    render(ctx, { t, inputCtx, resolution, params }) {
+    render(ctx, { inputCtx, width, height, numBins }) {
         if (!inputCtx) return
 
-        const { width, height } = resolution
-        const { numBins } = params
         const binSize = 256 / numBins
 
         // Get input image data
@@ -22,8 +20,12 @@ export const uniformQuantization = {
                 const value = input[i + j]
                 // Uniform quantization with midpoint rounding
                 let quantized = binSize * (Math.floor(value / binSize) + 0.5)
+                // let quantized = binSize * Math.floor(value / binSize)
+
                 // Clamp to [0, 255]
                 quantized = Math.max(0, Math.min(255, Math.round(quantized)))
+                // console.log(value, quantized)
+
                 output[i + j] = quantized
             }
             // Preserve alpha channel

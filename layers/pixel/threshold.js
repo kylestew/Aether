@@ -11,16 +11,8 @@ export const threshold = {
     render(ctx, { inputCtx, width, height, threshold, backgroundColor, foregroundColor }) {
         if (!inputCtx) return
 
-        // Create a temporary canvas for the input
-        const tempCanvas = document.createElement('canvas')
-        const tempCtx = tempCanvas.getContext('2d')
-        tempCanvas.width = width
-        tempCanvas.height = height
-
-        // Draw input to temp canvas
-        const { width: inputWidth, height: inputHeight } = inputCtx.canvas
-        tempCtx.drawImage(inputCtx.canvas, 0, 0, inputWidth, inputHeight, 0, 0, width, height)
-        const imageData = tempCtx.getImageData(0, 0, inputWidth, inputHeight)
+        // we are just going to write into the input canvas the updated values
+        const imageData = inputCtx.getImageData(0, 0, width, height)
         const data = imageData.data
 
         // Parse hex color to RGB
@@ -54,7 +46,7 @@ export const threshold = {
         }
 
         // Put the processed image data back
-        tempCtx.putImageData(imageData, 0, 0)
-        ctx.drawImage(tempCanvas, 0, 0)
+        inputCtx.putImageData(imageData, 0, 0)
+        ctx.drawImage(inputCtx.canvas, 0, 0)
     },
 }

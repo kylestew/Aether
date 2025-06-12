@@ -14,6 +14,7 @@ import { staticNoise } from './layers/generators/staticNoise.js'
 
 // pixel
 import { blur } from './layers/pixel/blur.js'
+import { posterize } from './layers/pixel/posterize.js'
 import { threshold } from './layers/pixel/threshold.js'
 
 // MODES: 120, 60, 40, 30, 24, 20, 15, 12, 10, 8, 6, 5, 4, 3, 2, 1
@@ -36,9 +37,16 @@ const palette0HighRGB = [
     [255, 255, 255], // White
 ]
 
-// const imagePath = '/assets/images/pearl.png'
-const imagePath = '/assets/images/lenna.png'
+const imagePath = '/assets/images/pearl.png'
+// const imagePath = '/assets/images/lenna.png'
 // const imagePath = '/assets/images/david.png'
+
+const horizontalDither = [
+    [205, 230, 230, 230, 230, 205, 178, 178, 152, 152, 152, 178],
+    [64, 32, 32, 32, 32, 64, 96, 126, 126, 126, 96, 96],
+    [178, 178, 152, 152, 152, 178, 205, 230, 230, 230, 230, 205],
+    [96, 126, 126, 126, 96, 96, 64, 32, 32, 32, 32, 64],
+].map((row) => row.map((val) => val / 255))
 
 const layers = [
     new Layer({ size: modeSize }, imageLayer, {
@@ -48,11 +56,15 @@ const layers = [
     // new Layer({ size: modeSize }, simple3DLayer),
 
     // new Layer({ size: modeSize, blendMode: 'normal' }, gradient),
-    // new Layer({ size: modeSize, blendMode: 'overlay', opacity: 0.5 }, staticNoise, { alpha: 0.5 }),
-    new Layer({ size: modeSize, blendMode: 'overlay', opacity: 0.5 }, pixelPattern, { scale: 1 }),
+    // new Layer({ size: modeSize, blendMode: 'normal', opacity: 0.2 }, staticNoise),
+    // new Layer({ size: modeSize, blendMode: 'overlay', opacity: 0.3 }, pixelPattern, {
+    //     scale: 1,
+    //     pattern: horizontalDither,
+    // }),
 
-    // new Layer(modeSize, blur, { radius: 2 }),
-    new Layer({ size: modeSize }, threshold, { threshold: 0.5 }),
+    new Layer({ size: modeSize }, posterize, { numBins: 4 }),
+    // new Layer({ size: modeSize }, blur, { radius: 1 }),
+    // new Layer({ size: modeSize }, threshold, { threshold: 0.5 }),
 
     // new Layer(fullSize, nullLayer),
 
@@ -64,9 +76,9 @@ const layers = [
 
 const projectSettings = {
     size: fullSize,
-    // animated: true,
+    animated: false,
     duration: 10, // seconds
-    targetFPS: 30, // cap rendering at 30 fps
+    targetFPS: 24,
     layers,
 }
 

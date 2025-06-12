@@ -68,31 +68,18 @@ export class Layer {
             evaluatedParams[key] = typeof val === 'function' ? val(t) : val
         }
 
-        // create a temporary canvas to upscale it
+        // if the input canvas doesn't match our size, scale into a new canvas
         let processedInputCtx = inputCtx
-        // if (inputCtx && (inputCtx.canvas.width !== this.size[0] || inputCtx.canvas.height !== this.size[1])) {
-        //     const tempCanvas = document.createElement('canvas')
-        //     tempCanvas.width = this.size[0]
-        //     tempCanvas.height = this.size[1]
-        //     const tempCtx = tempCanvas.getContext('2d')
-        //     tempCtx.imageSmoothingEnabled = false // Ensure crisp pixel art scaling
+        if (inputCtx.canvas.width !== this.width || inputCtx.canvas.height !== this.height) {
+            const tempCanvas = document.createElement('canvas')
+            const tempCtx = tempCanvas.getContext('2d')
+            tempCanvas.width = this.width
+            tempCanvas.height = this.height
+            const { width: inputWidth, height: inputHeight } = inputCtx.canvas
+            tempCtx.drawImage(inputCtx.canvas, 0, 0, inputWidth, inputHeight, 0, 0, this.width, this.height)
+            processedInputCtx = tempCtx
+        }
 
-        //     // Draw input at upscaled size
-        //     tempCtx.drawImage(
-        //         inputCtx.canvas,
-        //         0,
-        //         0,
-        //         inputCtx.canvas.width,
-        //         inputCtx.canvas.height,
-        //         0,
-        //         0,
-        //         this.size[0],
-        //         this.size[1]
-        //     )
-        //     processedInputCtx = tempCtx
-        // }
-
-        // Render the layer, passing through all resolution parameters
         this.renderer.render(this.ctx, {
             ...evaluatedParams,
             ...params,
