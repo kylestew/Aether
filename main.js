@@ -9,17 +9,18 @@ import { imageLayer } from './layers/media/imageLayer.js'
 // generators
 import { gradient } from './layers/generators/gradient.js'
 import { pixelPattern } from './layers/generators/pixelPattern.js'
+import { popcornNoise } from './layers/generators/popcornNoise.js'
 import { simple3DLayer } from './layers/generators/simple3DLayer.js'
-import { staticNoise } from './layers/generators/staticNoise.js'
 
 // pixel
 import { blur } from './layers/pixel/blur.js'
+import { pixelate } from './layers/pixel/pixelate.js'
 import { posterize } from './layers/pixel/posterize.js'
 import { threshold } from './layers/pixel/threshold.js'
 
 // MODES: 120, 60, 40, 30, 24, 20, 15, 12, 10, 8, 6, 5, 4, 3, 2, 1
 // MODE 6 is closest to CGA mode 0 (320x200(CGA) - 320x180 (ours))
-const mode = 8
+const mode = 1
 const fullSize = [1080, 1920]
 const modeSize = [fullSize[0] / mode, fullSize[1] / mode]
 
@@ -37,9 +38,10 @@ const palette0HighRGB = [
     [255, 255, 255], // White
 ]
 
-const imagePath = '/assets/images/pearl.png'
-// const imagePath = '/assets/images/lenna.png'
+// const imagePath = '/assets/images/pearl.png'
+const imagePath = '/assets/images/lenna.png'
 // const imagePath = '/assets/images/david.png'
+// const imagePath = '/assets/images/premium_photo-1736749650508-fcf0c377868b.avif'
 
 const horizontalDither = [
     [205, 230, 230, 230, 230, 205, 178, 178, 152, 152, 152, 178],
@@ -53,17 +55,18 @@ const layers = [
         imagePath,
         cropMode: 'cover',
     }),
-    // new Layer({ size: modeSize }, simple3DLayer),
 
     // new Layer({ size: modeSize, blendMode: 'normal' }, gradient),
-    // new Layer({ size: modeSize, blendMode: 'normal', opacity: 0.2 }, staticNoise),
-    // new Layer({ size: modeSize, blendMode: 'overlay', opacity: 0.3 }, pixelPattern, {
+    // new Layer({ size: modeSize, blendMode: 'overlay', opacity: 0.5 }, pixelPattern, {
     //     scale: 1,
-    //     pattern: horizontalDither,
+    //     // pattern: horizontalDither,
     // }),
+    // new Layer({ size: modeSize, blendMode: 'normal', opacity: 1.0 }, popcornNoise),
+    // new Layer({ size: modeSize }, simple3DLayer),
 
-    new Layer({ size: modeSize }, posterize, { numBins: 4 }),
     // new Layer({ size: modeSize }, blur, { radius: 1 }),
+    new Layer({ size: modeSize }, pixelate, {}),
+    // new Layer({ size: modeSize }, posterize, { numBins: 4 }),
     // new Layer({ size: modeSize }, threshold, { threshold: 0.5 }),
 
     // new Layer(fullSize, nullLayer),
@@ -76,9 +79,9 @@ const layers = [
 
 const projectSettings = {
     size: fullSize,
-    animated: false,
+    animated: true,
     duration: 10, // seconds
-    targetFPS: 24,
+    targetFPS: 12,
     layers,
 }
 

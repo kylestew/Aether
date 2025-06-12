@@ -1,22 +1,20 @@
-export const pixelateLayer = {
+export const pixelate = {
     defaultParams: {
         pixelSize: 16,
     },
 
-    render(ctx, { inputCtx, resolution, params }) {
+    render(ctx, { inputCtx, width, height, pixelSize }) {
         if (!inputCtx) return
 
-        const { width, height } = resolution
-
-        const pixelSize = Math.floor(params.pixelSize)
+        const pxSize = Math.floor(pixelSize)
 
         // Create a temporary canvas for downscaling
         const tempCanvas = document.createElement('canvas')
         const tempCtx = tempCanvas.getContext('2d')
 
         // Set temp canvas to the downscaled size
-        const downscaledWidth = Math.floor(width / pixelSize)
-        const downscaledHeight = Math.floor(height / pixelSize)
+        const downscaledWidth = Math.floor(width / pxSize)
+        const downscaledHeight = Math.floor(height / pxSize)
         tempCanvas.width = downscaledWidth
         tempCanvas.height = downscaledHeight
 

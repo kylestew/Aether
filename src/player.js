@@ -72,11 +72,13 @@ export const createPlayer = (elements, settings) => {
     let startTime = null
     let lastRenderTime = null
     let lastFrame = 0
+    let lastRenderedFrame = 0
     let mediaRecorder = null
     let recordedChunks = []
     let isExporting = false
+    let originalRender // Declare in parent scope
 
-    const render = (t, frame) => {
+    let render = (t, frame) => {
         // Clear both canvases
         ctx.clearRect(0, 0, width, height)
         compositeCtx.clearRect(0, 0, width, height)
@@ -192,10 +194,12 @@ export const createPlayer = (elements, settings) => {
             const zip = new JSZip()
 
             // Override the render function to capture frames
-            const originalRender = render
-            render = async function (t) {
+            originalRender = render
+            render = async function (t, frame) {
                 // Call original render
-                originalRender(t)
+                originalRender(t, frame)
+
+                console.log('frame', frame)
 
                 // Capture frame
                 const frameData = canvas.toDataURL('image/png')
@@ -257,8 +261,11 @@ export const createPlayer = (elements, settings) => {
                 const t = elapsed / 1000
                 const frame = Math.floor(t * targetFPS)
 
-                // Render frame
-                render(t)
+                // Only render if frame has changed
+                if (frame > lastRenderedFrame) {
+                    render(t, frame)
+                    lastRenderedFrame = frame
+                }
 
                 // Continue animation
                 requestAnimationFrame(exportFrame)
@@ -274,7 +281,7 @@ export const createPlayer = (elements, settings) => {
                 exportBtn.textContent = '📹'
             }, 2000)
             // Restore original render if it was overridden
-            if (render !== originalRender) {
+            if (originalRender && render !== originalRender) {
                 render = originalRender
             }
         }
@@ -458,7 +465,7 @@ export const createPlayer = (elements, settings) => {
                 exportBtn.textContent = '📹'
             }, 2000)
             // Restore original render if it was overridden
-            if (render !== originalRender) {
+            if (originalRender && render !== originalRender) {
                 render = originalRender
             }
         }

@@ -1,7 +1,7 @@
 /**
  * Noise layer that generates random pixel noise (snow effect)
  */
-export const staticNoise = {
+export const popcornNoise = {
     defaultParams: {
         seed: 0,
     },
