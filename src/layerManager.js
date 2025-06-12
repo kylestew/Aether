@@ -8,10 +8,11 @@ export class Layer {
      * @param {Object} params - Parameters for the layer
      */
     constructor(controls, renderer, params = {}) {
-        const { size, blendMode } = controls
+        const { size, blendMode, opacity = 1.0 } = controls
         this.width = size[0]
         this.height = size[1]
         this.blendMode = blendMode || 'normal'
+        this.opacity = opacity
 
         this.renderer = renderer
         // merge default params with user specified (overriding)
@@ -38,16 +39,19 @@ export class Layer {
         const { width: ourWidth, height: ourHeight } = this.canvas
         const { width: theirWidth, height: theirHeight } = targetCtx.canvas
 
-        // Get the current composite operation
+        // Save current state (composite and alpha)
         const prevComposite = targetCtx.globalCompositeOperation
+        const prevAlpha = targetCtx.globalAlpha
 
-        // Set the blend mode
+        // Set blend mode and opacity
         targetCtx.globalCompositeOperation = this.blendMode
+        targetCtx.globalAlpha = this.opacity
 
-        // Draw the layer
+        // Draw the layer with blending and opacity
         targetCtx.drawImage(this.canvas, 0, 0, ourWidth, ourHeight, 0, 0, theirWidth, theirHeight)
 
-        // Restore previous composite operation
+        // Restore previous state
+        targetCtx.globalAlpha = prevAlpha
         targetCtx.globalCompositeOperation = prevComposite
     }
 

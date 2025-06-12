@@ -1,21 +1,34 @@
 # Aether
 
-Pattern layer doesn't scale right, broken
+## Layers
 
-https://www.youtube.com/watch?v=3XlO5J7XorI
+Each layer takes a `size` and `blendMode`.
+
+- Generators
+  - Gradient
+  - Pixel Pattern (array defined repeating pixel pattern)
+  - Simple 3D Layer (three.js procedural mesh from API)
+  - Static Noise (random noise field - greyscale)
+- Media
+  - Image Layer (load and display static image)
+- Pixel
+  - Blur (Canvas API based blur)
+  - Threshold (chroma based, snap colors to black/white)
+  - TODO: highlights/midtones/contrast adjustment
+- Post Processing
+  - Shape Dither (custom rendered shapes instead of pixels)
+
+## TODO
 
 - Shape dither (custom shape designs)
 - Abuse pattern dithers
-- How do flood fills work? https://x.com/hahajohnx
 
-- Make and save sketches?
-- Save some outputs for understanding what you can do with this library
 - Animate and don't clear buffer
 - Combine with some AfterEffects effects
 
-- More Raymarching (links in browser)
-
 ## Later
+
+- More Raymarching (links in browser)
 
 https://www.shadertoy.com/view/MtV3W1
 
@@ -39,6 +52,8 @@ https://www.shadertoy.com/view/MtV3W1
 - Debug animation layer for parameter viz
 - Bloom filter
 - Final high resolution grain layer?
+
+- How do flood fills work? https://x.com/hahajohnx
 
 https://offscreencanvas.com/issues/advanced-ascii-rendering/
 https://offscreencanvas.com/issues/webgl-ascii/

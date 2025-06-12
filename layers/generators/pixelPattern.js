@@ -23,19 +23,24 @@ export const pixelPattern = {
         canvas.height = h
         const pctx = canvas.getContext('2d')
 
-        // Parse color to RGB
+        // Parse color to RGB (using a canvas!)
         const tmp = document.createElement('canvas')
         const tmpCtx = tmp.getContext('2d')
         tmp.width = tmp.height = 1
         tmpCtx.fillStyle = color
         tmpCtx.fillRect(0, 0, 1, 1)
-        const [r, g, b] = tmpCtx.getImageData(0, 0, 1, 1).data
+        const [baseR, baseG, baseB] = tmpCtx.getImageData(0, 0, 1, 1).data
 
         // Draw pattern pixels
         for (let y = 0; y < rows; y++) {
             for (let x = 0; x < cols; x++) {
-                const alpha = Math.max(0, Math.min(1, pattern[y][x]))
-                pctx.fillStyle = `rgba(${r},${g},${b},${alpha})`
+                const multiplier = Math.max(0, Math.min(1, pattern[y][x]))
+
+                const r = Math.round(baseR * multiplier)
+                const g = Math.round(baseG * multiplier)
+                const b = Math.round(baseB * multiplier)
+
+                pctx.fillStyle = `rgb(${r}, ${g}, ${b})` // Fully opaque
                 pctx.fillRect(x * scale, y * scale, scale, scale)
             }
         }

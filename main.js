@@ -7,10 +7,10 @@ import { nullLayer } from './layers/nullLayer.js'
 import { imageLayer } from './layers/media/imageLayer.js'
 
 // generators
-import { simple3DLayer } from './layers/generators/simple3DLayer.js'
 import { gradient } from './layers/generators/gradient.js'
-import { staticNoise } from './layers/generators/staticNoise.js'
 import { pixelPattern } from './layers/generators/pixelPattern.js'
+import { simple3DLayer } from './layers/generators/simple3DLayer.js'
+import { staticNoise } from './layers/generators/staticNoise.js'
 
 // pixel
 import { blur } from './layers/pixel/blur.js'
@@ -48,11 +48,11 @@ const layers = [
     // new Layer({ size: modeSize }, simple3DLayer),
 
     // new Layer({ size: modeSize, blendMode: 'normal' }, gradient),
-    // new Layer({ size: modeSize, blendMode: 'overlay' }, staticNoise, { alpha: 0.5 }),
-    new Layer({ size: modeSize, blendMode: 'overlay' }, pixelPattern, { scale: 1 }),
+    // new Layer({ size: modeSize, blendMode: 'overlay', opacity: 0.5 }, staticNoise, { alpha: 0.5 }),
+    new Layer({ size: modeSize, blendMode: 'overlay', opacity: 0.5 }, pixelPattern, { scale: 1 }),
 
     // new Layer(modeSize, blur, { radius: 2 }),
-    new Layer({ size: modeSize }, threshold, { threshold: 0.7 }),
+    new Layer({ size: modeSize }, threshold, { threshold: 0.5 }),
 
     // new Layer(fullSize, nullLayer),
 
@@ -64,7 +64,7 @@ const layers = [
 
 const projectSettings = {
     size: fullSize,
-    animated: true,
+    // animated: true,
     duration: 10, // seconds
     targetFPS: 30, // cap rendering at 30 fps
     layers,
