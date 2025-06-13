@@ -41,8 +41,8 @@ const palette0HighRGB = [
     [255, 255, 255], // White
 ]
 
-// const imagePath = '/assets/images/pearl.png'
-const imagePath = '/assets/images/lenna.png'
+const imagePath = '/assets/images/pearl.png'
+// const imagePath = '/assets/images/lenna.png'
 // const imagePath = '/assets/images/david.png'
 // const imagePath = '/assets/images/premium_photo-1736749650508-fcf0c377868b.avif'
 
@@ -65,7 +65,7 @@ const layers = [
     //     // pattern: horizontalDither,
     // }),
     // new Layer({ size: modeSize, blendMode: 'normal', opacity: 1.0 }, popcornNoise),
-    // new Layer({ size: modeSize }, simple3DLayer),
+    new Layer({ size: modeSize }, simple3DLayer),
 
     new Layer({ size: modeSize }, waves, {}),
 
@@ -84,7 +84,7 @@ const layers = [
 
 const projectSettings = {
     size: fullSize,
-    animated: false,
+    animated: true,
     duration: 10, // seconds
     targetFPS: 12,
     antialias: true,
