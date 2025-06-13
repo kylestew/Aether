@@ -6,7 +6,7 @@
 // - layers
 export const createPlayer = (elements, settings) => {
     const { canvas, timeLabel, playPauseBtn, exportBtn } = elements
-    const { size, animated, duration, targetFPS, layers } = settings
+    const { size, animated, duration, targetFPS, layers, antialias } = settings
     const [width, height] = size
 
     // Video export settings
@@ -58,14 +58,14 @@ export const createPlayer = (elements, settings) => {
     compositeCanvas.width = width
     compositeCanvas.height = height
     const compositeCtx = compositeCanvas.getContext('2d')
-    compositeCtx.imageSmoothingEnabled = false
+    compositeCtx.imageSmoothingEnabled = antialias
 
     // prepare canvas and context
     canvas.width = width
     canvas.height = height
-    canvas.style.imageRendering = 'pixelated'
+    canvas.style.imageRendering = antialias ? 'auto' : 'pixelated'
     const ctx = canvas.getContext('2d')
-    ctx.imageSmoothingEnabled = false // Disable smoothing for crisp pixel art
+    ctx.imageSmoothingEnabled = antialias // Disable smoothing for crisp pixel art
 
     // Playback State
     let isPlaying = false

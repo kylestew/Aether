@@ -23,7 +23,7 @@ export class Layer {
         this.canvas.width = this.width
         this.canvas.height = this.height
         this.ctx = this.canvas.getContext('2d')
-        this.ctx.imageSmoothingEnabled = false // Ensure crisp pixel art scaling
+        // this.ctx.imageSmoothingEnabled = false // Ensure crisp pixel art scaling
     }
 
     async init() {

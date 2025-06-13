@@ -18,6 +18,7 @@ Each layer takes a `size`, `blendMode`, and `opacity`.
   - Threshold (chroma based, snap colors to black/white)
   - TODO: highlights/midtones/contrast adjustment
 - Post Processing
+  - Waves (rutt-etra style wave rendering from sampled canvas)
   - TODO: Shape Dither (custom rendered shapes instead of pixels)
 
 More Dithering:
