@@ -1,4 +1,5 @@
-export const shapeDither = {
+// TODO: create set patterns to replace based on cell luma
+export const patternDither = {
     defaultParams: {
         cellSize: 32,
         backgroundColor: '#fff',

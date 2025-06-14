@@ -6,7 +6,7 @@ Each layer takes a `size`, `blendMode`, and `opacity`.
 
 - Generators
   - Gradient
-  - TODO: particles (particle system generator)
+  - Particles (particle system)
   - Pixel Pattern (array defined repeating pixel pattern)
   - Popcorn Noise (random noise field - greyscale)
   - Simple 3D Layer (three.js procedural mesh from API)
@@ -22,8 +22,6 @@ Each layer takes a `size`, `blendMode`, and `opacity`.
   - Receipt (simplified low-resolution output)
   - Waves (rutt-etra style wave rendering from sampled canvas)
   - Shape Dither (custom rendered shapes instead of pixels)
-
-- Basic Particle Systems
 
 ## Later
 

@@ -112,6 +112,16 @@ export const createPlayer = (elements, settings) => {
         const t = elapsed % duration
         const frame = Math.floor(t * targetFPS)
 
+        // Detect animation loop by checking if frame went backwards
+        if (frame < lastFrame) {
+            // Reset all layers when animation loops
+            for (const layer of layers) {
+                if (layer.reset) {
+                    layer.reset()
+                }
+            }
+        }
+
         // Update time label with both time and frame
         timeLabel.textContent = `${t.toFixed(2)}s - frame ${frame}`
 

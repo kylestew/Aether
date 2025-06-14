@@ -32,6 +32,12 @@ export class Layer {
         }
     }
 
+    reset() {
+        if (this.renderer.reset) {
+            this.renderer.reset(this.params)
+        }
+    }
+
     // Used to draw into the composite context so it can be read
     // from and blend into the next layer
     // upscaling to the main canvas happens here

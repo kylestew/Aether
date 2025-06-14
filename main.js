@@ -8,6 +8,7 @@ import { imageLayer } from './layers/media/imageLayer.js'
 
 // generators
 import { gradient } from './layers/generators/gradient.js'
+import { particles, SimpleEmitter } from './layers/generators/particles.js'
 import { pixelPattern, horizontalDither } from './layers/generators/pixelPattern.js'
 import { popcornNoise } from './layers/generators/popcornNoise.js'
 import { simple3DLayer } from './layers/generators/simple3DLayer.js'
@@ -43,24 +44,32 @@ const palette0HighRGB = [
     [255, 255, 255], // White
 ]
 
-const imagePath = '/assets/images/pearl.png'
+// const imagePath = '/assets/images/pearl.png'
 // const imagePath = '/assets/images/lenna.png'
 // const imagePath = '/assets/images/david.png'
-// const imagePath = '/assets/images/premium_photo-1736749650508-fcf0c377868b.avif'
+const imagePath = '/assets/images/premium_photo-1736749650508-fcf0c377868b.avif'
 
 const layers = [
-    new Layer({ size: modeSize }, imageLayer, {
-        imagePath,
-        cropMode: 'cover',
+    // new Layer({ size: modeSize }, imageLayer, {
+    //     imagePath,
+    //     cropMode: 'cover',
+    // }),
+
+    new Layer({ size: modeSize, blendMode: 'normal' }, gradient, {
+        startColor: '#efefef',
+        endColor: '#efefef',
     }),
 
-    // new Layer({ size: modeSize, blendMode: 'normal' }, gradient),
+    new Layer({ size: modeSize }, particles, {
+        color: '#000000',
+        emitter: new SimpleEmitter(),
+    }),
     // new Layer({ size: modeSize, blendMode: 'overlay', opacity: 0.5 }, pixelPattern, {
     //     scale: 1,
     //     // pattern: horizontalDither,
     // }),
     // new Layer({ size: modeSize, blendMode: 'normal', opacity: 1.0 }, popcornNoise),
-    new Layer({ size: modeSize }, simple3DLayer),
+    // new Layer({ size: modeSize }, simple3DLayer),
 
     // new Layer({ size: modeSize }, blur, { radius: 1 }),
     // new Layer({ size: modeSize }, pixelate, {}),
@@ -69,7 +78,7 @@ const layers = [
 
     // new Layer({ size: modeSize }, receipt, {}),
     // new Layer({ size: modeSize }, waves, {}),
-    new Layer({ size: modeSize }, shapeDither, {}),
+    // new Layer({ size: modeSize }, shapeDither, {}),
 
     // new Layer(fullSize, nullLayer),
 
@@ -82,9 +91,9 @@ const layers = [
 const projectSettings = {
     size: fullSize,
     animated: true,
-    duration: 10, // seconds
-    targetFPS: 12,
-    antialias: false,
+    duration: 12, // seconds
+    targetFPS: 24,
+    antialias: true,
     layers,
 }
 
