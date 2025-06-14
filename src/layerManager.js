@@ -71,7 +71,7 @@ export class Layer {
         const evaluatedParams = {}
         for (const key in this.params) {
             const val = this.params[key]
-            evaluatedParams[key] = typeof val === 'function' ? val(t) : val
+            evaluatedParams[key] = typeof val === 'function' ? val(params.pct, t) : val
         }
 
         // if the input canvas doesn't match our size, scale into a new canvas

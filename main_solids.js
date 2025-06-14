@@ -1,11 +1,6 @@
 import { createPlayer } from './src/player.js'
 import { Layer } from './src/layerManager.js'
 
-import { nullLayer } from './layers/nullLayer.js'
-
-// media
-import { imageLayer } from './layers/media/imageLayer.js'
-
 // generators
 import { gradient } from './layers/generators/gradient.js'
 import { particles, SimpleEmitter, ScatterOnceEmitter } from './layers/generators/particles.js'
@@ -44,41 +39,76 @@ const palette0HighRGB = [
     [255, 255, 255], // White
 ]
 
-// const imagePath = '/assets/images/pearl.png'
-// const imagePath = '/assets/images/lenna.png'
-// const imagePath = '/assets/images/david.png'
-const imagePath = '/assets/images/premium_photo-1736749650508-fcf0c377868b.avif'
+// animations
+// rotation
+const spin = (pct) => [0, pct * Math.PI * 2, 0]
+
+const tumble = (pct) => {
+    const angle = pct * Math.PI * 2
+    return [angle, angle * 0.5, angle * 0.2]
+}
+
+const wobble = (pct) => {
+    const a = Math.sin(pct * Math.PI * 2)
+    return [a * 0.3, a * 0.2, Math.cos(pct * Math.PI * 2) * 0.3]
+}
+
+// position
+const hover = (pct) => [0, Math.sin(pct * Math.PI * 2 * 2) * 0.4, 0]
+
+const orbit = (pct) => {
+    const angle = pct * Math.PI * 2
+    return [Math.cos(angle) * 1.5, 0, Math.sin(angle) * 1.5]
+}
+
+const bobAndWeave = (pct) => {
+    const a = pct * Math.PI * 2
+    return [Math.sin(a) * 0.5, Math.sin(a * 2) * 0.3, 0]
+}
+
+// scale
+const pulse = (pct) => 1 + Math.sin(pct * Math.PI * 2) * 0.2
+const squashStretch = (pct) => Math.sin(pct * Math.PI * 2) * 0.1
+const growShrink = (pct) => Math.abs(Math.sin(pct * Math.PI))
 
 const layers = [
-    // new Layer({ size: modeSize }, imageLayer, {
-    //     imagePath,
-    //     cropMode: 'cover',
+    // Classic hover and spin
+    new Layer({ size: modeSize }, simple3DLayer, {
+        geometryType: 'icosahedron',
+        rotation: spin,
+        // position: hover,
+    }),
+
+    // Tumble and pulse
+    // new Layer({ size: modeSize }, simple3DLayer, {
+    //     geometryType: 'cube',
+    //     // rotation: tumble,
+    //     scale: pulse,
     // }),
+
+    // // Orbiting dodecahedron
+    // new Layer({ size: modeSize }, simple3DLayer, {
+    //     geometryType: 'dodecahedron',
+    //     position: orbit,
+    //     rotation: spin,
+    // }),
+
+    // Grow-shrink only (great for transitions)
+    // new Layer({ size: modeSize }, simple3DLayer, {
+    //     geometryType: 'octahedron',
+    //     scale: growShrink,
+    // }),
+
     // new Layer({ size: modeSize, blendMode: 'normal' }, gradient, {
     //     startColor: '#efefef',
     //     endColor: '#efefef',
     // }),
 
-    // new Layer({ size: modeSize }, particles, {
-    //     color: '#000000',
-    //     size: 2,
-
-    //     // emitter: new SimpleEmitter({ x: modeSize[0] / 2, y: modeSize[1] / 2 }),
-    //     emitter: new ScatterOnceEmitter({ width: modeSize[0], height: modeSize[1], density: 0.02 }),
-
-    //     TODO: add force fields / vector fields
-
-    //     // constructor({ x, y, direction, spread, spawnRate, speed, life } = {}) {
-    // }),
     // new Layer({ size: modeSize, blendMode: 'overlay', opacity: 0.5 }, pixelPattern, {
     //     scale: 1,
     //     // pattern: horizontalDither,
     // }),
     // new Layer({ size: modeSize, blendMode: 'normal', opacity: 1.0 }, popcornNoise),
-    new Layer({ size: modeSize }, simple3DLayer, {
-        geometryType: 'icosahedron',
-        rotation: (t, pct) => [Math.sin(1.0 * Math.PI * t), 0.0, 0.0],
-    }),
 
     // new Layer({ size: modeSize }, blur, { radius: 1 }),
     // new Layer({ size: modeSize }, pixelate, {}),
@@ -88,13 +118,6 @@ const layers = [
     // new Layer({ size: modeSize }, receipt, {}),
     // new Layer({ size: modeSize }, waves, {}),
     // new Layer({ size: modeSize }, shapeDither, {}),
-
-    // new Layer(fullSize, nullLayer),
-
-    // new Layer(modeSize, threshold, {
-    //     threshold: (t) => 0.5 + Math.sin(t) * 0.2, // Animate threshold between 0.1 and 0.9
-    //     blendMode: 'normal', // Threshold will multiply with the result
-    // }),
 ]
 
 const projectSettings = {
