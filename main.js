@@ -62,7 +62,9 @@ const layers = [
 
     new Layer({ size: modeSize }, particles, {
         color: '#000000',
-        emitter: new SimpleEmitter(),
+        emitter: new SimpleEmitter({ x: modeSize[0] / 2, y: modeSize[1] / 2 }),
+
+        // constructor({ x, y, direction, spread, spawnRate, speed, life } = {}) {
     }),
     // new Layer({ size: modeSize, blendMode: 'overlay', opacity: 0.5 }, pixelPattern, {
     //     scale: 1,
