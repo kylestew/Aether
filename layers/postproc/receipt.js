@@ -7,17 +7,15 @@ Sort of like a dithered effect.
 - The darker the area, the longer the bar.
 - The lighter the area, the shorter the bar (or no bar).
 */
-export const receiptEffect = {
+export const receipt = {
     defaultParams: {
         pixelSize: 8,
         backgroundColor: '#fff',
         foregroundColor: '#000',
     },
 
-    render(ctx, { t, inputCtx, resolution, params }) {
+    render(ctx, { t, inputCtx, width, height, pixelSize, backgroundColor, foregroundColor }) {
         if (!inputCtx) return
-
-        const { width, height } = resolution
 
         // Create a temporary canvas for the input
         const tempCanvas = document.createElement('canvas')
@@ -31,11 +29,10 @@ export const receiptEffect = {
         const pixels = imageData.data
 
         // Clear main canvas and set background color (receipt paper color)
-        ctx.fillStyle = params.backgroundColor
+        ctx.fillStyle = backgroundColor
         ctx.fillRect(0, 0, width, height)
 
         // Process each cell
-        const pixelSize = params.pixelSize
         for (let y = 0; y < height; y += pixelSize) {
             for (let x = 0; x < width; x += pixelSize) {
                 // Calculate average luma for this cell
@@ -68,7 +65,7 @@ export const receiptEffect = {
                     const yStart = pixelSize * 0.05
                     const yEnd = pixelSize * 0.95
 
-                    ctx.fillStyle = params.foregroundColor
+                    ctx.fillStyle = foregroundColor
                     ctx.fillRect(x, y + yStart, cellWidth, yEnd - yStart)
                 }
             }

@@ -8,7 +8,7 @@ import { imageLayer } from './layers/media/imageLayer.js'
 
 // generators
 import { gradient } from './layers/generators/gradient.js'
-import { pixelPattern } from './layers/generators/pixelPattern.js'
+import { pixelPattern, horizontalDither } from './layers/generators/pixelPattern.js'
 import { popcornNoise } from './layers/generators/popcornNoise.js'
 import { simple3DLayer } from './layers/generators/simple3DLayer.js'
 
@@ -19,7 +19,9 @@ import { posterize } from './layers/pixel/posterize.js'
 import { threshold } from './layers/pixel/threshold.js'
 
 // postproc
+import { receipt } from './layers/postproc/receipt.js'
 import { waves } from './layers/postproc/waves.js'
+import { shapeDither } from './layers/postproc/shapeDither.js'
 
 // MODES: 120, 60, 40, 30, 24, 20, 15, 12, 10, 8, 6, 5, 4, 3, 2, 1
 // MODE 6 is closest to CGA mode 0 (320x200(CGA) - 320x180 (ours))
@@ -46,13 +48,6 @@ const imagePath = '/assets/images/pearl.png'
 // const imagePath = '/assets/images/david.png'
 // const imagePath = '/assets/images/premium_photo-1736749650508-fcf0c377868b.avif'
 
-const horizontalDither = [
-    [205, 230, 230, 230, 230, 205, 178, 178, 152, 152, 152, 178],
-    [64, 32, 32, 32, 32, 64, 96, 126, 126, 126, 96, 96],
-    [178, 178, 152, 152, 152, 178, 205, 230, 230, 230, 230, 205],
-    [96, 126, 126, 126, 96, 96, 64, 32, 32, 32, 32, 64],
-].map((row) => row.map((val) => val / 255))
-
 const layers = [
     new Layer({ size: modeSize }, imageLayer, {
         imagePath,
@@ -67,12 +62,14 @@ const layers = [
     // new Layer({ size: modeSize, blendMode: 'normal', opacity: 1.0 }, popcornNoise),
     new Layer({ size: modeSize }, simple3DLayer),
 
-    new Layer({ size: modeSize }, waves, {}),
-
     // new Layer({ size: modeSize }, blur, { radius: 1 }),
     // new Layer({ size: modeSize }, pixelate, {}),
     // new Layer({ size: modeSize }, posterize, { numBins: 4 }),
     // new Layer({ size: modeSize }, threshold, { threshold: 0.5 }),
+
+    // new Layer({ size: modeSize }, receipt, {}),
+    // new Layer({ size: modeSize }, waves, {}),
+    new Layer({ size: modeSize }, shapeDither, {}),
 
     // new Layer(fullSize, nullLayer),
 
@@ -87,7 +84,7 @@ const projectSettings = {
     animated: true,
     duration: 10, // seconds
     targetFPS: 12,
-    antialias: true,
+    antialias: false,
     layers,
 }
 

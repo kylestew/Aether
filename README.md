@@ -6,6 +6,7 @@ Each layer takes a `size`, `blendMode`, and `opacity`.
 
 - Generators
   - Gradient
+  - TODO: particles (particle system generator)
   - Pixel Pattern (array defined repeating pixel pattern)
   - Popcorn Noise (random noise field - greyscale)
   - Simple 3D Layer (three.js procedural mesh from API)
@@ -18,21 +19,21 @@ Each layer takes a `size`, `blendMode`, and `opacity`.
   - Threshold (chroma based, snap colors to black/white)
   - TODO: highlights/midtones/contrast adjustment
 - Post Processing
+  - Receipt (simplified low-resolution output)
   - Waves (rutt-etra style wave rendering from sampled canvas)
-  - TODO: Shape Dither (custom rendered shapes instead of pixels)
+  - Shape Dither (custom rendered shapes instead of pixels)
+
+- Basic Particle Systems
+
+## Later
 
 More Dithering:
-
 - Blue Noise Dithering patterns (make more pattenrs!)
-- Shape dither (custom shape designs)
 - https://www.shadertoy.com/view/MtV3W1
 - UPSCALE in pipeline to apply more subtle effects while still keeping large pixels from origin
  . - https://www.instagram.com/p/DKeMfbMOlp7/
 
 - Sobel edge detection (do a study on this too for website)
-- Basic Particle Systems
-
-## Later
 
 https://public.work/mythical%20creatures
 

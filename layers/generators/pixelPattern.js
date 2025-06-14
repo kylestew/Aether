@@ -1,4 +1,4 @@
-export const pixelPattern = {
+const pixelPattern = {
     defaultParams: {
         pattern: [
             [0.0, 0.53, 0.13, 0.66],
@@ -57,3 +57,12 @@ export const pixelPattern = {
         ctx.fillRect(0, 0, width, height)
     },
 }
+
+const horizontalDither = [
+    [205, 230, 230, 230, 230, 205, 178, 178, 152, 152, 152, 178],
+    [64, 32, 32, 32, 32, 64, 96, 126, 126, 126, 96, 96],
+    [178, 178, 152, 152, 152, 178, 205, 230, 230, 230, 230, 205],
+    [96, 126, 126, 126, 96, 96, 64, 32, 32, 32, 32, 64],
+].map((row) => row.map((val) => val / 255))
+
+export { pixelPattern, horizontalDither }
