@@ -33,12 +33,12 @@ export const simple3DLayer = {
         })
         renderer.setPixelRatio(window.devicePixelRatio)
 
-        renderer.outputColorSpace = THREE.LinearSRGBColorSpace // or leave default
+        renderer.outputColorSpace = THREE.LinearSRGBColorSpace
         renderer.toneMapping = THREE.ACESFilmicToneMapping
         renderer.toneMappingExposure = 1.3333
 
         scene = new THREE.Scene()
-        scene.background = new THREE.Color(0x000000)
+        // Don't set a default background color here
 
         // Camera will be set up in render() to match aspect
         camera = null
@@ -163,7 +163,19 @@ export const simple3DLayer = {
         mesh.rotation.set(...rotation)
         mesh.scale.set(scale, scale, scale)
 
-        scene.background = new THREE.Color(backgroundColor)
+        // Set background based on backgroundColor parameter
+        if (
+            backgroundColor === 'transparent' ||
+            backgroundColor === 'rgba(0,0,0,0)' ||
+            backgroundColor === '#00000000'
+        ) {
+            scene.background = null
+            renderer.setClearColor(0x000000, 0)
+        } else {
+            scene.background = new THREE.Color(backgroundColor)
+            renderer.setClearColor(0x000000, 1)
+        }
+
         renderer.setSize(width, height)
         renderer.render(scene, camera)
 

@@ -77,10 +77,11 @@ const layers = [
     //     // pattern: horizontalDither,
     // }),
     // new Layer({ size: modeSize, blendMode: 'normal', opacity: 1.0 }, popcornNoise),
-    // new Layer({ size: modeSize }, simple3DLayer, {
-    //     geometryType: 'icosahedron',
-    //     rotation: (t, pct) => [Math.sin(1.0 * Math.PI * t), 0.0, 0.0],
-    // }),
+    new Layer({ size: modeSize }, simple3DLayer, {
+        geometryType: 'icosahedron',
+        backgroundColor: 'transparent',
+        rotation: (t, pct) => [Math.sin(1.0 * Math.PI * t), 0.0, 0.0],
+    }),
 
     // new Layer({ size: modeSize }, blur, { radius: 1 }),
     // new Layer({ size: modeSize }, invert),

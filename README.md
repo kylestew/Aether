@@ -26,8 +26,7 @@ Each layer takes a `size`, `blendMode`, and `opacity`.
   - Shape Dither (custom rendered shapes instead of pixels)
   - Waves (rutt-etra style wave rendering from sampled canvas)
 
-Zero out background on 3D layer?
-
+contrast/bri/etc
 
 
 
