@@ -329,11 +329,10 @@ export const createPlayer = (elements, settings) => {
             // Create a high-quality MediaRecorder with custom settings
             const options = {
                 mimeType: currentFormat.mimeType,
-                videoBitsPerSecond: currentFormat.bitrate,
+                videoBitsPerSecond: currentFormat.videoBitsPerSecond || 100000000,
                 audioBitsPerSecond: 0, // No audio
+                keyFrameInterval: currentFormat.keyFrameInterval || 1,
             }
-
-            console.log('MediaRecorder options:', options)
 
             // Verify format is supported
             if (!MediaRecorder.isTypeSupported(options.mimeType)) {
@@ -398,18 +397,19 @@ export const createPlayer = (elements, settings) => {
                 }
 
                 try {
+                    // Create blob with proper mime type
                     const blob = new Blob(recordedChunks, {
                         type: currentFormat.mimeType,
-                        endings: 'native',
                     })
+
                     console.log('Created blob:', blob.size, 'bytes')
 
                     const url = URL.createObjectURL(blob)
                     const a = document.createElement('a')
                     a.href = url
-                    a.download = `aether-export-lossless-${new Date().toISOString().slice(0, 19)}.${
-                        currentFormat.extension
-                    }`
+                    a.download = `aether-export-${currentFormat.quality || 'lossless'}-${new Date()
+                        .toISOString()
+                        .slice(0, 19)}.${currentFormat.extension}`
                     a.click()
                     URL.revokeObjectURL(url)
 
@@ -432,7 +432,8 @@ export const createPlayer = (elements, settings) => {
 
             // Start recording with maximum quality
             console.log('Starting recording...')
-            mediaRecorder.start(1000 / targetFPS) // Request data at frame rate intervals
+            // Request data more frequently to ensure better seeking
+            mediaRecorder.start(1000 / targetFPS)
 
             // Play through the animation
             startTime = null

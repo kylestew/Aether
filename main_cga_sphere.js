@@ -1,20 +1,7 @@
 import { createPlayer } from './src/player.js'
 import { Layer } from './src/layerManager.js'
 
-import { emptyLayer } from './layers/emptyLayer.js'
-import { gradientLayer } from './layers/generators/gradientLayer.js'
-import { imageLayer } from './layers/media/imageLayer.js'
-import { scanLines } from './layers/generators/scanLines.js'
-import { pulsingSquares } from './layers/generators/pulsingSquares.js'
-import { pixelateLayer } from './layers/postproc/pixelateLayer.js'
-import { bayerDither } from './layers/postproc/bayerDither.js'
-import { receiptEffect } from './layers/postproc/receiptEffect.js'
-import { dottedHalftoneEffect } from './layers/postproc/dottedHalftoneEffect.js'
-import { asciiDitherLayer } from './layers/postproc/asciiDitherLayer.js'
-import { simple3DLayer } from './layers/generators/simple3DLayer.js'
-import { shaderLayer } from './layers/generators/shaderLayer.js'
-import { paletteQuantization } from './layers/postproc/paletteQuantization.js'
-import { uniformQuantization } from './layers/postproc/uniformQuantization.js'
+import { fragShader } from './layers/generators/fragShader.js'
 import { cgaDither } from './layers/postproc/cgaDither.js'
 
 import fragSource from '/assets/shaders/cga_sphere.glsl?raw'
@@ -26,58 +13,14 @@ const mode = 6
 const width = 1080 / mode
 const height = 1920 / mode
 
-// CGA Palette 0 - High Intensity
-const palette0High = [
-    '#000000', // Black
-    '#55FFFF', // Bright Cyan
-    '#FF55FF', // Bright Magenta
-    '#FFFFFF', // White
-]
-const palette0HighRGB = [
-    [0, 0, 0], // Black
-    [85, 255, 255], // Bright Cyan
-    [255, 85, 255], // Bright Magenta
-    [255, 255, 255], // White
-]
-
-const imagePath = '/assets/images/pearl.png'
-// const imagePath = '/assets/images/david.png'
-
 const layers = [
-    new Layer(emptyLayer, { color: 'red' }),
-    // new Layer(gradientLayer, {
-    //     startColor: '#ffffff',
-    //     endColor: '#000000',
-    //     direction: 'vertical',
-    // }),
-
-    new Layer(shaderLayer, { fragSource }),
-
-    // new Layer(imageLayer, { imagePath, cropMode: 'cover' }),
-
-    // TODO: apply the actual dither!
-
-    new Layer(cgaDither),
-
-    // new Layer(pulsingSquares),
-    // new Layer(scanLines),
-    // new Layer(simple3DLayer),
-
-    // new Layer(pixelateLayer, { pixelSize: 4 }),
-
-    // new Layer(receiptEffect),
-    // new Layer(dottedHalftoneEffect),
-    // new Layer(asciiDitherLayer, { cellSize: 12 }),
-    // new Layer(bayerDither),
-
-    // new Layer(paletteQuantization, { palette: palette0HighRGB }),
-    // new Layer(uniformQuantization, { numBins: 8 }),
+    new Layer({ size: [width, height] }, fragShader, { fragSource }),
+    new Layer({ size: [width, height] }, cgaDither),
 ]
 
 const projectSettings = {
-    width,
-    height,
-    scale: mode, // pixel size
+    size: [width, height],
+    animated: true,
     duration: 10, // seconds
     targetFPS: 30, // cap rendering at 30 fps
     layers,
@@ -88,6 +31,7 @@ const player = createPlayer(
         canvas: document.getElementById('output'),
         timeLabel: document.getElementById('timeLabel'),
         playPauseBtn: document.getElementById('playPause'),
+        exportBtn: document.getElementById('exportBtn'),
     },
     projectSettings
 )

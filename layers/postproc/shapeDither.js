@@ -1,6 +1,6 @@
 export const shapeDither = {
     defaultParams: {
-        cellSize: 32,
+        cellSize: 8,
         backgroundColor: '#fff',
         foregroundColor: '#0050ee', // Bright blue color
 

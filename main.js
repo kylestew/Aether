@@ -15,18 +15,20 @@ import { simple3DLayer } from './layers/generators/simple3DLayer.js'
 
 // pixel
 import { blur } from './layers/pixel/blur.js'
+import { invert } from './layers/pixel/invert.js'
 import { pixelate } from './layers/pixel/pixelate.js'
 import { posterize } from './layers/pixel/posterize.js'
 import { threshold } from './layers/pixel/threshold.js'
 
 // postproc
+import { cgaDither } from './layers/postproc/cgaDither.js'
 import { receipt } from './layers/postproc/receipt.js'
-import { waves } from './layers/postproc/waves.js'
 import { shapeDither } from './layers/postproc/shapeDither.js'
+import { waves } from './layers/postproc/waves.js'
 
 // MODES: 120, 60, 40, 30, 24, 20, 15, 12, 10, 8, 6, 5, 4, 3, 2, 1
 // MODE 6 is closest to CGA mode 0 (320x200(CGA) - 320x180 (ours))
-const mode = 1
+const mode = 4
 const fullSize = [1080, 1920]
 const modeSize = [fullSize[0] / mode, fullSize[1] / mode]
 
@@ -45,15 +47,15 @@ const palette0HighRGB = [
 ]
 
 // const imagePath = '/assets/images/pearl.png'
-// const imagePath = '/assets/images/lenna.png'
+const imagePath = '/assets/images/lenna.png'
 // const imagePath = '/assets/images/david.png'
-const imagePath = '/assets/images/premium_photo-1736749650508-fcf0c377868b.avif'
+// const imagePath = '/assets/images/premium_photo-1736749650508-fcf0c377868b.avif'
 
 const layers = [
-    // new Layer({ size: modeSize }, imageLayer, {
-    //     imagePath,
-    //     cropMode: 'cover',
-    // }),
+    new Layer({ size: modeSize }, imageLayer, {
+        imagePath,
+        cropMode: 'cover',
+    }),
     // new Layer({ size: modeSize, blendMode: 'normal' }, gradient, {
     //     startColor: '#efefef',
     //     endColor: '#efefef',
@@ -75,16 +77,18 @@ const layers = [
     //     // pattern: horizontalDither,
     // }),
     // new Layer({ size: modeSize, blendMode: 'normal', opacity: 1.0 }, popcornNoise),
-    new Layer({ size: modeSize }, simple3DLayer, {
-        geometryType: 'icosahedron',
-        rotation: (t, pct) => [Math.sin(1.0 * Math.PI * t), 0.0, 0.0],
-    }),
+    // new Layer({ size: modeSize }, simple3DLayer, {
+    //     geometryType: 'icosahedron',
+    //     rotation: (t, pct) => [Math.sin(1.0 * Math.PI * t), 0.0, 0.0],
+    // }),
 
     // new Layer({ size: modeSize }, blur, { radius: 1 }),
+    new Layer({ size: modeSize }, invert),
     // new Layer({ size: modeSize }, pixelate, {}),
     // new Layer({ size: modeSize }, posterize, { numBins: 4 }),
     // new Layer({ size: modeSize }, threshold, { threshold: 0.5 }),
 
+    // new Layer({ size: modeSize }, cgaDither, {}),
     // new Layer({ size: modeSize }, receipt, {}),
     // new Layer({ size: modeSize }, waves, {}),
     // new Layer({ size: modeSize }, shapeDither, {}),

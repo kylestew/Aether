@@ -8,8 +8,12 @@ let mesh = null
 
 export const simple3DLayer = {
     defaultParams: {
-        backgroundColor: 0xffffff,
-        meshColor: 0x0050ee,
+        backgroundColor: '#000000',
+        meshColor: '#ffffff',
+
+        // backgroundColor: 0xffffff,
+        // meshColor: 0x0050ee,
+
         cameraPosition: [10, 10, 10],
 
         position: [0, 0, 0],
@@ -25,10 +29,11 @@ export const simple3DLayer = {
         renderer = new THREE.WebGLRenderer({
             canvas: document.createElement('canvas'),
             alpha: true,
-            antialias: true,
+            antialias: false,
         })
         renderer.setPixelRatio(window.devicePixelRatio)
-        renderer.outputColorSpace = THREE.SRGBColorSpace
+
+        renderer.outputColorSpace = THREE.LinearSRGBColorSpace // or leave default
         renderer.toneMapping = THREE.ACESFilmicToneMapping
         renderer.toneMappingExposure = 1.3333
 
@@ -162,6 +167,7 @@ export const simple3DLayer = {
         renderer.setSize(width, height)
         renderer.render(scene, camera)
 
+        ctx.imageSmoothingEnabled = false
         ctx.clearRect(0, 0, width, height)
         ctx.drawImage(renderer.domElement, 0, 0, width, height)
     },

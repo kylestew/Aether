@@ -23,17 +23,31 @@ Each layer takes a `size`, `blendMode`, and `opacity`.
   - Waves (rutt-etra style wave rendering from sampled canvas)
   - Shape Dither (custom rendered shapes instead of pixels)
 
-## Later
+Invert
 
-More Dithering:
+Chromatic Zoom Shader
+
+RGB Shift
+https://github.com/pixiteapps/Spool/blob/develop/Source/Filters/Metal%20Kernels/RGBShift.metal
+
+LUT applyer
+
+  More Dithering:
 - Blue Noise Dithering patterns (make more pattenrs!)
 - https://www.shadertoy.com/view/MtV3W1
 - UPSCALE in pipeline to apply more subtle effects while still keeping large pixels from origin
  . - https://www.instagram.com/p/DKeMfbMOlp7/
 
+  Feedback!
+
+## Later
+
 - Sobel edge detection (do a study on this too for website)
+Solarize: https://editor.isf.video/shaders/5e7a7fc97c113618206de44f
 
 https://public.work/mythical%20creatures
+
+Mirror
 
 TODO: tint to map B/W to colors
 - More Raymarching (links in browser)

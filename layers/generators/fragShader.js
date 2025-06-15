@@ -1,4 +1,4 @@
-export const shaderLayer = {
+export const fragShader = {
     defaultParams: {
         // Default shader is a simple gradient animation
         fragSource: `
@@ -133,9 +133,7 @@ export const shaderLayer = {
         })
     },
 
-    render(ctx, { resolution, params = {} }) {
-        const { width, height } = resolution
-
+    render(ctx, { width, height }) {
         // Update canvas size
         this.canvas.width = width
         this.canvas.height = height

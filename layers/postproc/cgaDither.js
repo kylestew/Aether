@@ -3,6 +3,20 @@ function RGB(r, g, b) {
 }
 
 export const cgaDither = {
+    // // CGA Palette 0 - High Intensity
+    // const palette0High = [
+    //     '#000000', // Black
+    //     '#55FFFF', // Bright Cyan
+    //     '#FF55FF', // Bright Magenta
+    //     '#FFFFFF', // White
+    // ]
+    // const palette0HighRGB = [
+    //     [0, 0, 0], // Black
+    //     [85, 255, 255], // Bright Cyan
+    //     [255, 85, 255], // Bright Magenta
+    //     [255, 255, 255], // White
+    // ]
+
     CGAPalette: [
         RGB(0, 0, 0), // Black
         RGB(255, 85, 255), // Magenta
@@ -56,11 +70,9 @@ export const cgaDither = {
         return this.CGAPalette[index]
     },
 
-    render(ctx, { t, inputCtx, resolution, params = {} }) {
+    render(ctx, { t, inputCtx, width, height, useBayerDither }) {
         if (!inputCtx) return
 
-        const { width, height } = resolution
-        const { useBayerDither = this.defaultParams.useBayerDither } = params
         const inputData = inputCtx.getImageData(0, 0, width, height)
         const outputData = ctx.createImageData(width, height)
         const input = inputData.data
@@ -95,7 +107,6 @@ export const cgaDither = {
             }
         }
 
-        // Draw the quantized result
         ctx.putImageData(outputData, 0, 0)
     },
 }
