@@ -52,14 +52,14 @@ const imagePath = '/assets/images/lenna.png'
 // const imagePath = '/assets/images/premium_photo-1736749650508-fcf0c377868b.avif'
 
 const layers = [
-    new Layer({ size: modeSize }, imageLayer, {
-        imagePath,
-        cropMode: 'cover',
-    }),
-    // new Layer({ size: modeSize, blendMode: 'normal' }, gradient, {
-    //     startColor: '#efefef',
-    //     endColor: '#efefef',
+    // new Layer({ size: modeSize }, imageLayer, {
+    //     imagePath,
+    //     cropMode: 'cover',
     // }),
+    new Layer({ size: modeSize, blendMode: 'normal' }, gradient, {
+        startColor: '#ee1212',
+        endColor: '#12ee12',
+    }),
 
     // new Layer({ size: modeSize }, particles, {
     //     color: '#000000',
@@ -83,7 +83,7 @@ const layers = [
     // }),
 
     // new Layer({ size: modeSize }, blur, { radius: 1 }),
-    new Layer({ size: modeSize }, invert),
+    // new Layer({ size: modeSize }, invert),
     // new Layer({ size: modeSize }, pixelate, {}),
     // new Layer({ size: modeSize }, posterize, { numBins: 4 }),
     // new Layer({ size: modeSize }, threshold, { threshold: 0.5 }),
@@ -101,22 +101,12 @@ const layers = [
     // }),
 ]
 
-const projectSettings = {
+const player = createPlayer({
     size: fullSize,
     animated: true,
     duration: 6, // seconds
     targetFPS: 24,
     antialias: true,
     layers,
-}
-
-const player = createPlayer(
-    {
-        canvas: document.getElementById('output'),
-        timeLabel: document.getElementById('timeLabel'),
-        playPauseBtn: document.getElementById('playPause'),
-        exportBtn: document.getElementById('exportBtn'),
-    },
-    projectSettings
-)
+})
 await player.loadAndStart()

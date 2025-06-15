@@ -4,8 +4,14 @@
 // - duration
 // - targetFPS
 // - layers
-export const createPlayer = (elements, settings) => {
-    const { canvas, timeLabel, playPauseBtn, exportBtn } = elements
+export const createPlayer = (settings) => {
+    const { canvas, timeLabel, playPauseBtn, exportBtn } = {
+        canvas: document.getElementById('output'),
+        timeLabel: document.getElementById('timeLabel'),
+        playPauseBtn: document.getElementById('playPause'),
+        exportBtn: document.getElementById('exportBtn'),
+    }
+
     const { size, animated, duration, targetFPS, layers, antialias } = settings
     const [width, height] = size
 

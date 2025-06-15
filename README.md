@@ -5,6 +5,7 @@
 Each layer takes a `size`, `blendMode`, and `opacity`.
 
 - Generators
+  - Fragment Shader (loadable GLSL pixel shader)
   - Gradient
   - Particles (particle system)
   - Pixel Pattern (array defined repeating pixel pattern)
@@ -14,23 +15,30 @@ Each layer takes a `size`, `blendMode`, and `opacity`.
   - Image Layer (load and display static image)
 - Pixel
   - Blur (Canvas API based blur)
+  - Invert
   - Pixelate
   - Posterize (uniform quantization with bucketing)
   - Threshold (chroma based, snap colors to black/white)
-  - TODO: highlights/midtones/contrast adjustment
+  - TODO: highlights/midtones/contrast adjustment (canvas API has .filter for these)
 - Post Processing
+  - CGA Dither (4-color palette Bayer dither)
   - Receipt (simplified low-resolution output)
-  - Waves (rutt-etra style wave rendering from sampled canvas)
   - Shape Dither (custom rendered shapes instead of pixels)
+  - Waves (rutt-etra style wave rendering from sampled canvas)
 
-Invert
+Zero out background on 3D layer?
+
+
+
+
+
+Canvas drawing layer, so I can fill with lines the background
+5 PX Font
 
 Chromatic Zoom Shader
 
 RGB Shift
 https://github.com/pixiteapps/Spool/blob/develop/Source/Filters/Metal%20Kernels/RGBShift.metal
-
-LUT applyer
 
   More Dithering:
 - Blue Noise Dithering patterns (make more pattenrs!)
@@ -41,6 +49,8 @@ LUT applyer
   Feedback!
 
 ## Later
+
+LUT applyer
 
 - Sobel edge detection (do a study on this too for website)
 Solarize: https://editor.isf.video/shaders/5e7a7fc97c113618206de44f

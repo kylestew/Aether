@@ -60,22 +60,12 @@ const layers = [
     // new Layer({ size: modeSize }, shapeDither, {}),
 ]
 
-const projectSettings = {
+const player = createPlayer({
     size: fullSize,
     animated: true,
     duration: 6, // seconds
     targetFPS: 24,
     antialias: false,
     layers,
-}
-
-const player = createPlayer(
-    {
-        canvas: document.getElementById('output'),
-        timeLabel: document.getElementById('timeLabel'),
-        playPauseBtn: document.getElementById('playPause'),
-        exportBtn: document.getElementById('exportBtn'),
-    },
-    projectSettings
-)
+})
 await player.loadAndStart()
