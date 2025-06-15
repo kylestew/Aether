@@ -19,6 +19,7 @@ import { invert } from './layers/pixel/invert.js'
 import { pixelate } from './layers/pixel/pixelate.js'
 import { posterize } from './layers/pixel/posterize.js'
 import { threshold } from './layers/pixel/threshold.js'
+import { adjustments } from './layers/pixel/adjustments.js'
 
 // postproc
 import { cgaDither } from './layers/postproc/cgaDither.js'
@@ -52,14 +53,14 @@ const imagePath = '/assets/images/lenna.png'
 // const imagePath = '/assets/images/premium_photo-1736749650508-fcf0c377868b.avif'
 
 const layers = [
-    // new Layer({ size: modeSize }, imageLayer, {
-    //     imagePath,
-    //     cropMode: 'cover',
-    // }),
-    new Layer({ size: modeSize, blendMode: 'normal' }, gradient, {
-        startColor: '#ee1212',
-        endColor: '#12ee12',
+    new Layer({ size: modeSize }, imageLayer, {
+        imagePath,
+        cropMode: 'cover',
     }),
+    // new Layer({ size: modeSize, blendMode: 'normal' }, gradient, {
+    //     startColor: '#ee1212',
+    //     endColor: '#12ee12',
+    // }),
 
     // new Layer({ size: modeSize }, particles, {
     //     color: '#000000',
@@ -77,12 +78,17 @@ const layers = [
     //     // pattern: horizontalDither,
     // }),
     // new Layer({ size: modeSize, blendMode: 'normal', opacity: 1.0 }, popcornNoise),
-    new Layer({ size: modeSize }, simple3DLayer, {
-        geometryType: 'icosahedron',
-        backgroundColor: 'transparent',
-        rotation: (t, pct) => [Math.sin(1.0 * Math.PI * t), 0.0, 0.0],
-    }),
+    // new Layer({ size: modeSize }, simple3DLayer, {
+    //     geometryType: 'icosahedron',
+    //     backgroundColor: 'transparent',
+    //     rotation: (t, pct) => [Math.sin(1.0 * Math.PI * t), 0.0, 0.0],
+    // }),
 
+    new Layer({ size: modeSize }, adjustments, {
+        brightness: 0.2, // Slightly brighter
+        contrast: 0.5, // Slightly more contrast
+        saturation: -0.6, // Slightly less saturated
+    }),
     // new Layer({ size: modeSize }, blur, { radius: 1 }),
     // new Layer({ size: modeSize }, invert),
     // new Layer({ size: modeSize }, pixelate, {}),

@@ -14,19 +14,17 @@ Each layer takes a `size`, `blendMode`, and `opacity`.
 - Media
   - Image Layer (load and display static image)
 - Pixel
+  - Adjustments (brightness, contrast, saturation)
   - Blur (Canvas API based blur)
   - Invert
   - Pixelate
   - Posterize (uniform quantization with bucketing)
   - Threshold (chroma based, snap colors to black/white)
-  - TODO: highlights/midtones/contrast adjustment (canvas API has .filter for these)
 - Post Processing
   - CGA Dither (4-color palette Bayer dither)
   - Receipt (simplified low-resolution output)
   - Shape Dither (custom rendered shapes instead of pixels)
   - Waves (rutt-etra style wave rendering from sampled canvas)
-
-contrast/bri/etc
 
 
 
