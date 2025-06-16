@@ -11,6 +11,7 @@ Each layer takes a `size`, `blendMode`, and `opacity`.
   - Pixel Pattern (array defined repeating pixel pattern)
   - Popcorn Noise (random noise field - greyscale)
   - Simple 3D Layer (three.js procedural mesh from API)
+  - Text
 - Media
   - Image Layer (load and display static image)
 - Pixel
@@ -20,32 +21,28 @@ Each layer takes a `size`, `blendMode`, and `opacity`.
   - Pixelate
   - Posterize (uniform quantization with bucketing)
   - Threshold (chroma based, snap colors to black/white)
+  - Vignette
 - Post Processing
   - CGA Dither (4-color palette Bayer dither)
   - Receipt (simplified low-resolution output)
   - Shape Dither (custom rendered shapes instead of pixels)
   - Waves (rutt-etra style wave rendering from sampled canvas)
 
-
-
-
-Canvas drawing layer, so I can fill with lines the background
-5 PX Font
-
 Chromatic Zoom Shader
 
 RGB Shift
 https://github.com/pixiteapps/Spool/blob/develop/Source/Filters/Metal%20Kernels/RGBShift.metal
 
-  More Dithering:
-- Blue Noise Dithering patterns (make more pattenrs!)
-- https://www.shadertoy.com/view/MtV3W1
 - UPSCALE in pipeline to apply more subtle effects while still keeping large pixels from origin
  . - https://www.instagram.com/p/DKeMfbMOlp7/
 
-  Feedback!
+Feedback!
 
 ## Later
+
+  More Dithering:
+- Blue Noise Dithering patterns (make more pattenrs!)
+- https://www.shadertoy.com/view/MtV3W1
 
 LUT applyer
 

@@ -12,6 +12,7 @@ import { particles, SimpleEmitter, ScatterOnceEmitter } from './layers/generator
 import { pixelPattern, horizontalDither } from './layers/generators/pixelPattern.js'
 import { popcornNoise } from './layers/generators/popcornNoise.js'
 import { simple3DLayer } from './layers/generators/simple3DLayer.js'
+import { text } from './layers/generators/text.js'
 
 // pixel
 import { blur } from './layers/pixel/blur.js'
@@ -29,7 +30,7 @@ import { waves } from './layers/postproc/waves.js'
 
 // MODES: 120, 60, 40, 30, 24, 20, 15, 12, 10, 8, 6, 5, 4, 3, 2, 1
 // MODE 6 is closest to CGA mode 0 (320x200(CGA) - 320x180 (ours))
-const mode = 4
+const mode = 8
 const fullSize = [1080, 1920]
 const modeSize = [fullSize[0] / mode, fullSize[1] / mode]
 
@@ -53,14 +54,14 @@ const imagePath = '/assets/images/lenna.png'
 // const imagePath = '/assets/images/premium_photo-1736749650508-fcf0c377868b.avif'
 
 const layers = [
-    new Layer({ size: modeSize }, imageLayer, {
-        imagePath,
-        cropMode: 'cover',
-    }),
-    // new Layer({ size: modeSize, blendMode: 'normal' }, gradient, {
-    //     startColor: '#ee1212',
-    //     endColor: '#12ee12',
+    // new Layer({ size: modeSize }, imageLayer, {
+    //     imagePath,
+    //     cropMode: 'cover',
     // }),
+    new Layer({ size: modeSize, blendMode: 'normal' }, gradient, {
+        startColor: '#ee1212',
+        endColor: '#12ee12',
+    }),
 
     // new Layer({ size: modeSize }, particles, {
     //     color: '#000000',
@@ -84,11 +85,48 @@ const layers = [
     //     rotation: (t, pct) => [Math.sin(1.0 * Math.PI * t), 0.0, 0.0],
     // }),
 
-    new Layer({ size: modeSize }, adjustments, {
-        brightness: 0.2, // Slightly brighter
-        contrast: 0.5, // Slightly more contrast
-        saturation: -0.6, // Slightly less saturated
-    }),
+    // EXAMPLE: Invoke Canvas commands directly
+    // new Layer(
+    //     { size: modeSize },
+    //     {
+    //         render(ctx, { width, height }) {
+    //             // Draw a series of rotated lines
+    //             const numLines = 64
+    //             const spacing = height / numLines
+
+    //             ctx.strokeStyle = '#fff'
+    //             ctx.lineWidth = 2
+
+    //             // Save context state
+    //             ctx.save()
+
+    //             // Translate to center and rotate
+    //             ctx.translate(width / 2, height / 2)
+    //             ctx.rotate((45 * Math.PI) / 180)
+    //             ctx.translate(-width / 2, -height / 2)
+
+    //             for (let i = 0; i < numLines; i++) {
+    //                 const y = i * spacing
+    //                 ctx.beginPath()
+    //                 ctx.moveTo(0, y)
+    //                 ctx.lineTo(width, y)
+    //                 ctx.stroke()
+    //             }
+
+    //             // Restore context state
+    //             ctx.restore()
+    //         },
+    //     }
+    // ),
+
+    // new Layer({ size: modeSize }, adjustments, {
+    //     brightness: 0.2, // Slightly brighter
+    //     contrast: 0.5, // Slightly more contrast
+    //     saturation: -0.6, // Slightly less saturated
+    // }),
+
+    new Layer({ size: modeSize }, text, {}),
+
     // new Layer({ size: modeSize }, blur, { radius: 1 }),
     // new Layer({ size: modeSize }, invert),
     // new Layer({ size: modeSize }, pixelate, {}),
@@ -113,7 +151,7 @@ const player = createPlayer({
     animated: true,
     duration: 6, // seconds
     targetFPS: 24,
-    antialias: true,
+    antialias: false,
     layers,
 })
 await player.loadAndStart()
