@@ -1,5 +1,7 @@
 # Aether
 
+> AfterEffects - but layers are code
+
 ## Layers
 
 Each layer takes a `size`, `blendMode`, and `opacity`.
@@ -24,6 +26,7 @@ Each layer takes a `size`, `blendMode`, and `opacity`.
   - Vignette
 - Post Processing
   - CGA Dither (4-color palette Bayer dither)
+  - Feedback (holds and blends with last frame)
   - Receipt (simplified low-resolution output)
   - Shape Dither (custom rendered shapes instead of pixels)
   - Waves (rutt-etra style wave rendering from sampled canvas)

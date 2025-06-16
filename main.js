@@ -24,13 +24,14 @@ import { adjustments } from './layers/pixel/adjustments.js'
 
 // postproc
 import { cgaDither } from './layers/postproc/cgaDither.js'
+import { feedback } from './layers/postproc/feedback.js'
 import { receipt } from './layers/postproc/receipt.js'
 import { shapeDither } from './layers/postproc/shapeDither.js'
 import { waves } from './layers/postproc/waves.js'
 
 // MODES: 120, 60, 40, 30, 24, 20, 15, 12, 10, 8, 6, 5, 4, 3, 2, 1
 // MODE 6 is closest to CGA mode 0 (320x200(CGA) - 320x180 (ours))
-const mode = 8
+const mode = 4
 const fullSize = [1080, 1920]
 const modeSize = [fullSize[0] / mode, fullSize[1] / mode]
 
@@ -58,10 +59,10 @@ const layers = [
     //     imagePath,
     //     cropMode: 'cover',
     // }),
-    new Layer({ size: modeSize, blendMode: 'normal' }, gradient, {
-        startColor: '#ee1212',
-        endColor: '#12ee12',
-    }),
+    // new Layer({ size: modeSize, blendMode: 'normal' }, gradient, {
+    //     startColor: '#fff',
+    //     endColor: '#000',
+    // }),
 
     // new Layer({ size: modeSize }, particles, {
     //     color: '#000000',
@@ -86,38 +87,47 @@ const layers = [
     // }),
 
     // EXAMPLE: Invoke Canvas commands directly
-    // new Layer(
-    //     { size: modeSize },
-    //     {
-    //         render(ctx, { width, height }) {
-    //             // Draw a series of rotated lines
-    //             const numLines = 64
-    //             const spacing = height / numLines
+    new Layer(
+        { size: modeSize },
+        {
+            render(ctx, { pct, width, height }) {
+                // Draw a series of rotated lines
+                const numLines = 1
+                const spacing = height / numLines
+                const extraLength = width // Add extra length to ensure coverage when rotated
 
-    //             ctx.strokeStyle = '#fff'
-    //             ctx.lineWidth = 2
+                ctx.strokeStyle = '#fff'
+                ctx.lineWidth = 2
 
-    //             // Save context state
-    //             ctx.save()
+                // Save context state
+                ctx.save()
 
-    //             // Translate to center and rotate
-    //             ctx.translate(width / 2, height / 2)
-    //             ctx.rotate((45 * Math.PI) / 180)
-    //             ctx.translate(-width / 2, -height / 2)
+                // Clear background to black
+                // ctx.fillStyle = '#000'
+                // ctx.fillRect(0, 0, width, height)
 
-    //             for (let i = 0; i < numLines; i++) {
-    //                 const y = i * spacing
-    //                 ctx.beginPath()
-    //                 ctx.moveTo(0, y)
-    //                 ctx.lineTo(width, y)
-    //                 ctx.stroke()
-    //             }
+                // Translate to center and rotate
+                ctx.translate(width / 2, height / 2)
+                ctx.rotate((45 * Math.PI) / 180)
+                ctx.scale(1.2, 1.2)
+                ctx.translate(-width / 2, -height / 2)
 
-    //             // Restore context state
-    //             ctx.restore()
-    //         },
-    //     }
-    // ),
+                // Offset based on animation percentage
+                const offset = spacing * pct * 1
+
+                for (let i = 0; i < numLines; i++) {
+                    const y = (i * spacing + offset) % height
+                    ctx.beginPath()
+                    ctx.moveTo(-extraLength, y)
+                    ctx.lineTo(width + extraLength, y)
+                    ctx.stroke()
+                }
+
+                // Restore context state
+                ctx.restore()
+            },
+        }
+    ),
 
     // new Layer({ size: modeSize }, adjustments, {
     //     brightness: 0.2, // Slightly brighter
@@ -125,7 +135,7 @@ const layers = [
     //     saturation: -0.6, // Slightly less saturated
     // }),
 
-    new Layer({ size: modeSize }, text, {}),
+    // new Layer({ size: modeSize }, text, {}),
 
     // new Layer({ size: modeSize }, blur, { radius: 1 }),
     // new Layer({ size: modeSize }, invert),
@@ -134,6 +144,10 @@ const layers = [
     // new Layer({ size: modeSize }, threshold, { threshold: 0.5 }),
 
     // new Layer({ size: modeSize }, cgaDither, {}),
+
+    // needs to be set to replace all contents
+    new Layer({ size: modeSize, blendMode: 'source-over' }, feedback, {}),
+
     // new Layer({ size: modeSize }, receipt, {}),
     // new Layer({ size: modeSize }, waves, {}),
     // new Layer({ size: modeSize }, shapeDither, {}),

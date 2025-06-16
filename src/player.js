@@ -89,8 +89,8 @@ export const createPlayer = (settings) => {
         ctx.clearRect(0, 0, width, height)
         compositeCtx.clearRect(0, 0, width, height)
 
-        compositeCtx.fillStyle = 'black'
-        compositeCtx.fillRect(0, 0, width, height)
+        // compositeCtx.fillStyle = 'black'
+        // compositeCtx.fillRect(0, 0, width, height)
 
         const pct = t / duration
 
