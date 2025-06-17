@@ -31,15 +31,10 @@ Each layer takes a `size`, `blendMode`, and `opacity`.
   - Shape Dither (custom rendered shapes instead of pixels)
   - Waves (rutt-etra style wave rendering from sampled canvas)
 
-- UPSCALE in pipeline to apply more subtle effects while still keeping large pixels from origin
- . - https://www.instagram.com/p/DKeMfbMOlp7/
-
-Chromatic Zoom Shader
-
 RGB Shift
 https://github.com/pixiteapps/Spool/blob/develop/Source/Filters/Metal%20Kernels/RGBShift.metal
 
-Break out ether from examples 
+Chromatic Zoom Shader
 
 ## Later
 
@@ -55,6 +50,8 @@ Solarize: https://editor.isf.video/shaders/5e7a7fc97c113618206de44f
 https://public.work/mythical%20creatures
 
 Mirror
+
+ON SCREEN UI TO EDIT ANIMATION PARAMETERS for LAYERS
 
 TODO: tint to map B/W to colors
 - More Raymarching (links in browser)
@@ -75,3 +72,6 @@ TODO: tint to map B/W to colors
 https://offscreencanvas.com/issues/advanced-ascii-rendering/
 https://offscreencanvas.com/issues/webgl-ascii/
 https://blog.maximeheckel.com/posts/the-art-of-dithering-and-retro-shading-web/#:~:text=their%20sequential%20nature.-,Color%20Quantization,-So%20far%2C%20all
+
+
+Break out ether examples into own repo and treat this repo as the library
