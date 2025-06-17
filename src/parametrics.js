@@ -1,3 +1,23 @@
+export const osc =
+    (freq = 1, amplitude = 1, offset = 0) =>
+    (pct) =>
+        Math.sin(pct * freq * Math.PI * 2) * amplitude + offset
+
+// export function tri(freq = 1, min = 0, max = 1) {
+//     return (t) => {
+//         const phase = (t * freq) % 1
+//         const val = phase < 0.5 ? phase * 2 : 2 - phase * 2
+//         return min + val * (max - min)
+//     }
+// }
+
+// export function saw(freq = 1, min = 0, max = 1) {
+//     return (t) => {
+//         const phase = (t * freq) % 1
+//         return min + phase * (max - min)
+//     }
+// }
+
 // ─────────────────────────────
 // 🎯 POSITION ANIMATORS
 // ─────────────────────────────
@@ -129,24 +149,6 @@ export function step(interval = 1, values = [0, 1]) {
     }
 }
 
-export function osc(freq = 1, offset = 0) {
-    return (t) => Math.sin(t * freq * Math.PI * 2 + offset)
-}
-
-export function tri(freq = 1, min = 0, max = 1) {
-    return (t) => {
-        const phase = (t * freq) % 1
-        const val = phase < 0.5 ? phase * 2 : 2 - phase * 2
-        return min + val * (max - min)
-    }
-}
-
-export function saw(freq = 1, min = 0, max = 1) {
-    return (t) => {
-        const phase = (t * freq) % 1
-        return min + phase * (max - min)
-    }
-}
 
 export function noise(seed = 0) {
     return (t) => {

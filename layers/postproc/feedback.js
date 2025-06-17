@@ -1,12 +1,13 @@
 export const feedback = {
     defaultParams: {
-        amount: 0.8, // How much of the previous frame to keep (0–1)
+        hold: 0.8, // How much of the previous frame to keep (0–1)
+        movement: [0, 0], // How much to move the previous frame (x, y)
         blendMode: 'source-over', // How to blend the input: 'normal', 'lighter', etc.
     },
 
     _prevFrame: null,
 
-    render(ctx, { t, inputCtx, width, height, amount, blendMode }) {
+    render(ctx, { t, inputCtx, width, height, hold, blendMode, movement }) {
         if (!inputCtx) return
 
         // Create or resize the previous frame buffer
@@ -16,11 +17,13 @@ export const feedback = {
             this._prevFrame.height = height
         }
         const prevCtx = this._prevFrame.getContext('2d')
+        prevCtx.imageSmoothingEnabled = false // Disable antialiasing for hard pixel edges
 
-        // Step 1: Draw the previous frame (with fade)
-        ctx.globalAlpha = amount
+        // Step 1: Draw the previous frame (with fade and movement)
+        ctx.globalAlpha = hold
         ctx.globalCompositeOperation = blendMode || 'source-over'
-        ctx.drawImage(this._prevFrame, 0, 0)
+        const [moveX, moveY] = movement || [0, 0]
+        ctx.drawImage(this._prevFrame, moveX, moveY)
 
         // Step 2: Draw the current input on top
         ctx.globalAlpha = 1

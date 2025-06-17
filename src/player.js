@@ -89,9 +89,6 @@ export const createPlayer = (settings) => {
         ctx.clearRect(0, 0, width, height)
         compositeCtx.clearRect(0, 0, width, height)
 
-        // compositeCtx.fillStyle = 'black'
-        // compositeCtx.fillRect(0, 0, width, height)
-
         const pct = t / duration
 
         // Render each layer
@@ -108,6 +105,17 @@ export const createPlayer = (settings) => {
         }
 
         // Draw final composite to main canvas
+
+        // Create checker pattern with transparent background
+        // const checkerSize = 12
+        // for (let y = 0; y < height; y += checkerSize) {
+        //     for (let x = 0; x < width; x += checkerSize) {
+        //         ctx.fillStyle =
+        //             (x / checkerSize + y / checkerSize) % 2 === 0 ? 'rgba(255, 0, 255, 0.5)' : 'rgba(0, 255, 255, 0.5)'
+        //         ctx.fillRect(x, y, checkerSize, checkerSize)
+        //     }
+        // }
+
         ctx.drawImage(compositeCanvas, 0, 0)
     }
 

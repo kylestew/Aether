@@ -31,15 +31,15 @@ Each layer takes a `size`, `blendMode`, and `opacity`.
   - Shape Dither (custom rendered shapes instead of pixels)
   - Waves (rutt-etra style wave rendering from sampled canvas)
 
+- UPSCALE in pipeline to apply more subtle effects while still keeping large pixels from origin
+ . - https://www.instagram.com/p/DKeMfbMOlp7/
+
 Chromatic Zoom Shader
 
 RGB Shift
 https://github.com/pixiteapps/Spool/blob/develop/Source/Filters/Metal%20Kernels/RGBShift.metal
 
-- UPSCALE in pipeline to apply more subtle effects while still keeping large pixels from origin
- . - https://www.instagram.com/p/DKeMfbMOlp7/
-
-Feedback!
+Break out ether from examples 
 
 ## Later
 
