@@ -7,7 +7,7 @@ import { rgbOffset } from '../layers/pixel/rgbOffset.js'
 // 135 x 240 mode
 // MODES AVAILABLE: 120, 60, 40, 30, 24, 20, 15, 12, 10, 8, 6, 5, 4, 3, 2, 1
 // MODE 6 is closest to CGA mode 0 (320x200(CGA) - 320x180 (ours))
-const mode = 8
+const mode = 1
 const fullSize = [1080, 1920]
 const modeSize = [fullSize[0] / mode, fullSize[1] / mode]
 
@@ -21,7 +21,11 @@ const layers = [
         imagePath,
         cropMode: 'cover',
     }),
-    new Layer({ size: modeSize }, rgbOffset, {}),
+    new Layer({ size: modeSize }, rgbOffset, {
+        offset: (pct) => 0.01 + 0.1 * Math.sin(pct * Math.PI * 2), // Animate offset
+        rotation: (pct) => pct * Math.PI * 2, // Animate rotation
+        mode: 2, // 0: horizontal, 1: triangular, 2: zoom, 3: rotation
+    }),
 ]
 
 const player = createPlayer({

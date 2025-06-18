@@ -48,7 +48,7 @@ export function compileShaderProgram(gl, vertSource, fragSource, uniforms) {
     gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW)
 
     // Set up vertex attributes
-    const positionLocation = gl.getAttribLocation(program, 'position')
+    const positionLocation = gl.getAttribLocation(program, 'a_position')
     gl.enableVertexAttribArray(positionLocation)
     gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer)
     gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0)
@@ -98,3 +98,17 @@ function formatShaderError(type, source, infoLog) {
 
     return errorMessage
 }
+
+// Default vertex shader for 2D quad rendering
+export const defaultVertSource = `
+    attribute vec2 a_position;
+    varying vec2 v_texCoord;
+
+    void main() {
+        // Convert position to texture coordinates
+        v_texCoord = (a_position + 1.0) * 0.5;
+        
+        // Pass position directly to clip space
+        gl_Position = vec4(a_position, 0.0, 1.0);
+    }
+`

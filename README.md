@@ -38,8 +38,6 @@ Each layer takes a `size`, `blendMode`, and `opacity`.
 RGB Shift
 https://github.com/pixiteapps/Spool/blob/develop/Source/Filters/Metal%20Kernels/RGBShift.metal
 
-Examples dictionary - list all in main index
-
 
 | **Effect**                | **Description**                                                                                         |
 | ------------------------- | ------------------------------------------------------------------------------------------------------- |
