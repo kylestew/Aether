@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <title>Aether Example Viewer</title>
+        <style>
+            body {
+                margin: 0;
+                background: #111;
+                color: white;
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                min-height: 100vh;
+                display: flex;
+                flex-direction: column;
+            }
+
+            .header {
+                padding: 15px 20px;
+                background: #222;
+                border-bottom: 1px solid #333;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .header h1 {
+                margin: 0;
+                font-size: 1.5rem;
+                color: #4ecdc4;
+            }
+
+            .back-btn {
+                background: #333;
+                border: none;
+                color: white;
+                padding: 8px 16px;
+                border-radius: 6px;
+                cursor: pointer;
+                text-decoration: none;
+                font-size: 0.9rem;
+                transition: background 0.2s;
+            }
+
+            .back-btn:hover {
+                background: #444;
+            }
+
+            #controls {
+                padding: 10px 20px;
+                background: #222;
+                border-bottom: 1px solid #333;
+                display: flex;
+                align-items: center;
+                gap: 15px;
+            }
+
+            #canvas-container {
+                position: absolute;
+                top: 80px; /* height of controls */
+                bottom: 30px;
+                left: 30px;
+                right: 30px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                overflow: hidden;
+            }
+
+            canvas {
+                display: block;
+                background: black;
+                border-radius: 4px;
+                max-width: 100%;
+                max-height: 100%;
+                width: auto;
+                height: auto;
+                object-fit: contain;
+            }
+
+            .control-group {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+
+            .control-group label {
+                font-size: 0.9rem;
+                color: #aaa;
+            }
+
+            button {
+                background: #4ecdc4;
+                border: none;
+                color: white;
+                padding: 8px 12px;
+                border-radius: 4px;
+                cursor: pointer;
+                font-size: 0.9rem;
+                transition: background 0.2s;
+            }
+
+            button:hover {
+                background: #45b7d1;
+            }
+
+            #timeLabel {
+                font-family: monospace;
+                font-size: 0.9rem;
+                color: #aaa;
+            }
+
+            .error {
+                color: #ff6b6b;
+                text-align: center;
+                padding: 40px;
+                font-size: 1.1rem;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="controls">
+            <div class="control-group">
+                <button id="playPause">▶️</button>
+                <button id="exportBtn">📹</button>
+                <span id="timeLabel">0.00s</span>
+            </div>
+        </div>
+
+        <div id="canvas-container">
+            <canvas id="output"></canvas>
+        </div>
+
+        <script type="module">
+            // Example metadata
+            const examples = {
+                rgb_offset: {
+                    title: 'RGB Offset Effect',
+                    description: 'Basic image with RGB channel offset effect',
+                    file: 'rgb_offset.js',
+                },
+                blob: {
+                    title: 'Blob Animation',
+                    description: 'Animated blob with WebGL shaders',
+                    file: 'blob.js',
+                },
+                cga_sphere: {
+                    title: 'CGA Sphere',
+                    description: '3D sphere with CGA-style dithering',
+                    file: 'cga_sphere.js',
+                },
+                plato_solids: {
+                    title: 'Plato Solids',
+                    description: '3D geometric shapes with rotation',
+                    file: 'plato_solids.js',
+                },
+                rgb_split: {
+                    title: 'RGB Split Advanced',
+                    description: 'Advanced RGB channel manipulation',
+                    file: 'rgb_split.js',
+                },
+            }
+
+            // Get example ID from URL parameter
+            const urlParams = new URLSearchParams(window.location.search)
+            const exampleId = urlParams.get('example') || 'main'
+
+            // Update page title and header
+            const example = examples[exampleId]
+            if (example) {
+                document.title = `${example.title} - Aether`
+
+                // Dynamically load the script
+                const script = document.createElement('script')
+                script.type = 'module'
+                script.src = example.file
+
+                document.head.appendChild(script)
+            } else {
+                document.getElementById('exampleTitle').textContent = 'Example Not Found'
+                document.getElementById('canvas-container').innerHTML =
+                    '<div class="error">Example not found. Please check the URL parameter.</div>'
+            }
+        </script>
+    </body>
+</html>

@@ -22,6 +22,7 @@ Each layer takes a `size`, `blendMode`, and `opacity`.
   - Invert
   - Pixelate
   - Posterize (uniform quantization with bucketing)
+  - RGB Offset
   - Threshold (chroma based, snap colors to black/white)
   - Vignette
 - Post Processing
@@ -31,10 +32,26 @@ Each layer takes a `size`, `blendMode`, and `opacity`.
   - Shape Dither (custom rendered shapes instead of pixels)
   - Waves (rutt-etra style wave rendering from sampled canvas)
 
+
+- Low resolution canvas - render shape - upscale - apply dithering
+
 RGB Shift
 https://github.com/pixiteapps/Spool/blob/develop/Source/Filters/Metal%20Kernels/RGBShift.metal
 
-Chromatic Zoom Shader
+Examples dictionary - list all in main index
+
+
+| **Effect**                | **Description**                                                                                         |
+| ------------------------- | ------------------------------------------------------------------------------------------------------- |
+| **Tint**                  | Maps black and white to two custom colors—useful for duotone or stylistic remapping.                    |
+| **Motion Tile**           | Repeats and mirrors the image—used in kaleidoscopic effects or for seamless pattern tiling.             |
+| **Transform**             | Allows scale, rotation, translation, and anchor-point manipulation separate from base layer transforms. |
+| **Fractal Noise**         | Generates procedural grayscale noise—great for texture generation, clouds, or displacement sources.     |
+| **Pixel Glow**            | Adds bloom or glow around bright areas, often using a threshold and blur pass.                          |
+| **Displacement**          | Warps the image using another layer or map—commonly used for heat ripples, water, or glitch effects.    |
+| **Sobel Edge Detection**  | Highlights edges by calculating luminance contrast—used for stylization, outlines, or masks.            |
+| **LUT Applier**           | Applies Look-Up Tables (LUTs) to recolor footage for film looks, grading, or stylization.               |
+| **Chromatic Zoom Shader** | Simulates zoom with chromatic aberration—used for impact effects, transitions, or stylized movement.    |
 
 ## Later
 
@@ -42,9 +59,7 @@ Chromatic Zoom Shader
 - Blue Noise Dithering patterns (make more pattenrs!)
 - https://www.shadertoy.com/view/MtV3W1
 
-LUT applyer
 
-- Sobel edge detection (do a study on this too for website)
 Solarize: https://editor.isf.video/shaders/5e7a7fc97c113618206de44f
 
 https://public.work/mythical%20creatures

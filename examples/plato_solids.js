@@ -1,26 +1,26 @@
-import { createPlayer } from './src/player.js'
-import { Layer } from './src/layerManager.js'
-import { hover, spin, tumble, wobble, twistSpin, pulse } from './src/paramAnimators.js'
-import { applyCurve, linear, easeInOut, punch } from './src/curves.js'
+import { createPlayer } from '../src/player.js'
+import { Layer } from '../src/layer.js'
+import { hover, spin, tumble, wobble, twistSpin, pulse } from '../src/parametrics.js'
+import { applyCurve, linear, easeInOut, punch } from '../src/curves.js'
 
 // generators
-import { gradient } from './layers/generators/gradient.js'
-import { pixelPattern, horizontalDither } from './layers/generators/pixelPattern.js'
-import { popcornNoise } from './layers/generators/popcornNoise.js'
-import { simple3DLayer } from './layers/generators/simple3DLayer.js'
+import { gradient } from '../layers/generators/gradient.js'
+import { pixelPattern, horizontalDither } from '../layers/generators/pixelPattern.js'
+import { popcornNoise } from '../layers/generators/popcornNoise.js'
+import { simple3DLayer } from '../layers/generators/simple3DLayer.js'
 
 // pixel
-import { blur } from './layers/pixel/blur.js'
-import { pixelate } from './layers/pixel/pixelate.js'
-import { posterize } from './layers/pixel/posterize.js'
-import { threshold } from './layers/pixel/threshold.js'
-import { vignette } from './layers/pixel/vignette.js'
+import { blur } from '../layers/pixel/blur.js'
+import { pixelate } from '../layers/pixel/pixelate.js'
+import { posterize } from '../layers/pixel/posterize.js'
+import { threshold } from '../layers/pixel/threshold.js'
+import { vignette } from '../layers/pixel/vignette.js'
 
 // postproc
-import { cgaDither } from './layers/postproc/cgaDither.js'
-import { receipt } from './layers/postproc/receipt.js'
-import { waves } from './layers/postproc/waves.js'
-import { shapeDither } from './layers/postproc/shapeDither.js'
+import { cgaDither } from '../layers/postproc/cgaDither.js'
+import { receipt } from '../layers/postproc/receipt.js'
+import { waves } from '../layers/postproc/waves.js'
+import { shapeDither } from '../layers/postproc/shapeDither.js'
 
 // MODES: 120, 60, 40, 30, 24, 20, 15, 12, 10, 8, 6, 5, 4, 3, 2, 1
 // MODE 6 is closest to CGA mode 0 (320x200(CGA) - 320x180 (ours))

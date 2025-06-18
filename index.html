@@ -2,69 +2,187 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8" />
-        <title>Aether Prototype</title>
+        <title>Aether - Creative Coding Examples</title>
         <style>
             body {
                 margin: 0;
                 background: #111;
                 color: white;
-                font-family: sans-serif;
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
                 min-height: 100vh;
-                display: flex;
-                flex-direction: column;
-            }
-            #controls {
-                padding: 10px;
-                background: #222;
-                position: fixed;
-                top: 0;
-                left: 0;
-                right: 0;
-                z-index: 1;
+                padding: 20px;
             }
 
-            #canvas-container {
-                position: absolute;
-                top: 70px; /* height of controls */
-                bottom: 30px;
-                left: 30px;
-                right: 30px;
+            .header {
+                text-align: center;
+                margin-bottom: 40px;
+            }
+
+            .header h1 {
+                font-size: 3rem;
+                margin: 0;
+                background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+            }
+
+            .header p {
+                font-size: 1.2rem;
+                color: #888;
+                margin: 10px 0 0 0;
+            }
+
+            .examples-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+                gap: 20px;
+                max-width: 1200px;
+                margin: 0 auto;
+            }
+
+            .example-card {
+                background: #222;
+                border-radius: 12px;
+                overflow: hidden;
+                transition: transform 0.2s, box-shadow 0.2s;
+                cursor: pointer;
+                border: 1px solid #333;
+            }
+
+            .example-card:hover {
+                transform: translateY(-4px);
+                box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+                border-color: #4ecdc4;
+            }
+
+            .example-thumbnail {
+                width: 100%;
+                height: 200px;
+                background: #000;
                 display: flex;
-                justify-content: center;
                 align-items: center;
+                justify-content: center;
+                font-size: 2rem;
+                color: #666;
+                position: relative;
                 overflow: hidden;
             }
 
-            canvas {
-                display: block;
-                background: black;
+            .example-thumbnail canvas {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+
+            .example-info {
+                padding: 20px;
+            }
+
+            .example-title {
+                font-size: 1.3rem;
+                font-weight: 600;
+                margin: 0 0 8px 0;
+                color: #fff;
+            }
+
+            .example-description {
+                color: #aaa;
+                font-size: 0.9rem;
+                line-height: 1.4;
+                margin: 0;
+            }
+
+            .example-meta {
+                margin-top: 12px;
+                font-size: 0.8rem;
+                color: #666;
+            }
+
+            .loading {
+                display: none;
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                color: #4ecdc4;
+            }
+
+            @media (max-width: 768px) {
+                .examples-grid {
+                    grid-template-columns: 1fr;
+                }
+
+                .header h1 {
+                    font-size: 2rem;
+                }
             }
         </style>
     </head>
     <body>
-        <div id="controls">
-            <!-- 
-            <label for="timelineSlider">Time:</label>
-            <input type="range" id="timelineSlider" min="0" max="10" step="0.01" value="0" />
-        -->
-            <button id="playPause">▶️</button>
-            &nbsp;
-            <button id="exportBtn">📹</button>
-            &nbsp;
-            <span id="timeLabel">0.00s</span>
-        </div>
-        <!--
-        <span id="fpsDisplay" style="margin-left: 20px">FPS: --</span>
-        -->
-        <div id="canvas-container">
-            <canvas id="output"></canvas>
+        <div class="header">
+            <h1>Aether</h1>
+            <p>After Effects, but layers are code</p>
         </div>
 
-        <script type="module" src="main.js"></script>
+        <div class="examples-grid" id="examplesGrid">
+            <!-- Examples will be loaded here -->
+        </div>
 
-        <!-- <script type="module" src="main_cga_sphere.js"></script> -->
-        <!-- <script type="module" src="main_blob.js"></script> -->
-        <!-- <script type="module" src="main_solids.js"></script> -->
-        <!-- <script type="module" src="main_dither_anim.js"></script> -->
+        <script type="module">
+            // Example definitions
+            const examples = [
+                {
+                    id: 'rgb_offset',
+                    title: 'RGB Offset Effect',
+                    description: 'Basic image with RGB channel offset effect',
+                },
+                {
+                    id: 'blob',
+                    title: 'Blob Animation',
+                    description: 'Animated blob with WebGL shaders',
+                },
+                {
+                    id: 'cga_sphere',
+                    title: 'CGA Sphere',
+                    description: '3D sphere with CGA-style dithering',
+                },
+                {
+                    id: 'plato_solids',
+                    title: 'Plato Solids',
+                    description: '3D geometric shapes with rotation',
+                },
+            ]
+
+            function createExampleCard(example) {
+                const card = document.createElement('div')
+                card.className = 'example-card'
+                card.onclick = () => loadExample(example.id)
+
+                card.innerHTML = `
+                    <div class="example-thumbnail">
+                        <img src="examples/${example.id}.png" alt="${example.title}" style="width: 100%; height: 100%; object-fit: cover;">
+                    </div>
+                    <div class="example-info">
+                        <h3 class="example-title">${example.title}</h3>
+                        <p class="example-description">${example.description}</p>
+                    </div>
+                `
+
+                return card
+            }
+
+            function loadExample(exampleId) {
+                // Navigate to the example in the same tab
+                window.location.href = `examples/viewer.html?example=${exampleId}`
+            }
+
+            // Initialize the examples grid
+            const grid = document.getElementById('examplesGrid')
+            examples.forEach((example) => {
+                const card = createExampleCard(example)
+                grid.appendChild(card)
+            })
+        </script>
     </body>
 </html>
