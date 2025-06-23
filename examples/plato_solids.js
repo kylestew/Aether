@@ -1,32 +1,148 @@
 import { createPlayer } from '../src/player.js'
 import { Layer } from '../src/layer.js'
-import { hover, spin, tumble, wobble, twistSpin, pulse } from '../src/parametrics.js'
-import { applyCurve, linear, easeInOut, punch } from '../src/curves.js'
+import {
+    hover,
+    orbit,
+    bobAndWeave,
+    spiralRise,
+    sway,
+    figure8,
+    zigzag,
+    bounce,
+    wave,
+    none,
+    spin,
+    tumble,
+    wobble,
+    twistSpin,
+    flip,
+    roll,
+    pendulum,
+    gyroscope,
+    shimmy,
+    barrelRoll,
+    corkscrew,
+    pulse,
+    squashStretch,
+    growShrink,
+    axisWave,
+    heartbeat,
+    breathe,
+    wobbleScale,
+    explode,
+    scaleNone,
+} from '../src/parametrics.js'
+import { applyCurve, linear, easeIn, easeOut, easeInOut, pingPong, snapOut, elastic, punch } from '../src/curves.js'
 
 // generators
 import { gradient } from '../layers/generators/gradient.js'
-import { pixelPattern, horizontalDither } from '../layers/generators/pixelPattern.js'
-import { popcornNoise } from '../layers/generators/popcornNoise.js'
+// import { pixelPattern, horizontalDither } from '../layers/generators/pixelPattern.js'
+// import { popcornNoise } from '../layers/generators/popcornNoise.js'
 import { simple3DLayer } from '../layers/generators/simple3DLayer.js'
 
 // pixel
-import { blur } from '../layers/pixel/blur.js'
-import { pixelate } from '../layers/pixel/pixelate.js'
-import { posterize } from '../layers/pixel/posterize.js'
-import { threshold } from '../layers/pixel/threshold.js'
-import { vignette } from '../layers/pixel/vignette.js'
+// import { blur } from '../layers/pixel/blur.js'
+// import { pixelate } from '../layers/pixel/pixelate.js'
+// import { posterize } from '../layers/pixel/posterize.js'
+// import { threshold } from '../layers/pixel/threshold.js'
+// import { vignette } from '../layers/pixel/vignette.js'
 
 // postproc
-import { cgaDither } from '../layers/postproc/cgaDither.js'
-import { receipt } from '../layers/postproc/receipt.js'
-import { waves } from '../layers/postproc/waves.js'
-import { shapeDither } from '../layers/postproc/shapeDither.js'
+// import { cgaDither } from '../layers/postproc/cgaDither.js'
+// import { receipt } from '../layers/postproc/receipt.js'
+// import { waves } from '../layers/postproc/waves.js'
+// import { shapeDither } from '../layers/postproc/shapeDither.js'
 
 // MODES: 120, 60, 40, 30, 24, 20, 15, 12, 10, 8, 6, 5, 4, 3, 2, 1
 // MODE 6 is closest to CGA mode 0 (320x200(CGA) - 320x180 (ours))
-const mode = 6
+const mode = 2
 const fullSize = [1080, 1920]
 const modeSize = [fullSize[0] / mode, fullSize[1] / mode]
+
+function randomizeShape() {
+    const geometryTypes = [
+        'cube',
+        'sphere',
+        'torus',
+        'knot',
+        'mobius',
+        'tetrahedron',
+        'octahedron',
+        'dodecahedron',
+        'icosahedron',
+    ]
+
+    const randomGeometryType = geometryTypes[Math.floor(Math.random() * geometryTypes.length)]
+
+    const positionAnimations = [
+        none,
+        none,
+        none,
+        hover,
+        orbit,
+        bobAndWeave,
+        spiralRise,
+        sway,
+        figure8,
+        zigzag,
+        bounce,
+        wave,
+    ]
+    const positionType = positionAnimations[Math.floor(Math.random() * positionAnimations.length)]
+
+    const rotationAnimations = [
+        none,
+        none,
+        none,
+        spin,
+        tumble,
+        wobble,
+        twistSpin,
+        flip,
+        roll,
+        pendulum,
+        gyroscope,
+        shimmy,
+        barrelRoll,
+        corkscrew,
+    ]
+    const rotationType = rotationAnimations[Math.floor(Math.random() * rotationAnimations.length)]
+
+    const scaleAnimations = [
+        scaleNone,
+        scaleNone,
+        scaleNone,
+        pulse,
+        squashStretch,
+        growShrink,
+        axisWave,
+        heartbeat,
+        breathe,
+        wobbleScale,
+        explode,
+    ]
+    const scaleType = scaleAnimations[Math.floor(Math.random() * scaleAnimations.length)]
+
+    // Available easing curves
+    const easingCurves = [linear, easeIn, easeOut, easeInOut, pingPong, snapOut, elastic, punch]
+
+    // Random easing curves for each animation type
+    const positionCurve = easingCurves[Math.floor(Math.random() * easingCurves.length)]
+    const rotationCurve = easingCurves[Math.floor(Math.random() * easingCurves.length)]
+    const scaleCurve = easingCurves[Math.floor(Math.random() * easingCurves.length)]
+
+    return {
+        backgroundColor: 'transparent',
+        geometryType: randomGeometryType,
+
+        position: applyCurve(positionType(), positionCurve),
+        rotation: applyCurve(rotationType(), rotationCurve),
+        scale: applyCurve(scaleType(), scaleCurve),
+
+        // rotation: applyCurve(spin(1), easeInOut),
+        // position: applyCurve(hover(2, 0.4), easeInOut),
+    }
+}
 
 const layers = [
     // === BACKGROUND =================
@@ -37,6 +153,7 @@ const layers = [
     }),
 
     // stylized lines
+    /*
     new Layer(
         { size: modeSize },
         {
@@ -74,7 +191,9 @@ const layers = [
             },
         }
     ),
+    */
 
+    /*
     new Layer({ size: modeSize }, vignette, {
         strength: 1.0,
         radius: 0.33,
@@ -83,14 +202,13 @@ const layers = [
         aspectMode: 'circular',
         invert: true,
     }),
+    */
     // ================================
 
     // Classic hover and spin
     new Layer({ size: modeSize }, simple3DLayer, {
         backgroundColor: 'transparent',
-        geometryType: 'icosahedron',
-        rotation: applyCurve(spin(1), easeInOut),
-        position: applyCurve(hover(2, 0.4), easeInOut),
+        ...randomizeShape(),
     }),
 
     // Tumble and pulse
@@ -108,7 +226,7 @@ const layers = [
     // new Layer({ size: modeSize }, blur, { radius: 1 }),
     // new Layer({ size: modeSize }, posterize, { numBins: 4 }),
 
-    new Layer({ size: modeSize }, cgaDither, {}),
+    // new Layer({ size: modeSize }, cgaDither, {}),
 
     // new Layer({ size: modeSize }, pixelate, {}),
     // new Layer({ size: modeSize }, threshold, { threshold: 0.5 }),

@@ -153,6 +153,7 @@ export const simple3DLayer = {
                 roughness: 0.3,
                 emissive: 0x111111,
                 emissiveIntensity: 0.3,
+                side: THREE.DoubleSide,
             })
 
             mesh = new THREE.Mesh(geom, mat)
