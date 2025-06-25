@@ -35,27 +35,25 @@ import {
 import { applyCurve, linear, easeIn, easeOut, easeInOut, pingPong, snapOut, elastic, punch } from '../src/curves.js'
 
 // generators
-import { gradient } from '../layers/generators/gradient.js'
-// import { pixelPattern, horizontalDither } from '../layers/generators/pixelPattern.js'
-// import { popcornNoise } from '../layers/generators/popcornNoise.js'
 import { simple3DLayer } from '../layers/generators/simple3DLayer.js'
+import { gradient } from '../layers/generators/gradient.js'
+import { popcornNoise } from '../layers/generators/popcornNoise.js'
 
 // pixel
-// import { blur } from '../layers/pixel/blur.js'
-// import { pixelate } from '../layers/pixel/pixelate.js'
-// import { posterize } from '../layers/pixel/posterize.js'
-// import { threshold } from '../layers/pixel/threshold.js'
-// import { vignette } from '../layers/pixel/vignette.js'
+import { blur } from '../layers/pixel/blur.js'
+import { posterize } from '../layers/pixel/posterize.js'
+import { vignette } from '../layers/pixel/vignette.js'
+import { invert } from '../layers/pixel/invert.js'
+import { adjustments } from '../layers/pixel/adjustments.js'
+import { pixelate } from '../layers/pixel/pixelate.js'
+import { rgbOffset } from '../layers/pixel/rgbOffset.js'
 
 // postproc
-// import { cgaDither } from '../layers/postproc/cgaDither.js'
-// import { receipt } from '../layers/postproc/receipt.js'
-// import { waves } from '../layers/postproc/waves.js'
-// import { shapeDither } from '../layers/postproc/shapeDither.js'
+import { cgaDither } from '../layers/postproc/cgaDither.js'
 
 // MODES: 120, 60, 40, 30, 24, 20, 15, 12, 10, 8, 6, 5, 4, 3, 2, 1
 // MODE 6 is closest to CGA mode 0 (320x200(CGA) - 320x180 (ours))
-const mode = 2
+const mode = 6
 const fullSize = [1080, 1920]
 const modeSize = [fullSize[0] / mode, fullSize[1] / mode]
 
@@ -78,6 +76,7 @@ function randomizeShape() {
         none,
         none,
         none,
+        none,
         hover,
         orbit,
         bobAndWeave,
@@ -91,6 +90,7 @@ function randomizeShape() {
     const positionType = positionAnimations[Math.floor(Math.random() * positionAnimations.length)]
 
     const rotationAnimations = [
+        none,
         none,
         none,
         none,
@@ -109,6 +109,7 @@ function randomizeShape() {
     const rotationType = rotationAnimations[Math.floor(Math.random() * rotationAnimations.length)]
 
     const scaleAnimations = [
+        scaleNone,
         scaleNone,
         scaleNone,
         scaleNone,
@@ -131,6 +132,17 @@ function randomizeShape() {
     const rotationCurve = easingCurves[Math.floor(Math.random() * easingCurves.length)]
     const scaleCurve = easingCurves[Math.floor(Math.random() * easingCurves.length)]
 
+    // Log chosen settings
+    console.log('Animation Settings:', {
+        geometry: randomGeometryType,
+        position: positionType.name,
+        positionEase: positionCurve.name,
+        rotation: rotationType.name,
+        rotationEase: rotationCurve.name,
+        scale: scaleType.name,
+        scaleEase: scaleCurve.name,
+    })
+
     return {
         backgroundColor: 'transparent',
         geometryType: randomGeometryType,
@@ -144,6 +156,35 @@ function randomizeShape() {
     }
 }
 
+// Custom animation for random offset spikes
+const randomOffsetSpikes = () => {
+    let lastSpikeTime = 0
+    let spikeDuration = 0
+    let spikeIntensity = 0
+
+    return (t) => {
+        const currentTime = t * 15 // Convert to seconds (15 second duration)
+
+        // Generate new spike randomly (5% chance per second)
+        if (currentTime - lastSpikeTime > 1 && Math.random() < 0.05) {
+            lastSpikeTime = currentTime
+            spikeDuration = 1.0 // Half second duration
+            spikeIntensity = 0.05 + Math.random() * 9.05 // Random intensity between 0.1 and 0.3
+        }
+
+        // Calculate spike value
+        const timeSinceSpike = currentTime - lastSpikeTime
+        if (timeSinceSpike < spikeDuration) {
+            // Create a smooth spike that peaks at the middle and fades out
+            const spikeProgress = timeSinceSpike / spikeDuration
+            const spikeValue = spikeIntensity * Math.sin(spikeProgress * Math.PI)
+            return 0.1 + spikeValue
+        }
+
+        return 0.0 // Base offset when no spike
+    }
+}
+
 const layers = [
     // === BACKGROUND =================
     // Background color
@@ -152,8 +193,8 @@ const layers = [
         endColor: '#000',
     }),
 
-    // stylized lines
     /*
+    // stylized lines
     new Layer(
         { size: modeSize },
         {
@@ -191,9 +232,7 @@ const layers = [
             },
         }
     ),
-    */
 
-    /*
     new Layer({ size: modeSize }, vignette, {
         strength: 1.0,
         radius: 0.33,
@@ -205,41 +244,52 @@ const layers = [
     */
     // ================================
 
-    // Classic hover and spin
+    // === SHAPE + OVERLAY ============
+    // THE SHAPE!!!
     new Layer({ size: modeSize }, simple3DLayer, {
         backgroundColor: 'transparent',
+        frustumSize: 3.0,
         ...randomizeShape(),
     }),
 
-    // Tumble and pulse
-    // new Layer({ size: modeSize }, simple3DLayer, {
-    //     geometryType: 'cube',
-    //     rotation: twistSpin(),
-    //     // scale: pulse(1),
+    // gradient blended across shape to give it more interesting dithering
+    new Layer({ size: modeSize, blendMode: 'overlay' }, gradient, {
+        startColor: '#000000',
+        endColor: '#ffffff',
+    }),
+
+    // a bit of noise for movement on the dither
+    new Layer({ size: modeSize, blendMode: 'color-dodge', opacity: 0.05 }, popcornNoise),
+    // ================================
+
+    // toggle light mode
+    // new Layer({ size: modeSize }, invert),
+
+    // new Layer({ size: modeSize }, blur, { radius: (t) => 0 + Math.sin(t * Math.PI * 8) * 4 }),
+    new Layer({ size: modeSize }, blur, { radius: randomOffsetSpikes() }),
+
+    new Layer({ size: modeSize }, adjustments, {
+        brightness: -0.3,
+        contrast: 0.2,
+        saturation: 0.0,
+    }),
+
+    new Layer({ size: modeSize }, pixelate, { pixelSize: 4 }),
+
+    // new Layer({ size: modeSize }, rgbOffset, {
+    //     offset: randomOffsetSpikes(),
+    //     mode: 1,
     // }),
 
-    // new Layer({ size: modeSize, blendMode: 'overlay' }, gradient, {
-    //     startColor: '#000000',
-    //     endColor: '#efefef',
-    // }),
-    // new Layer({ size: modeSize, blendMode: 'overlay', opacity: 1.0 }, popcornNoise),
-    // new Layer({ size: modeSize }, blur, { radius: 1 }),
-    // new Layer({ size: modeSize }, posterize, { numBins: 4 }),
-
-    // new Layer({ size: modeSize }, cgaDither, {}),
-
-    // new Layer({ size: modeSize }, pixelate, {}),
-    // new Layer({ size: modeSize }, threshold, { threshold: 0.5 }),
-    // new Layer({ size: modeSize }, receipt, {}),
-    // new Layer({ size: modeSize }, waves, {}),
-    // new Layer({ size: modeSize }, shapeDither, {}),
+    // THE FINAL EFFECT!!!
+    new Layer({ size: modeSize }, cgaDither, {}),
 ]
 
 const player = createPlayer({
     size: fullSize,
     animated: true,
-    duration: 6, // seconds
-    targetFPS: 24,
+    duration: 15, // seconds
+    targetFPS: 15,
     antialias: false,
     layers,
 })

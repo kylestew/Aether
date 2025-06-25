@@ -57,7 +57,7 @@ export const rgbOffset = {
         // Set uniforms
         this.gl.uniform1f(this.uniformLocations.u_aspect, width / height)
         this.gl.uniform1i(this.uniformLocations.u_mode, mode || 0)
-        this.gl.uniform1f(this.uniformLocations.u_offset, offset || 0.02)
+        this.gl.uniform1f(this.uniformLocations.u_offset, offset || 0.0)
         this.gl.uniform1f(this.uniformLocations.u_rotation, rotation || 0.0)
 
         // Bind texture to texture unit 0
