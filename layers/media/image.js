@@ -1,4 +1,4 @@
-export const imageLayer = {
+export const image = {
     defaultParams: {
         imagePath: '/assets/images/david.png',
         cropMode: 'contain', // 'contain' | 'cover' | 'fill'
