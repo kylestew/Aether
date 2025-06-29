@@ -1,7 +1,7 @@
 import { createPlayer } from '../src/player.js'
 import { Layer } from '../src/layer.js'
 
-import { imageLayer } from '../layers/media/imageLayer.js'
+import { image } from '../layers/media/image.js'
 import { rgbOffset } from '../layers/pixel/rgbOffset.js'
 
 // 135 x 240 mode
@@ -17,7 +17,7 @@ const imagePath = '/assets/images/lenna.png'
 // const imagePath = '/assets/images/premium_photo-1736749650508-fcf0c377868b.avif'
 
 const layers = [
-    new Layer({ size: modeSize }, imageLayer, {
+    new Layer({ size: modeSize }, image, {
         imagePath,
         cropMode: 'cover',
     }),
