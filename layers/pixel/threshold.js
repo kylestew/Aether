@@ -6,10 +6,10 @@ export const threshold = {
         threshold: 0.5,
         factor: 0.2,
         backgroundColor: '#000000',
-        foregroundColor: '#ffffff',
+        color: '#ffffff',
     },
 
-    render(ctx, { inputCtx, width, height, threshold, backgroundColor, foregroundColor, factor }) {
+    render(ctx, { inputCtx, width, height, threshold, backgroundColor, color, factor }) {
         if (!inputCtx) return
 
         // we are just going to write into the input canvas the updated values
@@ -17,8 +17,14 @@ export const threshold = {
         const data = imageData.data
 
         // Parse hex color to RGB
-        const hex = foregroundColor.replace('#', '')
+        let hex = color.replace('#', '')
         const fgRGB = [
+            parseInt(hex.substring(0, 2), 16),
+            parseInt(hex.substring(2, 4), 16),
+            parseInt(hex.substring(4, 6), 16),
+        ]
+        hex = backgroundColor.replace('#', '')
+        const bgRGB = [
             parseInt(hex.substring(0, 2), 16),
             parseInt(hex.substring(2, 4), 16),
             parseInt(hex.substring(4, 6), 16),
@@ -42,9 +48,9 @@ export const threshold = {
                 data[i + 1] = fgRGB[1] // G
                 data[i + 2] = fgRGB[2] // B
             } else {
-                data[i] = 0 // R
-                data[i + 1] = 0 // G
-                data[i + 2] = 0 // B
+                data[i] = bgRGB[0] // R
+                data[i + 1] = bgRGB[1] // G
+                data[i + 2] = bgRGB[2] // B
             }
             // data[i + 3] is alpha, leave unchanged
 

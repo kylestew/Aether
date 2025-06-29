@@ -16,6 +16,7 @@ const patterns = {
         [0.2, 0.73, 0.06, 0.6],
         [1.0, 0.46, 0.86, 0.33],
     ], // 4x4 Bayer matrix normalized to 0–1
+    // bayer 8x8
     clustered_dot: [
         [6 / 9, 8 / 9, 4 / 9],
         [1 / 9, 0 / 9, 3 / 9],
@@ -52,6 +53,7 @@ const patterns = {
         [0.1, 0.5, 0.2],
         [0.6, 0.3, 0.8],
     ],
+    // TODO: gen blue noise
 }
 
 // const horizontalDither = [
