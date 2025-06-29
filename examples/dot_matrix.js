@@ -4,13 +4,14 @@ import { Layer } from '../src/layer.js'
 import { image } from '../layers/media/image.js'
 
 import { pixelPattern } from '../layers/generators/pixelPattern.js'
-// import { perlinNoise } from '../layers/generators/perlinNoise.js'
+import { perlinNoise } from '../layers/generators/perlinNoise.js'
 import { snowNoise } from '../layers/generators/snowNoise.js'
 
 import { threshold } from '../layers/pixel/threshold.js'
 import { adjustments } from '../layers/pixel/adjustments.js'
 import { blur } from '../layers/pixel/blur.js'
 import { vignette } from '../layers/pixel/vignette.js'
+import { rgbOffset } from '../layers/pixel/rgbOffset.js'
 
 // MODES: 120, 60, 40, 30, 24, 20, 15, 12, 10, 8, 6, 5, 4, 3, 2, 1
 // MODE 6 is closest to CGA mode 0 (320x200(CGA) - 320x180 (ours))
@@ -49,14 +50,14 @@ const layers = [
                 const lineWidth = 4
 
                 ctx.strokeStyle = '#fff'
-                ctx.lineWidth = lineWidth * 1.1
+                ctx.lineWidth = lineWidth * 1.0
 
                 // Save context state
                 ctx.save()
 
                 // Translate to center and rotate
                 ctx.translate(width / 2, height / 2)
-                ctx.rotate(0.33 * Math.PI * Math.sin(pct * 0.5))
+                ctx.rotate(0.33 * Math.PI)
                 ctx.scale(1.2, 1.2)
                 ctx.translate(-width / 2, -height / 2)
 
@@ -64,7 +65,7 @@ const layers = [
                 const cycleLength = lineWidth * (255 / 12)
 
                 const numLines = width / lineWidth
-                const repeats = 5
+                const repeats = 9
                 const colorSeg = (255 / (numLines - 1)) * repeats
 
                 const offsetEnd = width / repeats
@@ -89,26 +90,21 @@ const layers = [
         }
     ),
 
-    // new Layer({ size: modeSize }, blur),
+    new Layer({ size: modeSize }, blur),
 
-    new Layer({ size: modeSize }, vignette, { strength: 0.9, softness: 0.2, radius: 0.5 }),
+    new Layer({ size: modeSize }, vignette, { strength: 0.9, softness: 0.3, radius: 0.65 }),
 
-    // new Layer({ size: modeSize, blendMode: 'overlay', opacity: 0.1 }, snowNoise),
-    //
-    // new Layer({ size: modeSize }, perlinNoise),
+    new Layer({ size: modeSize, blendMode: 'overlay', opacity: 0.12 }, snowNoise),
 
-    // new Layer({ size: modeSize, blendMode: 'normal' }, pixelPattern, {
-    //     pattern: 'test',
-    //     scale: 3,
-    // }),
+    new Layer({ size: modeSize, blendMode: 'multiply' }, perlinNoise),
 
-    // new Layer({ size: modeSize }, adjustments, {
-    //     brightness: -0.2,
-    //     contrast: 0.0,
-    //     saturation: 0.0,
-    //     hue: 0.0,
-    // }),
-    //
+    new Layer({ size: modeSize }, adjustments, {
+        brightness: 0.3,
+        contrast: 0.1,
+        saturation: 0.0,
+        hue: 0.0,
+    }),
+
     new Layer({ enabled: false, size: modeSize, blendMode: ditherBlendMode }, pixelPattern, {
         pattern,
         scale: 1,
@@ -120,6 +116,8 @@ const layers = [
         threshold: 0.5,
         factor: 0.0,
     }),
+
+    new Layer({ enabled: true, size: modeSize }, rgbOffset),
 ]
 
 const player = createPlayer({

@@ -168,6 +168,11 @@
                     description: 'Animated particles moving on a sphere surface',
                     file: 'spherical_particles.js',
                 },
+                maths_texture: {
+                    title: 'Maths Texture',
+                    description: '',
+                    file: 'maths_texture.js',
+                },
             }
 
             // Get example ID from URL parameter
@@ -188,7 +193,7 @@
             } else {
                 document.getElementById('exampleTitle').textContent = 'Example Not Found'
                 document.getElementById('canvas-container').innerHTML =
-                    '<div class="error">Example not found. Please check the URL parameter.</div>'
+                    '<div class="">Example not found. Please check the URL parameter.</div>'
             }
         </script>
     </body>

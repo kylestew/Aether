@@ -238,8 +238,7 @@ export const perlinNoise = {
         }
     },
 
-    render(ctx, { resolution, t, params = {} }) {
-        const { width, height } = resolution
+    render(ctx, { width, height, t, params = {} }) {
         const {
             scale,
             octaves,
