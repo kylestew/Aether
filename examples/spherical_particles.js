@@ -1,5 +1,6 @@
 import { createPlayer } from '../src/player.js'
 import { Layer } from '../src/layer.js'
+import { adjustments } from '../layers/pixel/adjustments.js'
 
 class Particle {
     /// r - distance from origin
@@ -99,7 +100,14 @@ const mode = 2
 const fullSize = [1080, 1080]
 const modeSize = [fullSize[0] / mode, fullSize[1] / mode]
 
-const layers = [new Layer({ size: modeSize }, sphericalParticles)]
+const layers = [
+    new Layer({ size: modeSize }, sphericalParticles),
+    new Layer({ size: modeSize }, adjustments, {
+        brightness: 0.1,
+        contrast: 0.2,
+        saturation: 0.3,
+    }),
+]
 
 const player = createPlayer({
     size: fullSize,

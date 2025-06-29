@@ -4,11 +4,12 @@
 export const threshold = {
     defaultParams: {
         threshold: 0.5,
+        factor: 0.2,
         backgroundColor: '#000000',
         foregroundColor: '#ffffff',
     },
 
-    render(ctx, { inputCtx, width, height, threshold, backgroundColor, foregroundColor }) {
+    render(ctx, { inputCtx, width, height, threshold, backgroundColor, foregroundColor, factor }) {
         if (!inputCtx) return
 
         // we are just going to write into the input canvas the updated values
@@ -30,7 +31,10 @@ export const threshold = {
         // Process pixels in chunks of 4 (RGBA)
         for (let i = 0; i < data.length; i += 4) {
             // Calculate luminance using standard formula
-            const luminance = (data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114) / 255
+            let luminance = (data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114) / 255
+
+            const adjust = Math.cos(luminance * Math.PI * 2.0) * 0.5 + 0.5
+            luminance += adjust * factor
 
             // Apply threshold and set to foreground color if above threshold
             if (luminance > threshold) {
@@ -43,6 +47,10 @@ export const threshold = {
                 data[i + 2] = 0 // B
             }
             // data[i + 3] is alpha, leave unchanged
+
+            // data[i] = luminance * 255
+            // data[i + 1] = luminance * 255
+            // data[i + 2] = luminance * 255
         }
 
         // Put the processed image data back
