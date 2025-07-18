@@ -37,7 +37,7 @@ import { applyCurve, linear, easeIn, easeOut, easeInOut, pingPong, snapOut, elas
 // generators
 import { simple3DLayer } from '../layers/generators/simple3DLayer.js'
 import { gradient } from '../layers/generators/gradient.js'
-import { popcornNoise } from '../layers/generators/popcornNoise.js'
+import { snowNoise } from '../layers/generators/snowNoise.js'
 
 // pixel
 import { blur } from '../layers/pixel/blur.js'
@@ -259,7 +259,7 @@ const layers = [
     }),
 
     // a bit of noise for movement on the dither
-    new Layer({ size: modeSize, blendMode: 'color-dodge', opacity: 0.05 }, popcornNoise),
+    new Layer({ size: modeSize, blendMode: 'color-dodge', opacity: 0.05 }, snowNoise),
     // ================================
 
     // toggle light mode

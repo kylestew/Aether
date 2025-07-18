@@ -1,52 +1,78 @@
 import { createPlayer } from '../src/player.js'
 import { Layer } from '../src/layer.js'
 
-import { image } from '../layers/media/image.js'
-
-import { pixelPattern } from '../layers/generators/pixelPattern.js'
-import { perlinNoise } from '../layers/generators/perlinNoise.js'
-import { snowNoise } from '../layers/generators/snowNoise.js'
-
-import { threshold } from '../layers/pixel/threshold.js'
-import { adjustments } from '../layers/pixel/adjustments.js'
-import { blur } from '../layers/pixel/blur.js'
-import { vignette } from '../layers/pixel/vignette.js'
-
 // MODES: 120, 60, 40, 30, 24, 20, 15, 12, 10, 8, 6, 5, 4, 3, 2, 1
 // MODE 6 is closest to CGA mode 0 (320x200(CGA) - 320x180 (ours))
-const mode = 40
+const mode = 1
 const fullSize = [1080, 1080]
-// const fullSize = [1080, 1920]
 const modeSize = [fullSize[0] / mode, fullSize[1] / mode]
 
-const imagePath = '/assets/images/pearl.png'
-// const imagePath = '/assets/images/lenna.png'
-// const imagePath = '/assets/images/david.png'
-// const imagePath = '/assets/images/premium_photo-1736749650508-fcf0c377868b.avif'
+/// x, y are in range [-1, 1]
+/// output in range [0, 1]
+function mathsFn(x, y, pct) {
+    const time = pct * Math.PI * 3
 
-const color1 = '#ff7f7e'
-const color2 = '#80757f'
-const color3 = '#37350d'
+    // Avoid division by zero
+    if (Math.abs(x) < 0.001) x = 0.001
+    if (Math.abs(y) < 0.001) y = 0.001
 
-const layers = [
-    new Layer({ size: modeSize }, image, {
-        imagePath,
-        cropMode: 'cover',
-    }),
+    // Create interesting patterns using tangent function
+    const radius = Math.sqrt(x * x + y * y)
+    const angle = Math.atan2(y, x)
 
-    new Layer({ size: modeSize }, vignette, { strength: 0.9, softness: 0.2, radius: 0.5 }),
+    // Tangent-based spiral pattern
+    const spiral = Math.tan(radius * 4 - time * 2) * Math.cos(angle * 2 + time)
 
-    // new Layer({ size: modeSize, blendMode: 'overlay', opacity: 0.1 }, snowNoise),
-    //
-    new Layer({ size: modeSize, blendMode: 'overlay' }, perlinNoise, { colorize: true, color1, color2: color3 }),
+    // Tangent interference pattern
+    const interference = Math.tan(x * 6 + time) * Math.tan(y * 4 - time * 1.5)
 
-    // new Layer({ size: modeSize }, adjustments, {
-    //     brightness: -0.2,
-    //     contrast: 0.0,
-    //     saturation: 0.0,
-    //     hue: 0.0,
-    // }),
-]
+    // Radial tangent waves
+    const radial = Math.tan(radius * 3 + time) * Math.exp(-radius * 1.5)
+
+    // Combine patterns with tangent function
+    let result = spiral * 0.4 + interference * 0.3 + radial * 0.3
+
+    // Add some high-frequency tangent detail
+    const detail = Math.tan(x * 15 + y * 12 + time * 4) * 0.1
+    result += detail
+
+    // Normalize and apply non-linear transformations
+    result = (result + 2) * 0.25 // Normalize tangent output
+    result = Math.abs(result) // Take absolute value to handle tangent's range
+    result = Math.pow(result, 0.7) // Gamma correction
+
+    return Math.max(0, Math.min(1, result))
+}
+
+const mathsTexture = new Layer(
+    { size: modeSize },
+    {
+        render(ctx, { pct, width, height }) {
+            const imageData = ctx.createImageData(width, height)
+            const data = imageData.data
+
+            for (let y = 0; y < height; y++) {
+                const yT = (y / height) * 2.0 - 1.0
+
+                for (let x = 0; x < width; x++) {
+                    const i = (y * width + x) * 4
+                    const xT = (x / width) * 2.0 - 1.0
+
+                    const val = mathsFn(xT, yT, pct)
+
+                    data[i] = val * 255.0
+                    data[i + 1] = val * 255.0
+                    data[i + 2] = val * 255.0
+                    data[i + 3] = 255
+                }
+            }
+
+            ctx.putImageData(imageData, 0, 0)
+        },
+    }
+)
+
+const layers = [mathsTexture]
 
 const player = createPlayer({
     size: fullSize,
