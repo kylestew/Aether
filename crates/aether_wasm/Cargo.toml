@@ -1,0 +1,26 @@
+[package]
+name = "aether_wasm"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib"]
+
+[features]
+default = ["console_error_panic_hook", "wee_alloc"]
+
+[dependencies]
+aether_core = { path = "../aether_core" }
+wasm-bindgen = "0.2"
+console_error_panic_hook = { version = "0.1", optional = true }
+wee_alloc = { version = "0.4", optional = true }
+js-sys = "0.3"
+cfg-if = "1.0"
+serde = { workspace = true }
+serde_json = { workspace = true }
+
+[dependencies.web-sys]
+version = "0.3"
+features = [
+  "console",
+] 

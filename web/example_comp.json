@@ -1,0 +1,37 @@
+{
+    "width": 800,
+    "height": 600,
+    "background": [20, 20, 30, 255],
+    "layers": [
+        {
+            "id": 0,
+            "name": "Background Gradient",
+            "enabled": true,
+            "opacity": 1.0,
+            "blend": "Normal",
+            "transform": { "m00": 1, "m01": 0, "m02": 0, "m10": 0, "m11": 1, "m12": 0 },
+            "kind": {
+                "Gradient": {
+                    "c0": [255, 100, 100, 255],
+                    "c1": [100, 100, 255, 255],
+                    "angle_deg": 45.0
+                }
+            }
+        },
+        {
+            "id": 1,
+            "name": "Animated Gradient Overlay",
+            "enabled": true,
+            "opacity": 0.6,
+            "blend": "Normal",
+            "transform": { "m00": 0.8, "m01": 0, "m02": 80, "m10": 0, "m11": 0.8, "m12": 60 },
+            "kind": {
+                "Gradient": {
+                    "c0": [255, 255, 100, 180],
+                    "c1": [100, 255, 100, 180],
+                    "angle_deg": -30.0
+                }
+            }
+        }
+    ]
+}

@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Aether Rust+WASM Demo</title>
+        <style>
+            body {
+                margin: 0;
+                padding: 20px;
+                background: #111;
+                color: white;
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+
+            h1 {
+                color: #4ecdc4;
+                margin-bottom: 20px;
+            }
+
+            #output {
+                border: 2px solid #333;
+                border-radius: 8px;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            }
+
+            .controls {
+                margin-top: 20px;
+                display: flex;
+                gap: 10px;
+            }
+
+            button {
+                background: #4ecdc4;
+                color: black;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 5px;
+                cursor: pointer;
+                font-weight: bold;
+            }
+
+            button:hover {
+                background: #45b7d1;
+            }
+
+            button:disabled {
+                background: #666;
+                cursor: not-allowed;
+            }
+
+            .info {
+                margin-top: 20px;
+                max-width: 600px;
+                text-align: center;
+                color: #aaa;
+            }
+
+            .status {
+                margin-top: 10px;
+                padding: 10px;
+                border-radius: 4px;
+                min-height: 20px;
+            }
+
+            .status.loading {
+                background: #333;
+                color: #4ecdc4;
+            }
+
+            .status.success {
+                background: #2d5a2d;
+                color: #90ee90;
+            }
+
+            .status.error {
+                background: #5a2d2d;
+                color: #ff9090;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Aether Rust+WASM Renderer</h1>
+
+        <canvas id="output" width="800" height="600"></canvas>
+
+        <div class="controls">
+            <button id="startBtn" onclick="startDemo()">Start Demo</button>
+            <button id="stopBtn" onclick="stopDemo()" disabled>Stop</button>
+            <button id="renderBtn" onclick="renderSingle()" disabled>Render Single Frame</button>
+        </div>
+
+        <div class="info">
+            <p>This demo shows the Rust+WASM rendering core of Aether in action.</p>
+            <p>It renders a gradient layer using CPU-based pixel manipulation compiled to WebAssembly.</p>
+        </div>
+
+        <div id="status" class="status loading">Loading WASM module...</div>
+
+        <script type="module">
+            import { runExample, startAnimation, stopAnimation, renderFrame } from './main.js'
+
+            let isRunning = false
+
+            // Update UI elements
+            const startBtn = document.getElementById('startBtn')
+            const stopBtn = document.getElementById('stopBtn')
+            const renderBtn = document.getElementById('renderBtn')
+            const status = document.getElementById('status')
+
+            function updateStatus(message, type = 'loading') {
+                status.textContent = message
+                status.className = `status ${type}`
+            }
+
+            window.startDemo = async function () {
+                try {
+                    updateStatus('Starting demo...', 'loading')
+                    await runExample()
+                    isRunning = true
+                    startBtn.disabled = true
+                    stopBtn.disabled = false
+                    renderBtn.disabled = false
+                    updateStatus('Demo running! Rendering with Rust+WASM.', 'success')
+                } catch (error) {
+                    updateStatus(`Error: ${error.message}`, 'error')
+                    console.error('Demo error:', error)
+                }
+            }
+
+            window.stopDemo = function () {
+                stopAnimation()
+                isRunning = false
+                startBtn.disabled = false
+                stopBtn.disabled = true
+                updateStatus('Demo stopped.', 'success')
+            }
+
+            window.renderSingle = function () {
+                if (!isRunning) return
+                stopAnimation()
+                renderFrame(performance.now())
+                updateStatus('Single frame rendered.', 'success')
+            }
+
+            // Auto-start the demo when page loads
+            window.addEventListener('load', () => {
+                setTimeout(() => {
+                    startDemo()
+                }, 500)
+            })
+        </script>
+    </body>
+</html>

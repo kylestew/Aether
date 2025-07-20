@@ -136,3 +136,14 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# Rust
+target/
+**/*.rs.bk
+Cargo.lock
+
+# WASM-pack output
+web/pkg/
+
+# Rust analyzer
+.rust-analyzer/

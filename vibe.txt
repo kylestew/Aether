@@ -1,0 +1,560 @@
+Objective:
+Migrate an existing browser-based compositing playground (“Aether”) from a JavaScript Canvas2D rendering core to a Rust rendering core compiled to WebAssembly, while keeping the current JS UI, layer editing code, and animation system. Rust produces an RGBA frame each tick; JS blits that frame into an HTML <canvas>.
+
+0. Quick Checklist for the Agent
+ Create Rust workspace with aether_core + aether_wasm.
+
+ Define canonical data model: Comp → Layers (size, blend, opacity, params).
+
+ Implement software (CPU) rasterizer in Rust for a subset of layers (Gradient + Image required; others stubbed).
+
+ Implement basic blend (Normal alpha over) first; others TODO.
+
+ Expose WASM bindings: create renderer, load comp (JSON), update live layer params, render frame -> raw RGBA pointer/len.
+
+ JS: integrate WASM module; per frame: push current evaluated params from existing JS animation system → call Rust render → copy pixels → putImageData.
+
+ Preserve current UI & dev ergonomics for coding new JS layers while gradually porting to Rust equivalents.
+
+ Strictly avoid WebGPU, React refactors, ECS, Vulkan, or full video decode in this pass.
+
+1. In-Scope / Out-of-Scope
+In Scope
+
+Rust crates + WASM build.
+
+CPU pixel renderer (scalar loops OK).
+
+Minimal math (2D affine transform).
+
+Gradient + Image layer full implementation.
+
+Basic adjustment layers (Invert, Brightness/Contrast) if time; else stubs.
+
+Frame-time render call from JS (JS provides layer states; no Rust timeline logic required initially).
+
+Canvas blit in JS.
+
+Out of Scope (Phase 1)
+
+WebGPU / GPU shaders.
+
+Desktop windowing (may add later).
+
+Full param animation system in Rust (JS remains source of truth).
+
+Video decoding (use still image poster frames or skip Media layers).
+
+Text shaping / font metrics (stub with solid rect or Canvas-raster upload).
+
+Complex blend modes beyond Normal (add hooks).
+
+2. Source Inputs & Assumptions About Existing Code
+Assume current Aether project has:
+
+index.html with <canvas id="aether">.
+
+JS modules managing:
+
+Layer definitions (JS objects, each w/ draw(ctx), params).
+
+Animation: per-frame tick updates layer transforms/params.
+
+UI controls for params.
+
+We will not delete or rewrite this JS. We will redirect render to Rust.
+
+3. New Project Layout
+graphql
+Copy
+Edit
+aether/
+├─ Cargo.toml               # workspace
+├─ crates/
+│  ├─ aether_core/          # pure Rust data + renderer
+│  └─ aether_wasm/          # wasm-bindgen bridge
+├─ web/
+│  ├─ index.html            # existing UI (unchanged except loader)
+│  ├─ main.js               # glue: build JSON state, call WASM, blit
+│  └─ pkg/                  # wasm-bindgen output
+└─ package.json             # npm script to build wasm + serve
+4. Workspace Root Cargo.toml
+toml
+Copy
+Edit
+[workspace]
+members = ["crates/aether_core", "crates/aether_wasm"]
+resolver = "2"
+5. aether_core Crate Spec (Pure Rust)
+5.1 Features & Dependencies
+serde, serde_derive (Serialize/Deserialize).
+
+serde_json.
+
+(Optional) vek or small internal math; keep light.
+
+(Optional) palette if helpful; otherwise manual RGBA.
+
+5.2 Coordinate & Pixel Conventions
+Pixel format: RGBA8, non-premultiplied.
+
+Memory layout: row-major, top-to-bottom, left-to-right.
+
+Index: idx = ((y * width) + x) * 4.
+
+Channels: R,G,B,A each 0–255.
+
+5.3 Blend Modes (Phase 1)
+Implement Normal alpha-over only.
+
+Future placeholder enum variants: Add, Multiply, Screen, etc. but return early (no-op fallback) until implemented.
+
+5.4 Core Types (sketch—agent must implement)
+rust
+Copy
+Edit
+pub type PixelBuf = Vec<u8>; // RGBA8
+
+#[derive(Clone, Copy, Debug, Serialize, Deserialize)]
+pub enum BlendMode { Normal /*, Add, Multiply, ...*/ }
+
+#[derive(Clone, Copy, Debug, Serialize, Deserialize)]
+pub struct Transform2D {
+    pub m00: f32; pub m01: f32; pub m02: f32;
+    pub m10: f32; pub m11: f32; pub m12: f32;
+    // last row implicit [0 0 1]
+}
+// Helper: apply(x,y) -> (tx,ty)
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct BaseProps {
+    pub transform: Transform2D, // local->comp
+    pub opacity: f32,           // 0..1
+    pub blend: BlendMode,
+    pub enabled: bool,
+    pub name: Option<String>,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct GradientParams {
+    pub c0: [u8;4],
+    pub c1: [u8;4],
+    pub angle_deg: f32,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct ImageParams {
+    pub width: u32,
+    pub height: u32,
+    /// Raw RGBA8 pixel data; length = w*h*4
+    #[serde(with="serde_bytes")]
+    pub pixels: Vec<u8>,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum LayerKind {
+    Gradient(GradientParams),
+    Image(ImageParams),
+    // Invert(AdjustInvertParams),
+    // Blur(BlurParams),
+    // ...
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct Layer {
+    pub id: u32,
+    #[serde(flatten)]
+    pub base: BaseProps,
+    pub kind: LayerKind,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct Comp {
+    pub width: u32,
+    pub height: u32,
+    pub background: [u8;4], // start clear/transparent if you want
+    pub layers: Vec<Layer>,
+}
+5.5 Rendering Entry Point
+rust
+Copy
+Edit
+impl Comp {
+    /// Render to supplied RGBA8 buffer; buffer length must be width*height*4.
+    pub fn render(&self, t_ms: f32, out: &mut [u8]) {
+        // clear
+        fill_rgba(out, self.background);
+        // render layers bottom->top
+        for layer in &self.layers {
+            if !layer.base.enabled { continue; }
+            match &layer.kind {
+                LayerKind::Gradient(p) => render_gradient(layer, p, out, self.width, self.height),
+                LayerKind::Image(p)    => render_image(layer, p, out, self.width, self.height),
+                // ...
+            }
+        }
+    }
+}
+Note: t_ms is passed but ignored for Phase 1; JS pushes time-evaluated param states. Keep it for forward compatibility.
+
+6. Rendering Algorithms (Phase 1 CPU)
+6.1 Transform Sampling
+For each destination pixel (x,y) in comp space:
+
+Map to layer local via inverse transform.
+
+Sample layer content (procedural or texture).
+
+Blend sample pixel over existing out pixel using:
+
+ini
+Copy
+Edit
+out.rgb = src.rgb * src.a*opacity + dst.rgb * (1 - src.a*opacity)
+out.a   = src.a*opacity + dst.a*(1 - src.a*opacity)
+Use float 0..1 internal math; write back 0..255 u8.
+
+Performance note: For Gradient, compute analytic formula instead of per-pixel transform inversion (precompute directional ramp). OK to start naïve loops; optimize later.
+
+6.2 Layer Implementations (Min)
+Gradient Layer
+
+Linear gradient rotated by angle_deg.
+
+Compute normalized projection along gradient axis; interpolate c0→c1.
+
+Accept premult toggle? No; straight.
+
+Image Layer
+
+Pixels supplied RGBA8.
+
+Nearest-neighbor sample (Phase 1).
+
+Support scale + translation from BaseProps.transform.
+
+Out of bounds → transparent.
+
+7. aether_wasm Crate Spec
+7.1 Dependencies
+aether_core
+
+wasm-bindgen
+
+console_error_panic_hook (debug only)
+
+wee_alloc (optional small allocator)
+
+7.2 WASM Struct
+rust
+Copy
+Edit
+#[wasm_bindgen]
+pub struct Renderer {
+    comp: Comp,
+    frame: PixelBuf,
+}
+
+#[wasm_bindgen]
+impl Renderer {
+    #[wasm_bindgen(constructor)]
+    pub fn new(width: u32, height: u32) -> Renderer {
+        utils::set_panic_hook(); // if desired
+        let comp = Comp {
+            width, height,
+            background: [0,0,0,0],
+            layers: Vec::new(),
+        };
+        let frame = vec![0; (width * height * 4) as usize];
+        Renderer { comp, frame }
+    }
+
+    /// Replace the current comp with JSON description produced in JS.
+    pub fn load_comp(&mut self, json: &str) -> Result<(), JsValue> {
+        self.comp = serde_json::from_str(json)
+            .map_err(|e| JsValue::from_str(&format!("comp parse error: {e}")))?;
+        // resize buffer if needed
+        let needed = (self.comp.width * self.comp.height * 4) as usize;
+        if self.frame.len() != needed { self.frame = vec![0; needed]; }
+        Ok(())
+    }
+
+    /// Update just the layer params (fast path; JSON delta)
+    pub fn update_layers(&mut self, json: &str) -> Result<(), JsValue> {
+        // parse Vec<Layer> and patch by id
+        // implement minimal patch; ignore missing
+        Ok(())
+    }
+
+    /// Render one frame at time t_ms; returns pointer to RGBA buffer.
+    pub fn render(&mut self, t_ms: f32) -> *const u8 {
+        self.comp.render(t_ms, &mut self.frame);
+        self.frame.as_ptr()
+    }
+
+    pub fn frame_len(&self) -> usize { self.frame.len() }
+
+    /// Optionally safe copy (slow)
+    pub fn get_frame(&self) -> js_sys::Uint8Array {
+        unsafe { js_sys::Uint8Array::view(&self.frame) }
+    }
+}
+Note: memory() is auto-exported by wasm-bindgen; JS will access it.
+
+8. JSON Schema (Layer Snapshot from JS)
+Use this minimal schema so your current JS layer objects can be serialized.
+
+json
+Copy
+Edit
+{
+  "width": 1280,
+  "height": 720,
+  "background": [0,0,0,0],
+  "layers": [
+    {
+      "id": 0,
+      "name": "Background Gradient",
+      "enabled": true,
+      "opacity": 1.0,
+      "blend": "Normal",
+      "transform": { "m00":1,"m01":0,"m02":0, "m10":0,"m11":1,"m12":0 },
+      "Gradient": {
+        "c0": [255,0,0,255],
+        "c1": [255,255,0,255],
+        "angle_deg": 45.0
+      }
+    },
+    {
+      "id": 1,
+      "name": "Logo",
+      "enabled": true,
+      "opacity": 0.8,
+      "blend": "Normal",
+      "transform": { "m00":0.5,"m01":0,"m02":640, "m10":0,"m11":0.5,"m12":360 },
+      "Image": {
+        "width": 256,
+        "height": 256,
+        "pixels": "<base64 RGBA8>"
+      }
+    }
+  ]
+}
+Agent must:
+
+Support both tagged enum form ({ "kind":"Gradient", ... }) or inline key form above; choose one and document.
+
+Decode base64 -> Vec<u8>.
+
+Validate length = wh4.
+
+9. JS Glue Code (Integration Steps)
+Required changes to existing JS:
+
+Load WASM bundle (async).
+
+Build a Comp JSON snapshot each frame or only when structure changes (better).
+
+For animated params, update/patch only the changed layers via update_layers(), not full reload.
+
+After Rust render() call, copy returned memory into an ImageData and paint.
+
+Template:
+
+js
+Copy
+Edit
+import init, { Renderer, memory } from "./pkg/aether_wasm.js";
+
+const canvas = document.getElementById("aether");
+const ctx = canvas.getContext("2d");
+let imgData = ctx.createImageData(canvas.width, canvas.height);
+let renderer;
+
+async function boot() {
+  await init();
+  renderer = new Renderer(canvas.width, canvas.height);
+  const compJson = buildCompJSONFromExistingLayers(); // implement: returns JSON string
+  renderer.load_comp(compJson);
+  requestAnimationFrame(loop);
+}
+
+function loop(now) {
+  // 1. Update JS animation.
+  updateLayerParamsFromTimeline(now);
+
+  // 2. Build patch JSON for changed params (optional); else skip.
+
+  // 3. Render
+  const ptr = renderer.render(now);
+  const len = renderer.frame_len();
+  const pixels = new Uint8ClampedArray(memory.buffer, ptr, len);
+  imgData.data.set(pixels);
+  ctx.putImageData(imgData, 0, 0);
+
+  requestAnimationFrame(loop);
+}
+
+boot();
+10. Migration Strategy (Incremental)
+Step	Deliverable	JS Impact	Rust Work
+1	Workspace compiles; empty renderer returns blank frame	Add WASM load scaffold	Skeleton crates
+2	Gradient layer renders	Minimal JSON; call render	CPU gradient loop
+3	Image layer renders	Add image base64 data path	decode + sample
+4	Param updates	JS anim → update_layers()	patch layers by id
+5	Blend modes (only Normal)	N/A	Implement alpha over
+6	Perf test vs JS	instrumentation	pixel loop optimize maybe
+
+Optional:
+| 7 | Add Invert / Brightness | Expose params | CPU per-pixel math |
+
+11. Image Upload Path (JS → Rust)
+You likely already load <img> into Canvas; we need raw RGBA.
+
+Agent must provide helper:
+
+js
+Copy
+Edit
+function imageToRgbaBytes(imgEl) {
+  const off = document.createElement('canvas');
+  off.width = imgEl.width;
+  off.height = imgEl.height;
+  const c = off.getContext('2d');
+  c.drawImage(imgEl, 0, 0);
+  const d = c.getImageData(0,0,off.width,off.height);
+  return d.data; // Uint8ClampedArray
+}
+Then either:
+
+Inline base64 to JSON (btoa(String.fromCharCode(...))) (simple), or
+
+Add renderer.register_image(id, Uint8Array, w, h) exported in WASM (better).
+
+Minimal spec: Use base64 in JSON for first pass.
+
+12. Testing Requirements
+Golden Frame Test
+
+Build a fixed Comp (small 64x64 gradient + 32x32 image).
+
+Render in JS original engine; capture pixel array.
+
+Render in Rust; compare diff (tolerance = 1).
+
+Write test in JS harness or Rust wasmtime test.
+
+Resize Test
+
+Load small comp, then reload new comp with different size; ensure buffer resized.
+
+Performance Sanity
+
+1280x720 gradient+image; log ms over 300 frames; ensure <16ms on M2 in release.
+
+Alpha Test
+
+Transparent image over gradient; verify expected alpha composite visually & by pixel.
+
+13. Build & Tooling
+Rust target: wasm32-unknown-unknown
+Build Script (npm):
+
+package.json
+
+json
+Copy
+Edit
+{
+  "scripts": {
+    "build:wasm": "wasm-pack build --target web --out-dir web/pkg --release",
+    "serve": "vite" // or parcel, or simple http-server
+  }
+}
+Agent must ensure:
+
+wasm-pack installed or instruct user to install.
+
+Output JS glue imported relatively in web/main.js.
+
+Add TypeScript defs optional.
+
+14. Error Handling & Debug
+On JSON parse failure: throw JsValue error w/ message.
+
+On pixel buffer length mismatch: allocate correct size; warn console.
+
+Provide #[cfg(debug_assertions)] logging macro to web_sys::console::log_1.
+
+15. Memory & Performance Notes (Guidance for Agent)
+Allocate frame buffer once; reuse each render.
+
+Avoid per-pixel Vec push; index directly into slice.
+
+Convert u8→f32 only when needed; precompute opacity scalar.
+
+For gradient: precompute axis vector + dot scale outside loops.
+
+Consider iterating as for chunk in out.chunks_exact_mut(4) { ... }.
+
+Optimization is optional Phase 2; correctness first.
+
+16. Extension Hooks (Mark But Don’t Implement)
+Leave TODO stubs for:
+
+Additional blend modes.
+
+Blur pass (box blur CPU).
+
+Lookup table pass for Posterize.
+
+Feedback: requires prev frame copy; reserve buffer slot.
+
+All stubs should return early (no change) and log TODO in debug.
+
+17. Desktop Path Marker (Future)
+Document in README but do not implement now:
+
+Desktop build will use winit + pixels crate to display the frame buffer; same aether_core comp + render.
+
+This signals portability to hiring managers but keeps scope small.
+
+18. Deliverable Artifacts
+The coding agent must produce:
+
+Compiling Rust workspace (cargo check passes for both targets).
+
+wasm-pack build success; generated web/pkg.
+
+Updated web/main.js demonstrating load → render loop.
+
+Example web/example_comp.json and example_logo.png (converted).
+
+README.md with build/run instructions and note on current implemented layers.
+
+19. Acceptance Criteria
+✅ Running npm run build:wasm && npm run serve opens a local page showing:
+
+A gradient background,
+
+An image layer composited at scaled position,
+
+Opacity param respected,
+
+Animation (JS side transforms) reflected in render,
+
+Frame updates at interactive rates.
+
+✅ Changing a layer param in JS UI (e.g., opacity slider) updates rendered output without full reload hiccup.
+
+✅ Canvas dimensions changes propagate (comp reload) correctly.
+
+20. Sample README Copy (Agent Provide)
+Aether (Rust Minimal Port)
+This is the first Rust+WASM version of Aether. Rendering is CPU-based in Rust; the browser UI and animation remain in JavaScript. WebGPU/GPU acceleration, video, and advanced effects will land in later phases.
+Build: npm run build:wasm → npm run serve → open http://localhost:5173/.
+Layers implemented: Gradient, Image. Others stubbed.
+
+Handoff to Coding Agent
+Instruction to agent:
+Implement the above spec in the order given. Confirm after each major milestone (workspace scaffolding, renderer skeleton, gradient draw, image draw, JS integration). Do not introduce unapproved libraries, frameworks, or GPU/engine features outside scope. Prefer minimal code, clarity, and portability. All TODOs should be documented with comments // TODO(P2): <desc>.

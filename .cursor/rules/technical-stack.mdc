@@ -1,0 +1,6 @@
+---
+alwaysApply: true
+---
+- Javascript for web
+- Rust for core and backend
+- WASM to bridge rust to the web and javascipt
