@@ -8,48 +8,121 @@ Aether is a creative coding framework that lets you build visual compositions us
 
 ```bash
 # Clone and run the desktop version
-git clone <repository-url>
+git clone https://github.com/kylestew/Aether.git
 cd Aether
 
-# Run the native desktop application
-cargo run
+# Run with the example composition
+cargo run -- composition.json
 ```
 
 **Current Features:**
-- Basic layer composition system
-- Normal and multiply blend modes  
-- Vertical gradient renderer
-- Real-time 30fps rendering at 1280x720
-- Resizable window with ESC to quit
+- **JSON-based compositions** - Define layer stacks in declarative JSON
+- **Multiple blend modes** - Normal, Multiply (more coming)
+- **Multiple renderers** - Gradients and animated noise
+- **Real-time rendering** - 30fps at 1280x720 with window resizing
+- **Command-line interface** - Load any JSON composition file
 
 **Controls:**
 - `ESC` - Quit application
-- Window is resizable
+- Window is resizable and maintains aspect ratio
+
+---
+
+## 🎨 Creating Compositions
+
+Aether uses **JSON files** to define layer compositions. Here's the basic structure:
+
+```json
+{
+  "layers": [
+    {
+      "type": "gradient",
+      "a": 2003199,
+      "b": 16716947
+    },
+    {
+      "type": "gradient", 
+      "a": 65407,
+      "b": 16753920,
+      "direction": "horizontal",
+      "blend": "multiply",
+      "opacity": 0.6
+    },
+    {
+      "type": "noise",
+      "seed": 42,
+      "opacity": 0.25
+    }
+  ]
+}
+```
+
+### Available Layer Types
+
+**Gradient Layers:**
+```json
+{
+  "type": "gradient",
+  "a": 2003199,          // Start color (RGB as decimal)
+  "b": 16716947,         // End color (RGB as decimal)  
+  "direction": "vertical", // "vertical" or "horizontal"
+  "blend": "normal",     // "normal" or "multiply"
+  "opacity": 1.0         // 0.0 to 1.0
+}
+```
+
+**Noise Layers:**
+```json
+{
+  "type": "noise",
+  "seed": 42,            // Random seed for reproducible noise
+  "blend": "normal",     // "normal" or "multiply"
+  "opacity": 1.0         // 0.0 to 1.0
+}
+```
+
+### Usage Examples
+
+```bash
+# Run with a specific composition
+cargo run -- my_composition.json
+
+# Try the included example
+cargo run -- composition.json
+```
 
 ---
 
 ## 🏗️ Architecture
 
-```rust
-// Basic layer creation
-use layer::{Blend, Layer};
-use renderers::gradient::VerticalGradient;
+### Core Components
 
-let layers = vec![Layer::new(
-    Blend::Normal,
-    1.0,
-    Box::new(VerticalGradient::new(0x1E90FF, 0xFF1493)),
-)];
+```rust
+// JSON composition loading
+use composition::Composition;
+
+// Load from file
+let json = fs::read_to_string("composition.json")?;
+let comp: Composition = serde_json::from_str(&json)?;
+let layers: Vec<Layer> = comp.into_layers();
 ```
 
-**Core Components:**
-- **`Layer`** - Wraps renderer with blend mode and opacity
+**System Overview:**
+- **`Composition`** - JSON-deserializable layer specifications
+- **`Layer`** - Runtime layer with renderer, blend mode, and opacity
 - **`Renderer` trait** - Implement `render()` for custom effects
 - **Blend modes** - Normal, Multiply (more coming)
 - **`minifb`** - Cross-platform framebuffer for display
 
-**Current Renderers:**
-- `VerticalGradient` - Linear color gradients
+### Current Renderers
+
+- **`Gradient`** - Linear gradients (vertical/horizontal, configurable colors)
+- **`Noise`** - Animated greyscale noise (seeded random generation)
+
+### Buffer Format
+- Pixels are `u32` in 0xRRGGBB format (8-bit per channel)
+- Buffer is row-major: `index = y * width + x`
+- Colors in JSON are decimal RGB values (e.g., `16711680` = red)
 
 ---
 
@@ -58,11 +131,13 @@ let layers = vec![Layer::new(
 **Project Structure:**
 ```
 src/
-├── main.rs           # Application entry point
-├── layer.rs          # Core layer and blending system
-└── renderers/        # Layer renderer implementations
+├── main.rs              # Application entry point & main loop
+├── composition.rs       # JSON composition system  
+├── layer.rs             # Core layer and blending system
+└── renderers/           # Layer renderer implementations
     ├── mod.rs
-    └── gradient.rs   # Gradient renderer
+    ├── gradient.rs      # Gradient renderer
+    └── noise.rs         # Noise renderer
 ```
 
 **Adding New Renderers:**
@@ -80,33 +155,33 @@ pub struct MyRenderer {
 impl Renderer for MyRenderer {
     fn render(&mut self, buf: &mut [u32], size: (usize, usize), t: f32) {
         // Fill buffer with pixels (0xRRGGBB format)
-        // t = time in seconds
+        // t = time in seconds for animation
     }
 }
 ```
 
-3. Add to `renderers/mod.rs` and use in `main.rs`
-
-**Buffer Format:**
-- Pixels are `u32` in 0xRRGGBB format (8-bit per channel)
-- Buffer is row-major: `index = y * width + x`
+3. Add to `renderers/mod.rs` and `composition.rs`
+4. Define JSON schema in the `LayerSpec` enum
 
 ### Requirements
 
 - **Rust**: 1.88.0 or later
-- **Dependencies**: `minifb` (framebuffer), `rand` (utilities)
+- **Dependencies**: 
+  - `minifb` - Cross-platform framebuffer
+  - `serde` + `serde_json` - JSON composition loading  
+  - `rand` - Random number generation for noise
 
 ---
 
 ## 🎨 Roadmap
 
 - [ ] **Core Renderers**
-  - [x] Vertical gradient
-  - [ ] Horizontal gradient  
-  - [ ] Radial gradient
-  - [ ] Perlin noise
+  - [x] Vertical/horizontal gradients
+  - [x] Animated noise
+  - [ ] Radial gradients
   - [ ] Simple shapes (circle, rectangle)
   - [ ] Image loading and display
+  - [ ] Perlin noise (coherent noise)
 
 - [ ] **Effects & Filters**
   - [ ] Blur
@@ -136,7 +211,12 @@ impl Renderer for MyRenderer {
 
 ## 🎮 Current Example
 
-The main application demonstrates a basic blue-to-pink vertical gradient that fills the window and animates over time.
+The included `composition.json` demonstrates:
+- **Blue-to-pink vertical gradient** as background
+- **Green-to-yellow horizontal gradient** with multiply blend  
+- **Animated noise overlay** at 25% opacity
+
+Try modifying the colors, blend modes, or adding new layers!
 
 ---
 
@@ -145,10 +225,10 @@ The main application demonstrates a basic blue-to-pink vertical gradient that fi
 1. Fork the repository
 2. Create a feature branch
 3. Add your layer renderer or improvement
-4. Include examples if applicable
+4. Include example JSON compositions
 5. Submit a pull request
 
-**Current Focus**: New renderers, effects, and core system improvements are especially welcome.
+**Current Focus**: New renderers, JSON composition features, and core system improvements are especially welcome.
 
 ---
 
@@ -169,3 +249,5 @@ MIT License - see [LICENSE](LICENSE) file for details.
 ---
 
 **Built with ❤️ for the creative coding community**
+
+*High-performance native rendering with declarative JSON compositions*
