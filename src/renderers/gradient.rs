@@ -1,41 +1,62 @@
-//! A simple vertical gradient layer.
-//!
-//! Fills the scratch buffer with a linear blend from `top` to `bottom` colour
-//! (0xRRGGBB, 8‑bit per channel).
 use crate::layer::Renderer;
 
-pub struct VerticalGradient {
-    top: u32,
-    bottom: u32,
+#[derive(Clone, Copy)]
+pub enum Direction {
+    Vertical,
+    Horizontal,
 }
 
-impl VerticalGradient {
-    pub fn new(top: u32, bottom: u32) -> Self {
-        Self { top, bottom }
+/// Generic 2‑colour gradient
+pub struct Gradient {
+    a: u32,
+    b: u32,
+    dir: Direction,
+}
+
+impl Gradient {
+    pub fn new(a: u32, b: u32, dir: Direction) -> Self {
+        Self { a, b, dir }
     }
 }
 
-impl Renderer for VerticalGradient {
+impl Renderer for Gradient {
     fn render(&mut self, buf: &mut [u32], (w, h): (usize, usize), _t: f32) {
-        for y in 0..h {
-            let t = y as f32 / (h - 1) as f32;
-            let c = lerp_color(self.top, self.bottom, t);
-            buf[y * w..(y + 1) * w].fill(c);
+        match self.dir {
+            Direction::Vertical => fill_vertical(buf, w, h, self.a, self.b),
+            Direction::Horizontal => fill_horizontal(buf, w, h, self.a, self.b),
         }
     }
 }
 
-/* ----------------------------- helpers ----------------------------- */
+/* ---------- helpers ---------- */
+
+fn fill_vertical(buf: &mut [u32], w: usize, h: usize, a: u32, b: u32) {
+    for y in 0..h {
+        let t = y as f32 / (h - 1) as f32;
+        let c = lerp_color(a, b, t);
+        buf[y * w..(y + 1) * w].fill(c);
+    }
+}
+
+fn fill_horizontal(buf: &mut [u32], w: usize, h: usize, a: u32, b: u32) {
+    // compute one row then copy
+    let mut row = Vec::with_capacity(w);
+    for x in 0..w {
+        let t = x as f32 / (w - 1) as f32;
+        row.push(lerp_color(a, b, t));
+    }
+    for y in 0..h {
+        buf[y * w..(y + 1) * w].copy_from_slice(&row);
+    }
+}
 
 #[inline]
 fn lerp_color(a: u32, b: u32, t: f32) -> u32 {
     let (ar, ag, ab) = split(a);
     let (br, bg, bb) = split(b);
-
     let r = (ar + (br - ar) * t) as u32;
     let g = (ag + (bg - ag) * t) as u32;
     let b = (ab + (bb - ab) * t) as u32;
-
     (r << 16) | (g << 8) | b
 }
 

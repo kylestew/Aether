@@ -2,17 +2,22 @@
   "layers": [
     {
       "type": "gradient",
-      "top": 197379,         
-      "bottom": 16716947,    
-      "blend": "normal",
-      "opacity": 1.0
+      "a": 2003199,
+      "b": 16716947
     },
     {
       "type": "gradient",
-      "top": 65407,          
-      "bottom": 16753920,    
+      "a": 65407,
+      "b": 16753920,
+      "direction": "horizontal",
       "blend": "multiply",
-      "opacity": 0.75
+      "opacity": 0.6
+    },
+    {
+      "type": "noise",
+      "seed": 42,
+      "opacity": 0.25
     }
   ]
 }
+
