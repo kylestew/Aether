@@ -4,8 +4,6 @@ use web_sys::ImageData;
 
 use crate::composition::Composition;
 use crate::layer::{Layer, Renderer};
-use crate::renderers::gradient::{Direction, Gradient};
-use crate::renderers::noise::Noise;
 
 // Set up console logging and panic hooks for debugging
 #[wasm_bindgen(start)]
@@ -35,31 +33,6 @@ pub struct WasmRenderer {
 
 #[wasm_bindgen]
 impl WasmRenderer {
-    /// Create a gradient renderer
-    #[wasm_bindgen]
-    pub fn gradient(start_color: u32, end_color: u32, horizontal: bool) -> WasmRenderer {
-        let direction = if horizontal {
-            Direction::Horizontal
-        } else {
-            Direction::Vertical
-        };
-        WasmRenderer {
-            renderer: Box::new(Gradient::new(start_color, end_color, direction)),
-            width: 800,
-            height: 600,
-        }
-    }
-
-    /// Create a noise renderer
-    #[wasm_bindgen]
-    pub fn noise(seed: u64) -> WasmRenderer {
-        WasmRenderer {
-            renderer: Box::new(Noise::new(seed)),
-            width: 800,
-            height: 600,
-        }
-    }
-
     /// Render to ImageData (works with any wrapped renderer)
     #[wasm_bindgen]
     pub fn render_to_image_data(
