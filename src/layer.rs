@@ -76,8 +76,9 @@ fn pack(r: u32, g: u32, b: u32) -> u32 {
     (r << 16) | (g << 8) | b
 }
 
-/// Integer lerp: `a + (b - a) * alpha/255` (alpha: 0‑255)
+/// Integer lerp: alpha in 0‑255.  No overflow possible.
 #[inline]
 fn lerp(a: u32, b: u32, alpha: u32) -> u32 {
-    a + (((b as i32 - a as i32) * alpha as i32) >> 8) as u32
+    //  (a * (255‑α) + b * α) / 255
+    (a * (255 - alpha) + b * alpha) >> 8
 }

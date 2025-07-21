@@ -1,18 +1,27 @@
+mod composition;
 mod layer;
 mod renderers;
 
-use layer::{Blend, Layer};
-use renderers::gradient::VerticalGradient;
+use composition::Composition;
+use layer::Layer;
 
 use minifb::{Key, ScaleMode, Window, WindowOptions};
-use std::time::Instant;
+use std::{env, fs, time::Instant};
 
 const WIDTH: usize = 1280;
 const HEIGHT: usize = 720;
 
 fn main() {
+    /* ---------------------------------------------------------------
+     * 1.  Load the JSON file passed as first CLI arg
+     * ------------------------------------------------------------- */
+    let path = env::args().nth(1).expect("Usage: cargo run -- <file.json>");
+    let json = fs::read_to_string(&path).expect("unable to read file");
+    let comp: Composition = serde_json::from_str(&json).expect("bad JSON");
+    let mut layers: Vec<Layer> = comp.into_layers();
+
     let mut window = Window::new(
-        "Desktop-Aether v0 - ESC to quit",
+        &format!("Desktop‑Aether – {}", path),
         WIDTH,
         HEIGHT,
         WindowOptions {
@@ -24,21 +33,11 @@ fn main() {
     .expect("Unable to create window");
     window.set_target_fps(30);
 
-    // ----- buffers -------------------------------
     let mut backbuffer = vec![0u32; WIDTH * HEIGHT];
     let mut scratch = vec![0u32; WIDTH * HEIGHT];
     let mut size = (WIDTH, HEIGHT);
-    // ---------------------------------------------
-
-    // ----- create layers -------------------------
-    let mut layers: Vec<Layer> = vec![Layer::new(
-        Blend::Normal,
-        1.0,
-        Box::new(VerticalGradient::new(0x1E90FF, 0xFF1493)),
-    )];
-    // ---------------------------------------------
-
     let start = Instant::now();
+
     while window.is_open() && !window.is_key_down(Key::Escape) {
         // resize bookkeeping
         let new_size = window.get_size();

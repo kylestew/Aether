@@ -1,0 +1,18 @@
+{
+  "layers": [
+    {
+      "type": "gradient",
+      "top": 197379,         
+      "bottom": 16716947,    
+      "blend": "normal",
+      "opacity": 1.0
+    },
+    {
+      "type": "gradient",
+      "top": 65407,          
+      "bottom": 16753920,    
+      "blend": "multiply",
+      "opacity": 0.75
+    }
+  ]
+}
