@@ -241,67 +241,39 @@ export class RendererEngine {
     }
 }
 
-// Legacy compatibility - still works but uses new system internally
+// Legacy compatibility - thin wrappers around RendererEngine for backward compatibility
 export class WasmGradientRenderer {
     constructor() {
-        this.wasmGradient = null
+        this.engine = new RendererEngine()
     }
 
     async init(startColor, endColor, horizontal = false) {
-        if (!wasmModule) {
-            wasmModule = await import('./pkg/aether.js')
-            await wasmModule.default()
-        }
-
-        this.wasmGradient = new wasmModule.WasmGradient(startColor, endColor, horizontal)
+        await this.engine.createGradient(startColor, endColor, horizontal)
     }
 
     render(canvas) {
-        if (!this.wasmGradient) {
-            throw new Error('Gradient renderer not initialized')
-        }
-
-        const ctx = canvas.getContext('2d')
-        const imageData = this.wasmGradient.render_to_image_data(canvas.width, canvas.height)
-        ctx.putImageData(imageData, 0, 0)
+        this.engine.render(canvas, 0)
     }
 
     destroy() {
-        if (this.wasmGradient) {
-            this.wasmGradient.free()
-            this.wasmGradient = null
-        }
+        this.engine.destroy()
     }
 }
 
 export class WasmNoiseRenderer {
     constructor() {
-        this.wasmNoise = null
+        this.engine = new RendererEngine()
     }
 
     async init(seed = 42) {
-        if (!wasmModule) {
-            wasmModule = await import('./pkg/aether.js')
-            await wasmModule.default()
-        }
-
-        this.wasmNoise = new wasmModule.WasmNoise(seed)
+        await this.engine.createNoise(seed)
     }
 
     render(canvas, time = 0) {
-        if (!this.wasmNoise) {
-            throw new Error('Noise renderer not initialized')
-        }
-
-        const ctx = canvas.getContext('2d')
-        const imageData = this.wasmNoise.render_to_image_data(canvas.width, canvas.height, time)
-        ctx.putImageData(imageData, 0, 0)
+        this.engine.render(canvas, time)
     }
 
     destroy() {
-        if (this.wasmNoise) {
-            this.wasmNoise.free()
-            this.wasmNoise = null
-        }
+        this.engine.destroy()
     }
 }

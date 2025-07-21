@@ -4,145 +4,7 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Aether WASM Demo</title>
-        <style>
-            body {
-                margin: 0;
-                padding: 20px;
-                background: #111;
-                color: white;
-                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-                min-height: 100vh;
-            }
-
-            .header {
-                text-align: center;
-                margin-bottom: 30px;
-            }
-
-            .header h1 {
-                font-size: 2.5rem;
-                margin: 0;
-                background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1);
-                -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
-                background-clip: text;
-            }
-
-            .container {
-                max-width: 1200px;
-                margin: 0 auto;
-                display: grid;
-                grid-template-columns: 1fr 300px;
-                gap: 30px;
-            }
-
-            .canvas-container {
-                background: #222;
-                border-radius: 12px;
-                padding: 20px;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-            }
-
-            canvas {
-                border: 2px solid #333;
-                border-radius: 8px;
-                max-width: 100%;
-                background: #000;
-            }
-
-            .controls {
-                background: #222;
-                border-radius: 12px;
-                padding: 20px;
-            }
-
-            .control-group {
-                margin-bottom: 25px;
-            }
-
-            .control-group h3 {
-                margin: 0 0 15px 0;
-                color: #4ecdc4;
-                font-size: 1.1rem;
-            }
-
-            .control-row {
-                margin-bottom: 15px;
-            }
-
-            label {
-                display: block;
-                margin-bottom: 5px;
-                color: #ccc;
-                font-size: 0.9rem;
-            }
-
-            button {
-                background: #4ecdc4;
-                border: none;
-                color: white;
-                padding: 10px 20px;
-                border-radius: 6px;
-                cursor: pointer;
-                font-size: 0.9rem;
-                margin-right: 10px;
-                margin-bottom: 10px;
-                transition: background 0.2s;
-            }
-
-            button:hover {
-                background: #45b7d1;
-            }
-
-            button:disabled {
-                background: #666;
-                cursor: not-allowed;
-            }
-
-            select,
-            input {
-                width: 100%;
-                padding: 8px;
-                border: 1px solid #444;
-                background: #333;
-                color: white;
-                border-radius: 4px;
-                font-size: 0.9rem;
-            }
-
-            input[type='range'] {
-                margin: 10px 0;
-            }
-
-            .demo-section {
-                border: 1px solid #333;
-                border-radius: 8px;
-                padding: 15px;
-                margin-bottom: 20px;
-            }
-
-            .demo-section h4 {
-                margin: 0 0 10px 0;
-                color: #ff6b6b;
-            }
-
-            .status {
-                background: #333;
-                padding: 10px;
-                border-radius: 4px;
-                font-family: monospace;
-                font-size: 0.8rem;
-                margin-top: 15px;
-            }
-
-            @media (max-width: 768px) {
-                .container {
-                    grid-template-columns: 1fr;
-                }
-            }
-        </style>
+        <link rel="stylesheet" href="styles.css" />
     </head>
     <body>
         <div class="header">
@@ -185,8 +47,21 @@
                 </div>
 
                 <div class="demo-section">
-                    <h4>Standalone Gradient Test</h4>
-                    <button id="gradientTestBtn">Test Gradient</button>
+                    <h4>Generic Renderer Test</h4>
+                    <p style="font-size: 0.8rem; color: #999; margin: 0 0 10px 0">
+                        Zero-duplication system - uses existing Rust renderers directly
+                    </p>
+                    <button id="genericGradientBtn">Generic Gradient</button>
+                    <button id="genericNoiseBtn">Generic Noise (animated)</button>
+                </div>
+
+                <div class="demo-section">
+                    <h4>Legacy Renderer Test</h4>
+                    <p style="font-size: 0.8rem; color: #999; margin: 0 0 10px 0">
+                        Backward compatibility - original standalone renderers
+                    </p>
+                    <button id="gradientTestBtn">Legacy Gradient</button>
+                    <button id="noiseTestBtn">Legacy Noise</button>
                     <div class="control-row">
                         <label for="gradientDirection">Direction:</label>
                         <select id="gradientDirection">
@@ -194,11 +69,6 @@
                             <option value="true">Horizontal</option>
                         </select>
                     </div>
-                </div>
-
-                <div class="demo-section">
-                    <h4>Standalone Noise Test</h4>
-                    <button id="noiseTestBtn">Test Noise</button>
                     <div class="control-row">
                         <label for="noiseSeed">Seed:</label>
                         <input type="number" id="noiseSeed" value="42" min="0" max="999999" />
@@ -220,217 +90,6 @@
             </div>
         </div>
 
-        <script type="module">
-            import { AetherEngine, WasmGradientRenderer, WasmNoiseRenderer } from './aether-engine.js'
-
-            let engine = null
-            let gradientRenderer = null
-            let noiseRenderer = null
-
-            const canvas = document.getElementById('mainCanvas')
-            const status = document.getElementById('status')
-
-            // UI elements
-            const initBtn = document.getElementById('initBtn')
-            const playBtn = document.getElementById('playBtn')
-            const stopBtn = document.getElementById('stopBtn')
-            const compositionSelect = document.getElementById('compositionSelect')
-            const layerOpacity = document.getElementById('layerOpacity')
-            const layer1Opacity = document.getElementById('layer1Opacity')
-            const opacityValue = document.getElementById('opacityValue')
-            const opacity1Value = document.getElementById('opacity1Value')
-            const gradientTestBtn = document.getElementById('gradientTestBtn')
-            const noiseTestBtn = document.getElementById('noiseTestBtn')
-            const resizeBtn = document.getElementById('resizeBtn')
-
-            // Predefined compositions
-            const compositions = {
-                simple: {
-                    layers: [
-                        {
-                            type: 'gradient',
-                            a: 16777215, // white
-                            b: 255, // blue
-                            direction: 'vertical',
-                        },
-                    ],
-                },
-                complex: {
-                    layers: [
-                        {
-                            type: 'gradient',
-                            a: 16777215, // white
-                            b: 0, // black
-                            direction: 'horizontal',
-                        },
-                        {
-                            type: 'noise',
-                            seed: 42,
-                            blend: 'multiply',
-                            opacity: 0.3,
-                        },
-                    ],
-                },
-                colorbars: {
-                    layers: [
-                        {
-                            type: 'colorbars',
-                            direction: 'vertical',
-                            blend: 'normal',
-                            opacity: 1.0,
-                        },
-                    ],
-                },
-            }
-
-            function updateStatus(message) {
-                status.textContent = message
-                console.log(message)
-            }
-
-            // Initialize engine
-            initBtn.addEventListener('click', async () => {
-                try {
-                    updateStatus('Initializing WASM engine...')
-                    initBtn.disabled = true
-
-                    engine = new AetherEngine()
-                    const selectedComposition = compositions[compositionSelect.value]
-
-                    await engine.init(canvas, selectedComposition)
-
-                    // Enable controls
-                    playBtn.disabled = false
-                    stopBtn.disabled = false
-                    layerOpacity.disabled = false
-                    if (engine.getLayerCount() > 1) {
-                        layer1Opacity.disabled = false
-                    }
-
-                    // Render first frame
-                    engine.renderFrame(0)
-                    updateStatus(`Engine ready - ${engine.getLayerCount()} layers loaded`)
-                } catch (error) {
-                    updateStatus(`Error: ${error.message}`)
-                    initBtn.disabled = false
-                }
-            })
-
-            // Play/stop controls
-            playBtn.addEventListener('click', () => {
-                engine.play()
-                updateStatus('Playing...')
-            })
-
-            stopBtn.addEventListener('click', () => {
-                engine.stop()
-                updateStatus('Stopped')
-            })
-
-            // Layer opacity controls
-            layerOpacity.addEventListener('input', (e) => {
-                const opacity = parseFloat(e.target.value)
-                opacityValue.textContent = opacity.toFixed(1)
-                if (engine) {
-                    engine.setLayerOpacity(0, opacity)
-                    if (!engine.isPlaying) {
-                        engine.renderFrame(0) // Update if not playing
-                    }
-                }
-            })
-
-            layer1Opacity.addEventListener('input', (e) => {
-                const opacity = parseFloat(e.target.value)
-                opacity1Value.textContent = opacity.toFixed(1)
-                if (engine && engine.getLayerCount() > 1) {
-                    engine.setLayerOpacity(1, opacity)
-                    if (!engine.isPlaying) {
-                        engine.renderFrame(0) // Update if not playing
-                    }
-                }
-            })
-
-            // Standalone gradient test
-            gradientTestBtn.addEventListener('click', async () => {
-                try {
-                    updateStatus('Testing standalone gradient...')
-
-                    if (!gradientRenderer) {
-                        gradientRenderer = new WasmGradientRenderer()
-                        await gradientRenderer.init(
-                            0xff0000, // red
-                            0x0000ff, // blue
-                            document.getElementById('gradientDirection').value === 'true'
-                        )
-                    }
-
-                    gradientRenderer.render(canvas)
-                    updateStatus('Gradient test complete')
-                } catch (error) {
-                    updateStatus(`Gradient test error: ${error.message}`)
-                }
-            })
-
-            // Standalone noise test
-            noiseTestBtn.addEventListener('click', async () => {
-                try {
-                    updateStatus('Testing standalone noise...')
-
-                    const seed = parseInt(document.getElementById('noiseSeed').value)
-
-                    if (noiseRenderer) {
-                        noiseRenderer.destroy()
-                    }
-
-                    noiseRenderer = new WasmNoiseRenderer()
-                    await noiseRenderer.init(seed)
-
-                    // Animate noise for 3 seconds
-                    let startTime = performance.now()
-                    const animateNoise = (currentTime) => {
-                        const elapsed = (currentTime - startTime) / 1000
-                        if (elapsed < 3) {
-                            noiseRenderer.render(canvas, elapsed)
-                            requestAnimationFrame(animateNoise)
-                        } else {
-                            updateStatus('Noise test complete')
-                        }
-                    }
-                    requestAnimationFrame(animateNoise)
-                } catch (error) {
-                    updateStatus(`Noise test error: ${error.message}`)
-                }
-            })
-
-            // Resize canvas
-            resizeBtn.addEventListener('click', () => {
-                const width = parseInt(document.getElementById('canvasWidth').value)
-                const height = parseInt(document.getElementById('canvasHeight').value)
-
-                if (engine) {
-                    engine.resize(width, height)
-                    engine.renderFrame(0)
-                    updateStatus(`Resized to ${width}x${height}`)
-                } else {
-                    canvas.width = width
-                    canvas.height = height
-                    updateStatus(`Canvas resized to ${width}x${height} (engine not initialized)`)
-                }
-            })
-
-            // Composition change
-            compositionSelect.addEventListener('change', () => {
-                if (engine) {
-                    updateStatus('Please re-initialize to change composition')
-                    initBtn.disabled = false
-                    playBtn.disabled = true
-                    stopBtn.disabled = true
-                    layerOpacity.disabled = true
-                    layer1Opacity.disabled = true
-                }
-            })
-
-            updateStatus('Ready - Click "Initialize Engine" to start')
-        </script>
+        <script type="module" src="demo.js"></script>
     </body>
 </html>

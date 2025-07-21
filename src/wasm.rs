@@ -215,48 +215,6 @@ impl WasmAether {
     }
 }
 
-// Legacy compatibility - keep existing names working
-#[wasm_bindgen]
-pub struct WasmGradient {
-    inner: WasmRenderer,
-}
-
-#[wasm_bindgen]
-impl WasmGradient {
-    #[wasm_bindgen(constructor)]
-    pub fn new(start_color: u32, end_color: u32, horizontal: bool) -> WasmGradient {
-        WasmGradient {
-            inner: WasmRenderer::gradient(start_color, end_color, horizontal),
-        }
-    }
-
-    #[wasm_bindgen]
-    pub fn render_to_image_data(&mut self, width: u32, height: u32) -> Result<ImageData, JsValue> {
-        self.inner.render_to_image_data(width, height, 0.0)
-    }
-}
-
-#[wasm_bindgen]
-pub struct WasmNoise {
-    inner: WasmRenderer,
-}
-
-#[wasm_bindgen]
-impl WasmNoise {
-    #[wasm_bindgen(constructor)]
-    pub fn new(seed: u64) -> WasmNoise {
-        WasmNoise {
-            inner: WasmRenderer::noise(seed),
-        }
-    }
-
-    #[wasm_bindgen]
-    pub fn render_to_image_data(
-        &mut self,
-        width: u32,
-        height: u32,
-        time: f32,
-    ) -> Result<ImageData, JsValue> {
-        self.inner.render_to_image_data(width, height, time)
-    }
-}
+// Note: Legacy WasmGradient and WasmNoise were eliminated - they were just
+// redundant wrappers around WasmRenderer. Use WasmRenderer.gradient() and
+// WasmRenderer.noise() directly instead.
