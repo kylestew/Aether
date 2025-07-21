@@ -1,0 +1,14 @@
+{
+    "name": "aether-wasm",
+    "version": "1.0.0",
+    "description": "WASM-powered Aether visual effects engine",
+    "type": "module",
+    "scripts": {
+        "build-wasm": "wasm-pack build --target web --out-dir web/pkg ..",
+        "dev": "python3 -m http.server 8000",
+        "build": "npm run build-wasm"
+    },
+    "devDependencies": {
+        "http-server": "^14.0.0"
+    }
+}
