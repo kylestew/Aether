@@ -151,8 +151,97 @@ export class AetherEngine {
 }
 
 /**
- * Standalone gradient renderer (for testing)
+ * Generic renderer class using the new WasmRenderer system
+ * This can render any type (gradient, noise, colorbars, etc.)
  */
+export class RendererEngine {
+    constructor() {
+        this.wasmRenderer = null
+        this.animationId = null
+        this.isPlaying = false
+        this.startTime = 0
+    }
+
+    async init() {
+        if (!wasmModule) {
+            wasmModule = await import('./pkg/aether.js')
+            await wasmModule.default()
+        }
+    }
+
+    /**
+     * Create a gradient renderer
+     */
+    async createGradient(startColor, endColor, horizontal = false) {
+        await this.init()
+        this.wasmRenderer = wasmModule.WasmRenderer.gradient(startColor, endColor, horizontal)
+        return this
+    }
+
+    /**
+     * Create a noise renderer
+     */
+    async createNoise(seed = 42) {
+        await this.init()
+        this.wasmRenderer = wasmModule.WasmRenderer.noise(seed)
+        return this
+    }
+
+    /**
+     * Render a single frame
+     */
+    render(canvas, time = 0) {
+        if (!this.wasmRenderer) {
+            throw new Error('Renderer not initialized')
+        }
+
+        const ctx = canvas.getContext('2d')
+        const imageData = this.wasmRenderer.render_to_image_data(canvas.width, canvas.height, time)
+        ctx.putImageData(imageData, 0, 0)
+    }
+
+    /**
+     * Start animation loop
+     */
+    startAnimation(canvas) {
+        if (this.isPlaying) return
+
+        this.isPlaying = true
+        this.startTime = performance.now()
+
+        const animate = (currentTime) => {
+            if (!this.isPlaying) return
+
+            const elapsedTime = (currentTime - this.startTime) / 1000
+            this.render(canvas, elapsedTime)
+
+            this.animationId = requestAnimationFrame(animate)
+        }
+
+        this.animationId = requestAnimationFrame(animate)
+    }
+
+    /**
+     * Stop animation
+     */
+    stopAnimation() {
+        this.isPlaying = false
+        if (this.animationId) {
+            cancelAnimationFrame(this.animationId)
+            this.animationId = null
+        }
+    }
+
+    destroy() {
+        this.stopAnimation()
+        if (this.wasmRenderer) {
+            this.wasmRenderer.free()
+            this.wasmRenderer = null
+        }
+    }
+}
+
+// Legacy compatibility - still works but uses new system internally
 export class WasmGradientRenderer {
     constructor() {
         this.wasmGradient = null
@@ -185,9 +274,6 @@ export class WasmGradientRenderer {
     }
 }
 
-/**
- * Standalone noise renderer (for testing)
- */
 export class WasmNoiseRenderer {
     constructor() {
         this.wasmNoise = null
