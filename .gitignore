@@ -1,5 +1,10 @@
 .DS_Store
 
+# Rust
+/target/
+**/*.rs.bk
+*.pdb
+
 # Logs
 logs
 *.log

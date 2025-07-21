@@ -1,252 +1,166 @@
 # Aether
 
-> After Effects, but layers are code
+> After Effects, but layers are code - currently desktop only (soon to be a web app)
 
-Aether is a creative coding playground that lets you build visual compositions using JavaScript. Think of it as After Effects where every layer is programmable code. Create animations, effects, and visual experiments by stacking and blending different types of layers.
+Aether is a creative coding framework that lets you build visual compositions using programmable layers. Think of it as After Effects where every layer is code that can generate content, apply effects, and create animations.
 
 ## 🚀 Quick Start
 
-### Installation
-
 ```bash
-# Clone the repository
+# Clone and run the desktop version
 git clone <repository-url>
 cd Aether
 
-# Install dependencies
-npm install
-
-# Start development server
-npm run dev
+# Run the native desktop application
+cargo run
 ```
 
-### Your First Composition
+**Current Features:**
+- Basic layer composition system
+- Normal and multiply blend modes  
+- Vertical gradient renderer
+- Real-time 30fps rendering at 1280x720
+- Resizable window with ESC to quit
 
-Create a new file in the `examples/` directory:
+**Controls:**
+- `ESC` - Quit application
+- Window is resizable
 
-```javascript
-import { createPlayer } from '../src/player.js'
-import { Layer } from '../src/layer.js'
-import { gradient } from '../layers/generators/gradient.js'
-import { rgbOffset } from '../layers/pixel/rgbOffset.js'
+---
 
-const layers = [
-    new Layer({ size: [320, 240] }, gradient, {
-        startColor: '#ff6b6b',
-        endColor: '#4ecdc4',
-        direction: 'horizontal'
-    }),
-    new Layer({ size: [320, 240] }, rgbOffset, {
-        offset: 0.02,
-        mode: 0
-    })
-]
+## 🏗️ Architecture
 
-const player = createPlayer({
-    size: [320, 240],
-    animated: true,
-    duration: 5,
-    targetFPS: 30,
-    layers
-})
+```rust
+// Basic layer creation
+use layer::{Blend, Layer};
+use renderers::gradient::VerticalGradient;
 
-await player.loadAndStart()
+let layers = vec![Layer::new(
+    Blend::Normal,
+    1.0,
+    Box::new(VerticalGradient::new(0x1E90FF, 0xFF1493)),
+)];
 ```
 
-## 📚 Core Concepts
+**Core Components:**
+- **`Layer`** - Wraps renderer with blend mode and opacity
+- **`Renderer` trait** - Implement `render()` for custom effects
+- **Blend modes** - Normal, Multiply (more coming)
+- **`minifb`** - Cross-platform framebuffer for display
 
-### Player
-The main orchestrator that manages your composition:
-- **size**: Final output dimensions `[width, height]`
-- **animated**: Whether the composition should animate
-- **duration**: Length in seconds
-- **targetFPS**: Target frame rate
-- **layers**: Array of Layer objects
+**Current Renderers:**
+- `VerticalGradient` - Linear color gradients
 
-### Layers
-Each layer has:
-- **size**: Layer dimensions `[width, height]`
-- **blendMode**: How it blends with layers below
-- **opacity**: Layer transparency (0-1)
-- **renderer**: The actual rendering logic
-- **params**: Configuration for the renderer
+---
 
-### Blend Modes
-Available blend modes: `normal`, `multiply`, `screen`, `overlay`, `darken`, `lighten`, `color-dodge`, `color-burn`, `hard-light`, `soft-light`, `difference`, `exclusion`, `hue`, `saturation`, `color`, `luminosity`
+## 🛠️ Development
 
-## 🎨 Layer Types
-
-### Generators
-Create content from scratch:
-- **Fragment Shader** - Loadable GLSL pixel shaders
-- **Gradient** - Linear and radial gradients
-- **Particles** - Particle system with physics
-- **Pixel Pattern** - Array-defined repeating patterns
-- **Perlin Noise** - Random noise field (greyscale)
-- **Simple 3D Layer** - Three.js procedural meshes
-- **Text** - Text rendering with custom fonts
-
-### Media
-Load external content:
-- **Image Layer** - Load and display static images
-
-### Pixel Effects
-Modify pixel data:
-- **Adjustments** - Brightness, contrast, saturation
-- **Blur** - Canvas API-based blur
-- **Invert** - Color inversion
-- **Pixelate** - Pixelation effect
-- **Posterize** - Uniform quantization with bucketing
-- **RGB Offset** - Channel separation effects
-- **Threshold** - Chroma-based black/white snapping
-- **Vignette** - Edge darkening
-
-### Post Processing
-Final output effects:
-- **CGA Dither** - 4-color palette Bayer dithering
-- **Feedback** - Frame blending for trails
-- **Receipt** - Simplified low-resolution output
-- **Waves** - Rutt-Etra style wave rendering
-
-## 🎬 Examples
-
-Browse the `examples/` directory for working compositions:
-
-- **RGB Offset** - Basic image with RGB channel separation
-- **Blob Animation** - Animated blob with WebGL shaders
-- **CGA Sphere** - 3D sphere with CGA-style dithering
-- **Plato Solids** - 3D geometric shapes with rotation
-- **Dot Matrix** - Dot matrix pattern generation
-- **Spherical Particles** - Particles moving on sphere surface
-- **Maths Texture** - Mathematical texture generation
-
-### Running Examples
-
-1. Start the development server: `npm run dev`
-2. Open `http://localhost:5173`
-3. Click on any example to view it
-4. Use the viewer controls to play/pause and export
-
-## 🔧 API Reference
-
-### Creating a Layer
-
-```javascript
-new Layer(controls, renderer, params)
+**Project Structure:**
+```
+src/
+├── main.rs           # Application entry point
+├── layer.rs          # Core layer and blending system
+└── renderers/        # Layer renderer implementations
+    ├── mod.rs
+    └── gradient.rs   # Gradient renderer
 ```
 
-**controls:**
-- `size: [width, height]` - Layer dimensions
-- `blendMode: string` - Blend mode (optional, defaults to 'normal')
-- `opacity: number` - Layer opacity (optional, defaults to 1.0)
+**Adding New Renderers:**
 
-**renderer:** Object with a `render(ctx, params)` method
+1. Create a new file in `src/renderers/`
+2. Implement the `Renderer` trait:
 
-**params:** Configuration object passed to the renderer
+```rust
+use crate::layer::Renderer;
 
-### Time-Based Parameters
-
-Parameters can be functions that receive animation progress:
-
-```javascript
-{
-    offset: (pct) => 0.01 + 0.1 * Math.sin(pct * Math.PI * 2),
-    rotation: (pct) => pct * Math.PI * 2
+pub struct MyRenderer {
+    // renderer state
 }
-```
 
-- `pct`: Animation progress [0, 1]
-- `t`: Current time in seconds
-
-### Renderer Interface
-
-```javascript
-{
-    // Required: Main rendering function
-    render(ctx, params) {
-        // ctx: Canvas 2D context
-        // params: Evaluated parameters + {width, height, inputCtx, t, pct, frame}
-    },
-    
-    // Optional: Default parameters
-    defaultParams: {
-        // Default values
-    },
-    
-    // Optional: Initialization
-    async init(params) {
-        // Called once before rendering starts
-    },
-    
-    // Optional: Reset function
-    reset(params) {
-        // Called when animation loops
+impl Renderer for MyRenderer {
+    fn render(&mut self, buf: &mut [u32], size: (usize, usize), t: f32) {
+        // Fill buffer with pixels (0xRRGGBB format)
+        // t = time in seconds
     }
 }
 ```
 
-## 🎥 Export
+3. Add to `renderers/mod.rs` and use in `main.rs`
 
-The viewer includes export functionality:
+**Buffer Format:**
+- Pixels are `u32` in 0xRRGGBB format (8-bit per channel)
+- Buffer is row-major: `index = y * width + x`
 
-- **Individual Frames (PNG)** - Export each frame as PNG
-- **WebM VP9 (Lossless)** - High-quality video export
-- **WebM VP8 (High Quality)** - Compressed video export
+### Requirements
 
-Click the 📹 button in the viewer to export your composition.
+- **Rust**: 1.88.0 or later
+- **Dependencies**: `minifb` (framebuffer), `rand` (utilities)
 
-## 🛠️ Development
+---
 
-### Project Structure
+## 🎨 Roadmap
 
-```
-Aether/
-├── src/           # Core library
-│   ├── player.js  # Main player logic
-│   ├── layer.js   # Layer management
-│   └── webgl/     # WebGL utilities
-├── layers/        # Layer implementations
-│   ├── generators/ # Content generators
-│   ├── media/     # Media loaders
-│   ├── pixel/     # Pixel effects
-│   └── postproc/  # Post-processing
-├── examples/      # Example compositions
-├── assets/        # Images, models, shaders
-└── index.html     # Main viewer
-```
+- [ ] **Core Renderers**
+  - [x] Vertical gradient
+  - [ ] Horizontal gradient  
+  - [ ] Radial gradient
+  - [ ] Perlin noise
+  - [ ] Simple shapes (circle, rectangle)
+  - [ ] Image loading and display
 
-### Adding New Layers
+- [ ] **Effects & Filters**
+  - [ ] Blur
+  - [ ] RGB channel offset
+  - [ ] Pixelation
+  - [ ] Color adjustments
 
-1. Create a new file in the appropriate `layers/` subdirectory
-2. Export an object with a `render` method
-3. Optionally include `defaultParams`, `init`, and `reset` methods
-4. Import and use in your compositions
+- [ ] **Advanced Features**
+  - [ ] Animation timeline system
+  - [ ] Parameter keyframing
+  - [ ] More blend modes (screen, overlay, etc.)
+  - [ ] Layer transforms (scale, rotate, translate)
+  - [ ] Export to image/video
 
-### Building
+- [ ] **Performance**
+  - [ ] Multi-threading for layer rendering
+  - [ ] SIMD optimizations
+  - [ ] GPU compute shaders (wgpu integration)
 
-```bash
-# Build for production
-npm run build
+- [ ] **Future Platform Support**
+  - [ ] Web version (WebAssembly + Canvas)
+  - [ ] Cross-platform compatibility (Windows, macOS, Linux)
+  - [ ] Plugin system for custom renderers
+  - [ ] Hot-reloading for development
 
-# Preview production build
-npm run preview
-```
+---
 
-## 🎯 Use Cases
+## 🎮 Current Example
 
-- **Creative Coding** - Visual experiments and generative art
-- **Prototyping** - Quick visual effect prototypes
-- **Education** - Learning graphics programming concepts
-- **Art Projects** - Digital art and installations
-- **Video Effects** - Custom video processing pipelines
+The main application demonstrates a basic blue-to-pink vertical gradient that fills the window and animates over time.
+
+---
 
 ## 🤝 Contributing
 
 1. Fork the repository
 2. Create a feature branch
-3. Add your layer or improvement
-4. Include an example if applicable
+3. Add your layer renderer or improvement
+4. Include examples if applicable
 5. Submit a pull request
+
+**Current Focus**: New renderers, effects, and core system improvements are especially welcome.
+
+---
+
+## 🌟 Use Cases
+
+- **Creative Coding**: Real-time visual experiments and generative art
+- **Prototyping**: Quick visual effect development and testing
+- **Education**: Learning graphics programming concepts
+- **Performance**: Native desktop performance for complex compositions
+- **Art Projects**: Digital installations and interactive media
+
+---
 
 ## 📄 License
 
@@ -254,4 +168,4 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 ---
 
-Built with ❤️ for the creative coding community
+**Built with ❤️ for the creative coding community**
