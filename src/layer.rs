@@ -15,7 +15,7 @@ pub trait Renderer {
 pub enum Blend {
     Normal,
     Multiply,
-    // Screen, Overlay, etc. can be added later
+    Screen,
 }
 
 /// A layer = renderer + compositing parameters.
@@ -53,6 +53,11 @@ pub fn blend_into(dst: &mut [u32], src: &[u32], mode: Blend, opacity: f32) {
         let (mr, mg, mb) = match mode {
             Blend::Normal => (sr, sg, sb),
             Blend::Multiply => (sr * dr / 255, sg * dg / 255, sb * db / 255),
+            Blend::Screen => (
+                255 - ((255 - sr) * (255 - dr) / 255),
+                255 - ((255 - sg) * (255 - dg) / 255),
+                255 - ((255 - sb) * (255 - db) / 255),
+            ),
         };
 
         // --- alpha composite (src already has its own opacity) ---

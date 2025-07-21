@@ -1,20 +1,22 @@
 //! composition.rs
 //!
-//! Parse a JSON file describing the whole scene and turn it into a ready‑to‑render
-//! `Vec<Layer>` for the engine.
+//! Parse a `.json` scene description into runtime `Layer`s.
 //!
-//! Supported layer specs so far:
-//!   * `"gradient"`   – vertical or horizontal two‑colour blend
-//!   * `"noise"`      – animated greyscale noise
+//! Supported layer types
+//! ─────────────────────
+//! * `gradient`      – two‑colour vertical / horizontal blend
+//! * `noise`         – animated greyscale noise
+//! * `colorbars`     – SMPTE‑style colour bars for blend‑mode testing
 //!
-//! Example JSON:
+//! Example JSON
+//! ────────────
 //! ```json
 //! {
 //!   "layers": [
-//!     { "type": "gradient", "a": 197379, "b": 16716947 },
-//!     { "type": "gradient", "a": 65407, "b": 16753920,
-//!       "direction": "horizontal", "blend": "multiply", "opacity": 0.6 },
-//!     { "type": "noise", "seed": 42, "opacity": 0.25 }
+//!     { "type": "gradient", "a": 2003199, "b": 16716947 },
+//!     { "type": "colorbars", "direction": "horizontal",
+//!       "blend": "multiply", "opacity": 0.75 },
+//!     { "type": "noise", "seed": 42, "opacity": 0.2 }
 //!   ]
 //! }
 //! ```
@@ -24,14 +26,15 @@ use serde::Deserialize;
 use crate::{
     layer::{Blend, Layer},
     renderers::{
+        colorbars::{BarsDir, ColorBars},
         gradient::{Direction, Gradient},
         noise::Noise,
     },
 };
 
-/* ------------------------------------------------------------------------- */
-/*                           JSON‑facing structs                             */
-/* ------------------------------------------------------------------------- */
+/* ──────────────────────────────────────────────────────────────────────────
+ * JSON‑side structs & enums
+ * ─────────────────────────────────────────────────────────────────────── */
 
 #[derive(Deserialize)]
 pub struct Composition {
@@ -41,13 +44,11 @@ pub struct Composition {
 #[derive(Deserialize)]
 #[serde(tag = "type")]
 pub enum LayerSpec {
-    /* ---------------- gradient (vertical / horizontal) ------------------ */
+    /* --------------------- linear gradient ---------------------------- */
     #[serde(rename = "gradient")]
     Gradient {
-        /// Start colour (0xRRGGBB, decimal in JSON).
-        a: u32,
-        /// End colour (0xRRGGBB, decimal).
-        b: u32,
+        a: u32, // start colour (0xRRGGBB, decimal value)
+        b: u32, // end   colour (0xRRGGBB, decimal value)
 
         #[serde(default = "default_direction")]
         direction: DirectionSpec,
@@ -59,7 +60,7 @@ pub enum LayerSpec {
         opacity: f32,
     },
 
-    /* ---------------------------- noise --------------------------------- */
+    /* --------------------- animated noise ---------------------------- */
     #[serde(rename = "noise")]
     Noise {
         seed: u64,
@@ -70,27 +71,42 @@ pub enum LayerSpec {
         #[serde(default = "default_opacity")]
         opacity: f32,
     },
+
+    /* ---------------------- colour bars ------------------------------ */
+    #[serde(rename = "colorbars")]
+    ColorBars {
+        #[serde(default = "default_bars_dir")]
+        direction: BarsDirSpec,
+
+        #[serde(default = "default_blend")]
+        blend: BlendSpec,
+
+        #[serde(default = "default_opacity")]
+        opacity: f32,
+    },
 }
 
-/* ------------------------------------------------------------------------- */
-/*                       Small enums + conversions                           */
-/* ------------------------------------------------------------------------- */
+/* -------- generic blend‑mode helper -------- */
 
 #[derive(Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum BlendSpec {
     Normal,
     Multiply,
+    Screen,
 }
 
 impl From<BlendSpec> for Blend {
-    fn from(b: BlendSpec) -> Self {
-        match b {
+    fn from(v: BlendSpec) -> Self {
+        match v {
             BlendSpec::Normal => Blend::Normal,
             BlendSpec::Multiply => Blend::Multiply,
+            BlendSpec::Screen => Blend::Screen,
         }
     }
 }
+
+/* -------- gradient direction helper -------- */
 
 #[derive(Deserialize)]
 #[serde(rename_all = "lowercase")]
@@ -100,15 +116,33 @@ pub enum DirectionSpec {
 }
 
 impl From<DirectionSpec> for Direction {
-    fn from(d: DirectionSpec) -> Self {
-        match d {
+    fn from(v: DirectionSpec) -> Self {
+        match v {
             DirectionSpec::Vertical => Direction::Vertical,
             DirectionSpec::Horizontal => Direction::Horizontal,
         }
     }
 }
 
-/* ------------------------- default helpers ---------------------------- */
+/* -------- colour‑bars direction helper ----- */
+
+#[derive(Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum BarsDirSpec {
+    Vertical,
+    Horizontal,
+}
+
+impl From<BarsDirSpec> for BarsDir {
+    fn from(v: BarsDirSpec) -> Self {
+        match v {
+            BarsDirSpec::Vertical => BarsDir::Vertical,
+            BarsDirSpec::Horizontal => BarsDir::Horizontal,
+        }
+    }
+}
+
+/* ------------- default value fns ------------ */
 
 fn default_blend() -> BlendSpec {
     BlendSpec::Normal
@@ -119,18 +153,21 @@ fn default_opacity() -> f32 {
 fn default_direction() -> DirectionSpec {
     DirectionSpec::Vertical
 }
+fn default_bars_dir() -> BarsDirSpec {
+    BarsDirSpec::Vertical
+}
 
-/* ------------------------------------------------------------------------- */
-/*                      Convert JSON → runtime layers                        */
-/* ------------------------------------------------------------------------- */
+/* ──────────────────────────────────────────────────────────────────────────
+ *  Conversion into runtime layers
+ * ─────────────────────────────────────────────────────────────────────── */
 
 impl Composition {
-    /// Consume self and build a vector of engine `Layer`s.
+    /// Consume the parsed JSON tree and produce ready‑to‑render layers.
     pub fn into_layers(self) -> Vec<Layer> {
         self.layers
             .into_iter()
             .map(|spec| match spec {
-                /* ---- gradient ---- */
+                /* ----- gradient ----- */
                 LayerSpec::Gradient {
                     a,
                     b,
@@ -143,12 +180,23 @@ impl Composition {
                     Box::new(Gradient::new(a, b, direction.into())),
                 ),
 
-                /* ---- noise ---- */
+                /* ----- noise ----- */
                 LayerSpec::Noise {
                     seed,
                     blend,
                     opacity,
                 } => Layer::new(blend.into(), opacity, Box::new(Noise::new(seed))),
+
+                /* ----- colour bars ----- */
+                LayerSpec::ColorBars {
+                    direction,
+                    blend,
+                    opacity,
+                } => Layer::new(
+                    blend.into(),
+                    opacity,
+                    Box::new(ColorBars::new(direction.into())),
+                ),
             })
             .collect()
     }
