@@ -1,6 +1,4 @@
-/* ------------------------------------------------------------------------- */
-/*                        CPU‑side blending helpers                          */
-/* ------------------------------------------------------------------------- */
+use crate::core::layer::Blend;
 
 /// Composite `src` over `dst` according to `mode` and `opacity`.
 /// Both slices must be the same length (width × height).

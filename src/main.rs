@@ -1,4 +1,4 @@
-use aether::core::composition::Composition;
+use aether::core::{blender, composition::Composition};
 
 use minifb::{Key, ScaleMode, Window, WindowOptions};
 use std::time::Instant;
@@ -55,7 +55,7 @@ fn main() {
         // render each layer into scratch, then blend -> backbuffer
         for layer in comp.layers() {
             layer.renderer.render(&backbuffer, &mut scratch, size, t); // draw
-            //     aether::layer::blend_into(&mut backbuffer, &scratch, layer.blend, layer.opacity); // composite
+            blender::blend_into(&mut backbuffer, &scratch, layer.blend, layer.opacity); // composite
         }
 
         // present
