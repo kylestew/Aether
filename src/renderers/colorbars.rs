@@ -1,32 +1,33 @@
-use crate::layer::Renderer;
+// use crate::core::layer::Renderer;
+//
+// /// Direction of the bars.
+// #[derive(Clone, Copy)]
+// pub enum BarsDir {
+//     Vertical,
+//     Horizontal,
+// }
+//
+// /// SMPTE‑style color bars: R‑Y‑G‑C‑B‑M repeated.
+// pub struct ColorBars {
+//     dir: BarsDir,
+// }
+//
+// impl ColorBars {
+//     pub fn new(dir: BarsDir) -> Self {
+//         Self { dir }
+//     }
+// }
+//
+// const COLORS: [u32; 6] = [
+//     0xFF0000, // Red
+//     0xFFFF00, // Yellow
+//     0x00FF00, // Green
+//     0x00FFFF, // Cyan
+//     0x0000FF, // Blue
+//     0xFF00FF, // Magenta
+// ];
 
-/// Direction of the bars.
-#[derive(Clone, Copy)]
-pub enum BarsDir {
-    Vertical,
-    Horizontal,
-}
-
-/// SMPTE‑style color bars: R‑Y‑G‑C‑B‑M repeated.
-pub struct ColorBars {
-    dir: BarsDir,
-}
-
-impl ColorBars {
-    pub fn new(dir: BarsDir) -> Self {
-        Self { dir }
-    }
-}
-
-const COLORS: [u32; 6] = [
-    0xFF0000, // Red
-    0xFFFF00, // Yellow
-    0x00FF00, // Green
-    0x00FFFF, // Cyan
-    0x0000FF, // Blue
-    0xFF00FF, // Magenta
-];
-
+/*
 impl Renderer for ColorBars {
     fn render(&mut self, buf: &mut [u32], (w, h): (usize, usize), _t: f32) {
         match self.dir {
@@ -61,3 +62,4 @@ impl Renderer for ColorBars {
         }
     }
 }
+*/

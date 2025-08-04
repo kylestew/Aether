@@ -1,7 +1,7 @@
-use aether::{composition::Composition, layer::Layer};
+// use aether::core::layer;
 
 use minifb::{Key, ScaleMode, Window, WindowOptions};
-use std::{env, fs, time::Instant};
+// use std::{env, fs, time::Instant};
 
 const WIDTH: usize = 1280;
 const HEIGHT: usize = 720;
@@ -10,10 +10,12 @@ fn main() {
     /* ---------------------------------------------------------------
      * 1.  Load the JSON file passed as first CLI arg
      * ------------------------------------------------------------- */
-    let path = env::args().nth(1).expect("Usage: cargo run -- <file.json>");
-    let json = fs::read_to_string(&path).expect("unable to read file");
-    let comp: Composition = serde_json::from_str(&json).expect("bad JSON");
-    let mut layers: Vec<Layer> = comp.into_layers();
+    let path = std::env::args()
+        .nth(1)
+        .expect("Usage: cargo run -- <file.json>");
+    // let json = fs::read_to_string(&path).expect("unable to read file");
+    // let comp: Composition = serde_json::from_str(&json).expect("bad JSON");
+    // let mut layers: Vec<Layer> = comp.into_layers();
 
     let mut window = Window::new(
         &format!("Desktop‑Aether – {}", path),
@@ -31,7 +33,7 @@ fn main() {
     let mut backbuffer = vec![0u32; WIDTH * HEIGHT];
     let mut scratch = vec![0u32; WIDTH * HEIGHT];
     let mut size = (WIDTH, HEIGHT);
-    let start = Instant::now();
+    // let start = Instant::now();
 
     while window.is_open() && !window.is_key_down(Key::Escape) {
         // resize bookkeeping
@@ -43,15 +45,18 @@ fn main() {
             scratch.resize(cap, 0);
         }
 
-        // ---- render ----
-        backbuffer.fill(0); // clear
-        let t = (Instant::now() - start).as_secs_f32();
+        // TODO: redo the way we composite so the buffer situation isn't exposed and
+        // duplicated in web version
 
-        // render each layer into scratch, then blend -> backbuffer
-        for layer in &mut layers {
-            layer.renderer.render(&mut scratch, size, t); // draw
-            aether::layer::blend_into(&mut backbuffer, &scratch, layer.blend, layer.opacity); // composite
-        }
+        // // ---- render ----
+        // backbuffer.fill(0); // clear
+        // let t = (Instant::now() - start).as_secs_f32();
+        //
+        // // render each layer into scratch, then blend -> backbuffer
+        // for layer in &mut layers {
+        //     layer.renderer.render(&mut scratch, size, t); // draw
+        //     aether::layer::blend_into(&mut backbuffer, &scratch, layer.blend, layer.opacity); // composite
+        // }
 
         // present
         window

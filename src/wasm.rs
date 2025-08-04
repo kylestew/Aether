@@ -1,27 +1,28 @@
-use serde_json;
-use wasm_bindgen::prelude::*;
-use web_sys::ImageData;
+// use serde_json;
+// use wasm_bindgen::prelude::*;
+// use web_sys::ImageData;
 
-use crate::composition::Composition;
-use crate::layer::{Layer, Renderer};
+// use crate::composition::Composition;
+// use crate::layer::{Layer, Renderer};
 
 // Set up console logging and panic hooks for debugging
-#[wasm_bindgen(start)]
-pub fn main() {
-    console_error_panic_hook::set_once();
-}
+// #[wasm_bindgen(start)]
+// pub fn main() {
+//     console_error_panic_hook::set_once();
+// }
+//
+// // Utility macro for console logging from Rust
+// #[wasm_bindgen]
+// extern "C" {
+//     #[wasm_bindgen(js_namespace = console)]
+//     fn log(s: &str);
+// }
+//
+// macro_rules! console_log {
+//     ($($t:tt)*) => (log(&format_args!($($t)*).to_string()))
+// }
 
-// Utility macro for console logging from Rust
-#[wasm_bindgen]
-extern "C" {
-    #[wasm_bindgen(js_namespace = console)]
-    fn log(s: &str);
-}
-
-macro_rules! console_log {
-    ($($t:tt)*) => (log(&format_args!($($t)*).to_string()))
-}
-
+/*
 /// Generic WASM wrapper for any Renderer
 /// This eliminates code duplication by wrapping existing renderers
 #[wasm_bindgen]
@@ -124,13 +125,13 @@ impl WasmAether {
             // Render layer to scratch
             layer.renderer.render(&mut self.scratch, size, time);
 
-            // Composite scratch into backbuffer
-            crate::layer::blend_into(
-                &mut self.backbuffer,
-                &self.scratch,
-                layer.blend,
-                layer.opacity,
-            );
+            // // Composite scratch into backbuffer
+            // crate::layer::blend_into(
+            //     &mut self.backbuffer,
+            //     &self.scratch,
+            //     layer.blend,
+            //     layer.opacity,
+            // );
         }
 
         // Convert to ImageData
@@ -191,3 +192,4 @@ impl WasmAether {
 // Note: Legacy WasmGradient and WasmNoise were eliminated - they were just
 // redundant wrappers around WasmRenderer. Use WasmRenderer.gradient() and
 // WasmRenderer.noise() directly instead.
+*/

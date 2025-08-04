@@ -1,4 +1,4 @@
-use crate::layer::Renderer;
+// use crate::core::layer::Renderer;
 
 #[derive(Clone, Copy)]
 pub enum Direction {
@@ -8,19 +8,20 @@ pub enum Direction {
 
 /// Generic 2‑colour gradient
 pub struct Gradient {
-    a: u32,
-    b: u32,
-    dir: Direction,
+    // a: u32,
+    // b: u32,
+    // dir: Direction,
 }
 
-impl Gradient {
-    pub fn new(a: u32, b: u32, dir: Direction) -> Self {
-        Self { a, b, dir }
-    }
-}
+// impl Gradient {
+//     pub fn new(a: u32, b: u32, dir: Direction) -> Self {
+//         Self { a, b, dir }
+//     }
+// }
 
+/*
 impl Renderer for Gradient {
-    fn render(&mut self, buf: &mut [u32], (w, h): (usize, usize), _t: f32) {
+    fn render(&self, buf: &mut [u32], (w, h): (usize, usize), _t: f32) {
         match self.dir {
             Direction::Vertical => fill_vertical(buf, w, h, self.a, self.b),
             Direction::Horizontal => fill_horizontal(buf, w, h, self.a, self.b),
@@ -68,3 +69,4 @@ fn split(c: u32) -> (f32, f32, f32) {
         (c & 0xFF) as f32,
     )
 }
+*/

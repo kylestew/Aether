@@ -1,5 +1,4 @@
-pub mod composition;
-pub mod layer;
+pub mod core;
 pub mod renderers;
 
 // WASM module

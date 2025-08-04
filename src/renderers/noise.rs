@@ -15,11 +15,11 @@ impl Noise {
     }
 }
 
-impl Renderer for Noise {
-    fn render(&mut self, buf: &mut [u32], _size: (usize, usize), _t: f32) {
-        for px in buf {
-            let g = self.rng.r#gen::<u8>() as u32;
-            *px = (g << 16) | (g << 8) | g;
-        }
-    }
-}
+// impl Renderer for Noise {
+//     fn render(&mut self, buf: &mut [u32], _size: (usize, usize), _t: f32) {
+//         for px in buf {
+//             let g = self.rng.r#gen::<u8>() as u32;
+//             *px = (g << 16) | (g << 8) | g;
+//         }
+//     }
+// }
