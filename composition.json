@@ -1,16 +1,12 @@
 {
-  "layers": [
-    {
-      "type": "gradient",
-      "a": 16777215,
-      "b": 0,
-      "direction": "horizontal"
-    },
-    {
-      "type": "colorbars",
-      "direction": "vertical",
-      "blend": "screen",
-      "opacity": 1.0
-    }
-  ]
+    "layers": [
+        {
+            "blend": "screen",
+            "opacity": 0.8,
+            "renderer": {
+                "type": "Solid",
+                "rgb": "00FF00"
+            }
+        }
+    ]
 }
