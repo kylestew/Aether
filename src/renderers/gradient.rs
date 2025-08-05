@@ -1,4 +1,4 @@
-use crate::core::layer::Renderer;
+use crate::core::renderer::Renderer;
 use serde::{Deserialize, Serialize};
 use serde_with::{hex::Hex, serde_as};
 
@@ -25,7 +25,13 @@ pub struct Gradient {
 
 #[typetag::serde]
 impl Renderer for Gradient {
-    fn render(&self, _src: &[u32], dst: &mut [u32], (w, h): (usize, usize), _t: f32) {
+    fn render(
+        &self,
+        _src: &[u32],
+        dst: &mut [u32],
+        (w, h): (usize, usize),
+        _t: std::time::Duration,
+    ) {
         let color_a = pack_color(self.rgb_a);
         let color_b = pack_color(self.rgb_b);
 
@@ -53,7 +59,7 @@ mod tests {
 
         let r: Box<dyn Renderer> = serde_json::from_str(json).unwrap();
         let mut dst = vec![0u32; 3]; // horizontal strip - 3 pixels
-        r.render(&[], &mut dst, (3, 1), 0.0);
+        r.render(&[], &mut dst, (3, 1), std::time::Duration::from_secs(0));
 
         assert_eq!(
             dst,

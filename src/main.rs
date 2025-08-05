@@ -1,4 +1,4 @@
-use aether::core::{blender, composition::Composition};
+use aether::core::{composition::Composition, renderer::CompRenderer};
 
 use minifb::{Key, ScaleMode, Window, WindowOptions};
 use std::time::Instant;
@@ -17,6 +17,9 @@ fn main() {
     let json = std::fs::read_to_string(&path).expect("unable to read file");
     let comp: Composition = serde_json::from_str(&json).expect("invalid Composition JSON");
 
+    let mut size = (WIDTH, HEIGHT);
+    let mut renderer = CompRenderer::new(comp, size); // comp now owned by renderer
+
     let mut window = Window::new(
         &format!("Desktop‑Aether – {}", path),
         WIDTH,
@@ -30,37 +33,22 @@ fn main() {
     .expect("Unable to create window");
     window.set_target_fps(30);
 
-    let mut backbuffer = vec![0u32; WIDTH * HEIGHT];
-    let mut scratch = vec![0u32; WIDTH * HEIGHT];
-    let mut size = (WIDTH, HEIGHT);
     let start = Instant::now();
-
     while window.is_open() && !window.is_key_down(Key::Escape) {
         // resize bookkeeping
         let new_size = window.get_size();
         if new_size != size {
             size = new_size;
-            let cap = size.0 * size.1;
-            backbuffer.resize(cap, 0);
-            scratch.resize(cap, 0);
+            renderer.resize(size);
         }
-
-        // TODO: redo the way we composite so the buffer situation isn't exposed and
-        // duplicated in web version
 
         // ---- render ----
-        backbuffer.fill(0); // clear
-        let t = (Instant::now() - start).as_secs_f32();
-
-        // render each layer into scratch, then blend -> backbuffer
-        for layer in comp.layers() {
-            layer.renderer.render(&backbuffer, &mut scratch, size, t); // draw
-            blender::blend_into(&mut backbuffer, &scratch, layer.blend, layer.opacity); // composite
-        }
+        let t = Instant::now() - start;
+        renderer.render(t);
 
         // present
         window
-            .update_with_buffer(&backbuffer, size.0, size.1)
+            .update_with_buffer(&renderer.accumulator, size.0, size.1)
             .unwrap();
     }
 }

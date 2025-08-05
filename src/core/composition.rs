@@ -49,7 +49,13 @@ mod composition_tests {
         let back = vec![0u32; 4];
         let mut scratch = vec![0u32; 4];
         for l in &mut comp2.into_layers() {
-            l.renderer.render(&back, &mut scratch, (2, 2), 0.0);
+            l.renderer.render(
+                &back,
+                &mut scratch,
+                (2, 2),
+                std::time::Duration::from_secs(0),
+            );
+
             // aether::core::blend_into(&mut back, &scratch, l.blend, l.opacity);
         }
         // assert_eq!(back, vec![0xFF0000; 4]);

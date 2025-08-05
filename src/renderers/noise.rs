@@ -1,4 +1,4 @@
-use crate::layer::Renderer;
+use crate::core::renderer::Renderer;
 use rand::rngs::SmallRng;
 use rand::{Rng, SeedableRng};
 

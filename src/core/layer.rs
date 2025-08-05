@@ -1,14 +1,10 @@
+use crate::core::renderer::Renderer;
 use serde::{Deserialize, Serialize};
 
 /// Core layer plumbing for “Desktop‑Aether”
 ///
 /// - A `Renderer` draws into a scratch buffer into it from the compositor.
 /// ─ A `Layer` wraps that renderer plus blend/opacity settings.
-#[typetag::serde(tag = "type")]
-pub trait Renderer {
-    /// Fill `dst` with this frame’s pixels (0xRRGGBB, 8‑bit per channel).
-    fn render(&self, src: &[u32], dst: &mut [u32], size: (usize, usize), t: f32);
-}
 
 /// Porter‑Duff‑ish blend modes
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq)]
@@ -88,14 +84,18 @@ mod tests {
 
         // --- 3. functional test of renderer ---
         let mut dst = vec![0u32; 4]; // 2 × 2 pixels
-        layer.renderer.render(&[], &mut dst, (2, 2), 0.0);
+        layer
+            .renderer
+            .render(&[], &mut dst, (2, 2), std::time::Duration::from_secs(0));
 
         // screen-blend layer with a Solid { rgb: 0x00FF00 } should give pure green
         assert_eq!(dst, vec![0x00FF00; 4]);
 
         // (optional) do the same for the second copy to prove it's independent
         let mut dst2 = vec![0u32; 4];
-        layer2.renderer.render(&[], &mut dst2, (2, 2), 0.0);
+        layer2
+            .renderer
+            .render(&[], &mut dst2, (2, 2), std::time::Duration::from_secs(0));
         assert_eq!(dst2, dst);
     }
 }
