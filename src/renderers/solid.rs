@@ -1,12 +1,12 @@
 use crate::core::layer::Renderer;
 use serde::{Deserialize, Serialize};
-use serde_with::{hex, serde_as};
+use serde_with::{hex::Hex, serde_as};
 
 #[serde_as]
 #[derive(Debug, Serialize, Deserialize)]
 struct Solid {
     // packed 0xRRGGBB
-    #[serde_as(as = "hex::Hex")]
+    #[serde_as(as = "Hex")]
     rgb: [u8; 3],
 }
 

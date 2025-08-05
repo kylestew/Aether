@@ -7,6 +7,15 @@
                 "type": "Solid",
                 "rgb": "00FF00"
             }
+        },
+        {
+            "blend": "normal",
+            "opacity": 1.0,
+            "renderer": {
+                "type": "Gradient",
+                "rgb_a": "FF0000",
+                "rgb_b": "00FF00"
+            }
         }
     ]
 }
