@@ -1,8 +1,32 @@
 <html>
     <head>
         <meta content="text/html;charset=utf-8" http-equiv="Content-Type" />
+        <style>
+            body {
+                margin: 0;
+                padding: 10px;
+                font-family: monospace;
+                background: #000;
+                color: #fff;
+            }
+            #fps {
+                position: absolute;
+                top: 10px;
+                left: 10px;
+                background: rgba(0, 0, 0, 0.7);
+                padding: 4px 8px;
+                border-radius: 4px;
+                font-size: 14px;
+                z-index: 10;
+            }
+            #canvas {
+                display: block;
+                margin-top: 20px;
+            }
+        </style>
     </head>
     <body>
+        <div id="fps">FPS: --</div>
         <canvas id="canvas" height="480" width="640"></canvas>
     </body>
 </html>

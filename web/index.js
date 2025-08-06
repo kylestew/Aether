@@ -26,12 +26,23 @@ const basicConfig = {
                 rgb: 'FF00AA',
             },
         },
+        {
+            blend: 'multiply',
+            opacity: 0.5,
+            renderer: { type: 'Noise', seed: 123 },
+        },
     ],
 }
 
 let aether = new WasmAether(basicConfig, width, height)
 
 console.log('WASM Aether engine loaded and initialized successfully!')
+
+// FPS tracking
+let frameCount = 0
+let fpsTimer = performance.now()
+let currentFPS = 0
+const fpsElement = document.getElementById('fps')
 
 function draw2D(aether, ctx) {
     const w = aether.width,
@@ -42,11 +53,26 @@ function draw2D(aether, ctx) {
     const img = new ImageData(clamped, width, height)
     ctx.putImageData(img, 0, 0)
 
-    // const bytes = aether.frame() // Uint8Array view into WASM memory (RGBA8)
-    console.log('Frame data length:', bytes.length, 'bytes')
-    console.log('Expected length:', w * h * 4, 'bytes (RGBA)')
-    console.log('First few pixels:', Array.from(bytes.slice(0, 16)))
+    // FPS calculation
+    frameCount++
+    const now = performance.now()
+    const elapsed = now - fpsTimer
+
+    if (elapsed >= 1000) {
+        // Update every second
+        currentFPS = (frameCount * 1000) / elapsed
+        frameCount = 0
+        fpsTimer = now
+        fpsElement.textContent = `FPS: ${currentFPS.toFixed(1)}`
+    }
 }
 
-aether.render(0.0)
-draw2D(aether, ctx)
+function animate() {
+    const time = performance.now() / 1000.0 // Convert to seconds
+    aether.render(time)
+    draw2D(aether, ctx)
+    requestAnimationFrame(animate)
+}
+
+// Start the animation loop
+animate()
