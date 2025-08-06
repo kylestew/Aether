@@ -1,3 +1,4 @@
+use crate::core::pack_rgb;
 use crate::core::renderer::Renderer;
 use serde::{Deserialize, Serialize};
 use serde_with::{hex::Hex, serde_as};
@@ -14,7 +15,7 @@ struct Solid {
 impl Renderer for Solid {
     fn render(&self, _src: &[u32], dst: &mut [u32], _size: (u32, u32), _t: std::time::Duration) {
         let [r, g, b] = self.rgb;
-        let packed = ((r as u32) << 16) | ((g as u32) << 8) | (b as u32); // 0xRRGGBB
+        let packed = pack_rgb(r, g, b);
         dst.fill(packed);
     }
 }
@@ -29,13 +30,13 @@ mod tests {
         let json = r#"
 {
     "type": "Solid",
-    "rgb": "00FF00"
+    "rgb": "66AAFF"
 }"#;
 
         let r: Box<dyn Renderer> = serde_json::from_str(json).unwrap();
         let mut dst = vec![0u32; 4];
         r.render(&[], &mut dst, (2, 2), std::time::Duration::from_secs(0));
 
-        assert_eq!(dst, vec![0x00FF00; 4]);
+        assert_eq!(dst, vec![0x0066AAFF; 4]);
     }
 }

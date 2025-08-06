@@ -89,7 +89,7 @@ mod tests {
             .render(&[], &mut dst, (2, 2), std::time::Duration::from_secs(0));
 
         // screen-blend layer with a Solid { rgb: 0x00FF00 } should give pure green
-        assert_eq!(dst, vec![0x00FF00; 4]);
+        assert_eq!(dst, vec![0x0000FF00; 4]);
 
         // (optional) do the same for the second copy to prove it's independent
         let mut dst2 = vec![0u32; 4];

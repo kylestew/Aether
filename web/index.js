@@ -19,11 +19,11 @@ const height = canvas.height
 const basicConfig = JSON.stringify({
     layers: [
         {
-            blend: 'screen',
+            blend: 'normal',
             opacity: 1.0,
             renderer: {
                 type: 'Solid',
-                rgb: 'FF00FF',
+                rgb: 'FF00AA',
             },
         },
     ],
@@ -37,20 +37,19 @@ let aether = new WasmAether(basicConfig, width, height)
 
 console.log('WASM Aether engine loaded and initialized successfully!')
 
-function draw2D(aether, ctx2d) {
+function draw2D(aether, ctx) {
     const w = aether.width,
         h = aether.height
 
-    const u8 = aether.frame() // Uint8Array view into WASM memory (RGBA8)
-    console.log('Frame data length:', u8.length, 'bytes')
-    console.log('Expected length:', w * h * 4, 'bytes (RGBA)')
-    console.log('First few pixels:', Array.from(u8.slice(0, 16)))
+    const bytes = aether.frame() // Uint8Array view into WASM memory (no copy)
+    const clamped = new Uint8ClampedArray(bytes.buffer, bytes.byteOffset, bytes.byteLength)
+    const img = new ImageData(clamped, width, height)
+    ctx.putImageData(img, 0, 0)
 
-    // ImageData needs Uint8ClampedArray; make a view without copying the bytes
-    const clamped = new Uint8ClampedArray(u8.buffer, u8.byteOffset, u8.byteLength)
-    const img = new ImageData(clamped, w, h)
-    ctx2d.putImageData(img, 0, 0)
-    console.log('Frame drawn to canvas')
+    // const bytes = aether.frame() // Uint8Array view into WASM memory (RGBA8)
+    console.log('Frame data length:', bytes.length, 'bytes')
+    console.log('Expected length:', w * h * 4, 'bytes (RGBA)')
+    console.log('First few pixels:', Array.from(bytes.slice(0, 16)))
 }
 
 aether.render(0.0)

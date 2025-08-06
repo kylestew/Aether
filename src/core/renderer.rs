@@ -3,7 +3,7 @@ use std::time::Duration;
 
 #[typetag::serde(tag = "type")]
 pub trait Renderer {
-    /// Fill `dst` with this frame’s pixels (0xRRGGBB, 8‑bit per channel).
+    /// Fill `dst` with this frame’s pixels (0xRRGGBBAA, 8‑bit per channel).
     fn render(&self, src: &[u32], dst: &mut [u32], size: (u32, u32), t: Duration);
 }
 

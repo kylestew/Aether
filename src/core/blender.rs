@@ -1,16 +1,14 @@
 use crate::core::layer::Blend;
+use crate::core::{pack_rgb, split_rgb};
 
-/// Composite `src` over `dst` according to `mode` and `opacity`.
-/// Both slices must be the same length (width × height).
 pub fn blend_into(dst: &mut [u32], src: &[u32], mode: Blend, opacity: f32) {
     debug_assert_eq!(dst.len(), src.len());
     let alpha = (opacity.clamp(0.0, 1.0) * 255.0).round() as u32;
 
     for (d, &s) in dst.iter_mut().zip(src.iter()) {
-        let (dr, dg, db) = split(*d);
-        let (sr, sg, sb) = split(s);
+        let (dr, dg, db) = split_rgb(*d);
+        let (sr, sg, sb) = split_rgb(s);
 
-        // --- blend mode math ---
         let (mr, mg, mb) = match mode {
             Blend::Normal => (sr, sg, sb),
             Blend::Multiply => (sr * dr / 255, sg * dg / 255, sb * db / 255),
@@ -21,30 +19,20 @@ pub fn blend_into(dst: &mut [u32], src: &[u32], mode: Blend, opacity: f32) {
             ),
         };
 
-        // --- alpha composite (src already has its own opacity) ---
-        *d = pack(
-            lerp(dr, mr, alpha),
-            lerp(dg, mg, alpha),
-            lerp(db, mb, alpha),
+        *d = pack_rgb(
+            lerp8_clamped(dr, mr, alpha),
+            lerp8_clamped(dg, mg, alpha),
+            lerp8_clamped(db, mb, alpha),
         );
     }
 }
 
-/* ----------------------------- tiny helpers ----------------------------- */
-
+/// Exact integer lerp with alpha in 0..=255
 #[inline]
-fn split(c: u32) -> (u32, u32, u32) {
-    ((c >> 16) & 0xFF, (c >> 8) & 0xFF, c & 0xFF)
-}
-
-#[inline]
-fn pack(r: u32, g: u32, b: u32) -> u32 {
-    (r << 16) | (g << 8) | b
-}
-
-/// Integer lerp: alpha in 0‑255.  No overflow possible.
-#[inline]
-fn lerp(a: u32, b: u32, alpha: u32) -> u32 {
-    //  (a * (255‑α) + b * α) / 255
-    (a * (255 - alpha) + b * alpha) >> 8
+fn lerp8_clamped(a: u32, b: u32, alpha: u32) -> u8 {
+    let a = a.min(255) as u16;
+    let b = b.min(255) as u16;
+    let alpha = alpha.min(255) as u16;
+    let num = a * (255 - alpha) + b * alpha;
+    ((num + 127) / 255) as u8
 }

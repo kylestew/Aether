@@ -84,21 +84,13 @@ impl WasmAether {
         self.renderer.render(t);
     }
 
-    /// RGBA8 view of the current frame
+    /// RGBA8 view of the current frame (zero-copy)
     #[wasm_bindgen(js_name = frame)]
-    pub fn frame_view(&mut self) -> Uint8Array {
-        // TODO: CAST don't copy!
-
-        // Convert u32 RGB to RGBA8 bytes
-        for (i, &pixel) in self.renderer.accumulator.iter().enumerate() {
-            let base = i * 4;
-            self.rgba_buffer[base] = ((pixel >> 16) & 0xFF) as u8; // R
-            self.rgba_buffer[base + 1] = ((pixel >> 8) & 0xFF) as u8; // G
-            self.rgba_buffer[base + 2] = (pixel & 0xFF) as u8; // B
-            self.rgba_buffer[base + 3] = 255; // A (fully opaque)
-        }
-
-        // SAFETY: rgba_buffer is stable until next frame_view call
-        unsafe { Uint8Array::view(&self.rgba_buffer) }
+    pub fn frame_view(&self) -> Uint8Array {
+        // Cast &[u32] -> &[u8] (no copy). bytemuck is nice, or do it manually.
+        let bytes: &[u8] = bytemuck::cast_slice(&self.renderer.accumulator);
+        // SAFETY: the slice lives as long as `self`; caller must not hold the view
+        // across `render`/`resize` that could reallocate `accumulator`.
+        unsafe { Uint8Array::view(bytes) }
     }
 }
