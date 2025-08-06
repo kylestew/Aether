@@ -38,13 +38,13 @@ pub struct WasmAether {
 
 #[wasm_bindgen]
 impl WasmAether {
-    /// Create a new Aether instance from JSON
+    /// Create a new Aether instance from a JavaScript object
     #[wasm_bindgen(constructor)]
-    pub fn new(json: &str, width: u32, height: u32) -> Result<WasmAether, JsValue> {
+    pub fn new(config: JsValue, width: u32, height: u32) -> Result<WasmAether, JsValue> {
         console_log!("Creating WasmAether {}x{}", width, height);
 
-        let comp: Composition = serde_json::from_str(json)
-            .map_err(|e| JsValue::from_str(&format!("JSON parse error: {}", e)))?;
+        let comp: Composition = serde_wasm_bindgen::from_value(config)
+            .map_err(|e| JsValue::from_str(&format!("Config parse error: {}", e)))?;
 
         let size = (width, height);
         let renderer = CompRenderer::new(comp, size); // comp now owned by renderer

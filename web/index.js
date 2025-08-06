@@ -15,8 +15,8 @@ if (!ctx) {
 const width = canvas.width
 const height = canvas.height
 
-// Create a basic Aether configuration
-const basicConfig = JSON.stringify({
+// Create a basic Aether configuration as a plain JS object
+const basicConfig = {
     layers: [
         {
             blend: 'normal',
@@ -27,11 +27,7 @@ const basicConfig = JSON.stringify({
             },
         },
     ],
-})
-
-// Create WasmAether instance
-console.log('Creating WasmAether with config:', basicConfig)
-console.log('Canvas dimensions:', width, 'x', height)
+}
 
 let aether = new WasmAether(basicConfig, width, height)
 
