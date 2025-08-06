@@ -4,13 +4,13 @@ use std::time::Duration;
 #[typetag::serde(tag = "type")]
 pub trait Renderer {
     /// Fill `dst` with this frame’s pixels (0xRRGGBB, 8‑bit per channel).
-    fn render(&self, src: &[u32], dst: &mut [u32], size: (usize, usize), t: Duration);
+    fn render(&self, src: &[u32], dst: &mut [u32], size: (u32, u32), t: Duration);
 }
 
 pub struct CompRenderer {
     composition: Composition,
 
-    size: (usize, usize),
+    size: (u32, u32),
 
     /// Accumulates the composited result for the current frame.
     pub accumulator: Vec<u32>,
@@ -19,8 +19,9 @@ pub struct CompRenderer {
 }
 
 impl CompRenderer {
-    pub fn new(composition: Composition, size: (usize, usize)) -> Self {
-        let (w, h) = size;
+    pub fn new(composition: Composition, size: (u32, u32)) -> Self {
+        let w = size.0 as usize;
+        let h = size.1 as usize;
         Self {
             composition,
             size,
@@ -29,15 +30,15 @@ impl CompRenderer {
         }
     }
 
-    pub fn resize(&mut self, size: (usize, usize)) {
+    pub fn resize(&mut self, size: (u32, u32)) {
         self.size = size;
-        let cap = size.0 * size.1;
+        let cap = size.0 as usize * size.1 as usize;
         self.accumulator.resize(cap, 0);
         self.scratch.resize(cap, 0);
     }
 
     pub fn render(&mut self, t: Duration) {
-        let cap = self.size.0 * self.size.1;
+        let cap = self.size.0 as usize * self.size.1 as usize;
         debug_assert_eq!(self.accumulator.len(), cap);
         debug_assert_eq!(self.scratch.len(), cap);
 

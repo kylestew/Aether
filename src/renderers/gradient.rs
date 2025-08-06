@@ -25,19 +25,13 @@ pub struct Gradient {
 
 #[typetag::serde]
 impl Renderer for Gradient {
-    fn render(
-        &self,
-        _src: &[u32],
-        dst: &mut [u32],
-        (w, h): (usize, usize),
-        _t: std::time::Duration,
-    ) {
+    fn render(&self, _src: &[u32], dst: &mut [u32], (w, h): (u32, u32), _t: std::time::Duration) {
         let color_a = pack_color(self.rgb_a);
         let color_b = pack_color(self.rgb_b);
 
         match self.direction {
-            Direction::Vertical => fill_vertical(dst, w, h, color_a, color_b),
-            Direction::Horizontal => fill_horizontal(dst, w, h, color_a, color_b),
+            Direction::Vertical => fill_vertical(dst, w as usize, h as usize, color_a, color_b),
+            Direction::Horizontal => fill_horizontal(dst, w as usize, h as usize, color_a, color_b),
         }
     }
 }

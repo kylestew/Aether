@@ -18,7 +18,7 @@ fn main() {
     let comp: Composition = serde_json::from_str(&json).expect("invalid Composition JSON");
 
     let mut size = (WIDTH, HEIGHT);
-    let mut renderer = CompRenderer::new(comp, size); // comp now owned by renderer
+    let mut renderer = CompRenderer::new(comp, (size.0 as u32, size.1 as u32)); // comp now owned by renderer
 
     let mut window = Window::new(
         &format!("Desktop‑Aether – {}", path),
@@ -39,7 +39,7 @@ fn main() {
         let new_size = window.get_size();
         if new_size != size {
             size = new_size;
-            renderer.resize(size);
+            renderer.resize((size.0 as u32, size.1 as u32));
         }
 
         // ---- render ----

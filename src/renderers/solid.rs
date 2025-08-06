@@ -12,13 +12,7 @@ struct Solid {
 
 #[typetag::serde]
 impl Renderer for Solid {
-    fn render(
-        &self,
-        _src: &[u32],
-        dst: &mut [u32],
-        _size: (usize, usize),
-        _t: std::time::Duration,
-    ) {
+    fn render(&self, _src: &[u32], dst: &mut [u32], _size: (u32, u32), _t: std::time::Duration) {
         let [r, g, b] = self.rgb;
         let packed = ((r as u32) << 16) | ((g as u32) << 8) | (b as u32); // 0xRRGGBB
         dst.fill(packed);
