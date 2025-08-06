@@ -7,6 +7,11 @@
                 "type": "Solid",
                 "rgb": "FF00AA"
             }
+        },
+        {
+            "blend": "multiply",
+            "opacity": 0.5,
+            "renderer": { "type": "Noise", "seed": 123 }
         }
     ]
 }
