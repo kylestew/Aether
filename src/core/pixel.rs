@@ -17,6 +17,10 @@ pub fn pack_rgb(r: u8, g: u8, b: u8) -> u32 {
 }
 #[cfg(not(target_arch = "wasm32"))]
 #[inline]
-pub fn split_rgb(c: u32) -> (u32, u32, u32) {
-    ((c >> 16) & 0xFF, (c >> 8) & 0xFF, c & 0xFF)
+pub fn split_rgb(c: u32) -> (u8, u8, u8) {
+    (
+        ((c >> 16) & 0xFF) as u8,
+        ((c >> 8) & 0xFF) as u8,
+        (c & 0xFF) as u8,
+    )
 }

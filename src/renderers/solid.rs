@@ -1,5 +1,4 @@
-use crate::core::pack_rgb;
-use crate::core::renderer::Renderer;
+use crate::core::{pack_rgb, renderer::Renderer};
 use serde::{Deserialize, Serialize};
 use serde_with::{hex::Hex, serde_as};
 
