@@ -4,4 +4,4 @@ pub mod layer;
 pub mod pixel;
 pub mod renderer;
 
-pub use pixel::{pack_rgb, split_rgb};
+pub use pixel::{pack_rgb, unpack_rgb};

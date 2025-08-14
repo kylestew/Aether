@@ -1,4 +1,4 @@
-use crate::core::{pack_rgb, renderer::Renderer, split_rgb};
+use crate::core::{pack_rgb, renderer::Renderer, unpack_rgb};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -8,7 +8,7 @@ struct Invert;
 impl Renderer for Invert {
     fn render(&self, src: &[u32], dst: &mut [u32], _size: (u32, u32), _t: std::time::Duration) {
         for (s, d) in src.iter().zip(dst.iter_mut()) {
-            let (r, g, b) = invert(split_rgb(*s));
+            let (r, g, b) = invert(unpack_rgb(*s));
             *d = pack_rgb(r, g, b);
         }
     }

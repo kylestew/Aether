@@ -13,6 +13,7 @@ pub enum Blend {
     Normal,
     Multiply,
     Screen,
+    Overlay,
 }
 
 /// A layer = renderer + compositing parameters.
@@ -57,6 +58,23 @@ mod tests {
 
         let layer: Layer = serde_json::from_str(json).unwrap();
         assert_eq!(layer.blend, Blend::Screen);
+    }
+
+    #[test]
+    fn overlay_blend_deserialize() {
+        let json = r#"
+{
+    "blend": "overlay",
+    "opacity": 0.8,
+    "renderer": {
+        "type": "Solid",
+        "rgb": "FF0000"
+    }
+}"#;
+
+        let layer: Layer = serde_json::from_str(json).unwrap();
+        assert_eq!(layer.blend, Blend::Overlay);
+        assert!(feq(layer.opacity, 0.8));
     }
 
     #[test]

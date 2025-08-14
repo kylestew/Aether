@@ -4,3 +4,4 @@ pub mod image;
 pub mod invert;
 pub mod noise;
 pub mod solid;
+pub mod threshold;

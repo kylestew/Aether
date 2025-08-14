@@ -10,9 +10,10 @@ fn main() {
     /* ---------------------------------------------------------------
      * 1.  Load the JSON file passed as first CLI arg
      * ------------------------------------------------------------- */
-    let path = std::env::args()
+    // Use CLI arg if present, else "default.json"
+    let path: String = std::env::args()
         .nth(1)
-        .expect("Usage: cargo run -- <file.json>");
+        .unwrap_or_else(|| "default.json".to_string());
 
     let json = std::fs::read_to_string(&path).expect("unable to read file");
     let comp: Composition = serde_json::from_str(&json).expect("invalid Composition JSON");
